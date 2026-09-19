@@ -1,9 +1,9 @@
 #pragma once
-class SceneMain
+class GameScene
 {
 public:
-	SceneMain();
-	~SceneMain();
+	GameScene();
+	~GameScene();
 
 	void Init();
 	void Update();

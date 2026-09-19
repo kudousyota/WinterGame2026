@@ -3,7 +3,7 @@
 
 #include <memory> //シェアードポイント
 
-#include "SceneMain.h"
+#include "GameScene.h"
 //定数定義
 namespace
 {
@@ -32,7 +32,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// カリングの設定
 	SetUseBackCulling(true);
 	//シーンの作成
-	std::shared_ptr<SceneMain>pScene = std::make_shared<SceneMain>();
+	std::shared_ptr<GameScene>pScene = std::make_shared<GameScene>();
 	pScene->Init();
 
 	

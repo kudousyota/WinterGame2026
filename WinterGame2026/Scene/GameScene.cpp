@@ -1,22 +1,22 @@
-#include "SceneMain.h"
+#include "GameScene.h"
 #include "DxLib.h"
 
-SceneMain::SceneMain():
+GameScene::GameScene():
 m_frameCount(0)
 {
 }
 
-SceneMain::~SceneMain()
+GameScene::~GameScene()
 {
 }
 
-void SceneMain::Init()
+void GameScene::Init()
 {
-	// Zバッファの設定
-	SetUseZBuffer3D(true);	// Zバッファを使います
-	SetWriteZBuffer3D(true);	// 描画する物体はZバッファにも距離を書き込む
+	//Zバッファの設定
+	SetUseZBuffer3D(true);//Zバッファを使います
+	SetWriteZBuffer3D(true);//描画する物体はZバッファにも距離を書き込む
 
-	// カメラの設定
+	//カメラの設定
 	SetCameraPositionAndTarget_UpVecY(VGet(0.0f, 300.0f, -700.0f), VGet(0.0f, 0.0f, 0.0f));
 	SetupCamera_Perspective(DX_PI_F / 3.0f);
 	SetCameraNearFar(200.0f, 1500.0f);
@@ -24,21 +24,24 @@ void SceneMain::Init()
 
 }
 
-void SceneMain::Update()
+void GameScene::Update()
 {
 	m_frameCount++;
 }
 
-void SceneMain::Draw()
+void GameScene::Draw()
 {
+#ifdef _DEBUG
 	DrawGrid();
-	DrawString(0, 0, "SceneMain", GetColor(255, 255, 255));
+	DrawString(0, 0, "GameScene", GetColor(255, 255, 255));
 	DrawFormatString(0, 16, GetColor(255, 255, 255), "FRAME:%d", m_frameCount);
+#endif // _DEBUG
+
 }
 
-void SceneMain::DrawGrid()
+void GameScene::DrawGrid()
 {
-	// 直線の始点と終点
+	//直線の始点と終点
 	VECTOR startPos;
 	VECTOR endPos;
 
