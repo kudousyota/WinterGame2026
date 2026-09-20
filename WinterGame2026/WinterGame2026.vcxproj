@@ -139,12 +139,14 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Math\Vector3.cpp" />
     <ClCompile Include="Scene\GameScene.cpp" />
+    <ClCompile Include="StatusData.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Character.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Math\Vector3.h" />
     <ClInclude Include="Scene\GameScene.h" />
+    <ClInclude Include="StatusData.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
