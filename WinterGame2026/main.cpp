@@ -1,37 +1,37 @@
-#include "DxLib.h"
+ï»¿#include "DxLib.h"
 #include "Game.h"
 
-#include <memory> //ƒVƒFƒA[ƒhƒ|ƒCƒ“ƒg
+#include <memory> //ã‚·ã‚§ã‚¢ãƒ¼ãƒ‰ãƒã‚¤ãƒ³ãƒˆ
 
 #include "GameScene.h"
-//’è”’è‹`
+//å®šæ•°å®šç¾©
 namespace
 {
-	//‰æ–ÊƒTƒCƒY
+	//ç”»é¢ã‚µã‚¤ã‚º
 	constexpr int kScreenWidth = 1280;
 	constexpr int kScreenHeight = 720;
 }
 
 
-// ƒvƒƒOƒ‰ƒ€‚Í WinMain ‚©‚çn‚Ü‚è‚Ü‚·
+// ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã¯ WinMain ã‹ã‚‰å§‹ã¾ã‚Šã¾ã™
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-	//ƒEƒBƒ“ƒhƒEƒ‚[ƒhİ’è
+	//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒ¢ãƒ¼ãƒ‰è¨­å®š
 	ChangeWindowMode(true);
-	//ƒ^ƒCƒgƒ‹•ÏX
-	SetMainWindowText("ƒQ[ƒ€–¼");
-	//‰æ–Ê‚ÌƒTƒCƒY•ÏX
+	//ã‚¿ã‚¤ãƒˆãƒ«å¤‰æ›´
+	SetMainWindowText("ã‚²ãƒ¼ãƒ å");
+	//ç”»é¢ã®ã‚µã‚¤ã‚ºå¤‰æ›´
 	SetGraphMode(Game::kScreenWidth, Game::kScreenHeight, Game::kColorBitNum);
-	if (DxLib_Init() == -1)		// ‚c‚wƒ‰ƒCƒuƒ‰ƒŠ‰Šú‰»ˆ—
+	if (DxLib_Init() == -1)		// ï¼¤ï¼¸ãƒ©ã‚¤ãƒ–ãƒ©ãƒªåˆæœŸåŒ–å‡¦ç†
 	{
-		return -1;			// ƒGƒ‰[‚ª‹N‚«‚½‚ç’¼‚¿‚ÉI—¹
+		return -1;			// ã‚¨ãƒ©ãƒ¼ãŒèµ·ããŸã‚‰ç›´ã¡ã«çµ‚äº†
 	}
 
-	//•`‰æ‘ÎÛ‚ğƒoƒbƒNƒoƒbƒtƒ@‚É•ÏX
+	//æç”»å¯¾è±¡ã‚’ãƒãƒƒã‚¯ãƒãƒƒãƒ•ã‚¡ã«å¤‰æ›´
 	SetDrawScreen(DX_SCREEN_BACK);
-	// ƒJƒŠƒ“ƒO‚Ìİ’è
+	// ã‚«ãƒªãƒ³ã‚°ã®è¨­å®š
 	SetUseBackCulling(true);
-	//ƒV[ƒ“‚Ìì¬
+	//ã‚·ãƒ¼ãƒ³ã®ä½œæˆ
 	std::shared_ptr<GameScene>pScene = std::make_shared<GameScene>();
 	pScene->Init();
 
@@ -40,27 +40,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	while (ProcessMessage() != -1)
 	{
-		//‚±‚ÌƒtƒŒ[ƒ€‚ÌŠJnŠÔ‚ğæ“¾
+		//ã“ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã®é–‹å§‹æ™‚é–“ã‚’å–å¾—
 		LONGLONG start = GetNowHiPerformanceCount();
 
 
-		//‘O‚ÌƒtƒŒ[ƒ€‚É•`‰æ‚µ‚½“à—e‚ğƒNƒŠƒA‚·‚é
+		//å‰ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã«æç”»ã—ãŸå†…å®¹ã‚’ã‚¯ãƒªã‚¢ã™ã‚‹
 		ClearDrawScreen();
 
-		//‚±‚±‚ÉƒQ[ƒ€‚Ìˆ—‚ğ‘‚­
+		//ã“ã“ã«ã‚²ãƒ¼ãƒ ã®å‡¦ç†ã‚’æ›¸ã
 		pScene->Update();
 
 		pScene->Draw();
 
-		//escƒL[‚ğ‰Ÿ‚·‚ÆƒQ[ƒ€‚ğ‹­§I—¹
+		//escã‚­ãƒ¼ã‚’æŠ¼ã™ã¨ã‚²ãƒ¼ãƒ ã‚’å¼·åˆ¶çµ‚äº†
 		if (CheckHitKey(KEY_INPUT_ESCAPE))
 		{
 			break;
 		}
-		//•`‰æ‚µ‚½“à—e‚ğ‰æ–Ê‚É”½‰f‚·‚é
+		//æç”»ã—ãŸå†…å®¹ã‚’ç”»é¢ã«åæ˜ ã™ã‚‹
 		ScreenFlip();
 
-		//ƒtƒŒ[ƒ€ƒŒ[ƒg‚U‚O‚ÉŒÅ’è
+		//ãƒ•ãƒ¬ãƒ¼ãƒ ãƒ¬ãƒ¼ãƒˆï¼–ï¼ã«å›ºå®š
 		while (GetNowHiPerformanceCount() - start < 16667)
 		{
 
@@ -68,13 +68,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	}
 	
-	//ƒƒ‚ƒŠ‚Ì‰ğ•ú
+	//ãƒ¡ãƒ¢ãƒªã®è§£æ”¾
 
 	
-	//shared_ptr‚Íƒƒ‚ƒŠ‚ÌŠJ•ú‚ğ©“®‚Å‚â‚Á‚Ä‚­‚ê‚é
+	//shared_ptrã¯ãƒ¡ãƒ¢ãƒªã®é–‹æ”¾ã‚’è‡ªå‹•ã§ã‚„ã£ã¦ãã‚Œã‚‹
 
 
-	DxLib_End();				// ‚c‚wƒ‰ƒCƒuƒ‰ƒŠg—p‚ÌI—¹ˆ—
+	DxLib_End();				// ï¼¤ï¼¸ãƒ©ã‚¤ãƒ–ãƒ©ãƒªä½¿ç”¨ã®çµ‚äº†å‡¦ç†
 
-	return 0;				// ƒ\ƒtƒg‚ÌI—¹ 
+	return 0;				// ã‚½ãƒ•ãƒˆã®çµ‚äº† 
 }

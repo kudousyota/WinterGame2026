@@ -1,17 +1,17 @@
-#include "StatusData.h"
+ï»¿#include "StatusData.h"
 #include <cassert>
 
 void StatusData::Load(const CsvTable& table)
 {
-	//æ‚ÉƒNƒŠƒA‚µ‚Æ‚­
+	//å…ˆã«ã‚¯ãƒªã‚¢ã—ã¨ã
 	m_infoList.clear();
 	for (int row = 0; row < table.GetRowNum(); row++)
 	{
-		//—ñ–¼‚Å“Ç‚Ş‚Ì‚ÅACSV‚Ì—ñ‚Ì‡”Ô‚ª•Ï‚í‚Á‚Ä‚à—ñ‚ª‘‚¦‚Ä‚à‘åä•v
+		//åˆ—åã§èª­ã‚€ã®ã§ã€CSVã®åˆ—ã®é †ç•ªãŒå¤‰ã‚ã£ã¦ã‚‚åˆ—ãŒå¢—ãˆã¦ã‚‚å¤§ä¸ˆå¤«
 		StatusInfo info;
 		info.characterName = table.GetString(row, "name");
 		info.attackPower = table.GetInt(row, "attackPower");
-		//hp‚ÍŒ¸‚Á‚Ä‚¢‚­‚Ì‚Å“Ç‚Ü‚È‚¢(maxhp‚Å‰Šú‰»‚·‚é)
+		//hpã¯æ¸›ã£ã¦ã„ãã®ã§èª­ã¾ãªã„(maxhpã§åˆæœŸåŒ–ã™ã‚‹)
 		info.maxhp = table.GetInt(row, "maxhp");
 		info.speed = table.GetFloat(row, "speed");
 
@@ -22,6 +22,6 @@ void StatusData::Load(const CsvTable& table)
 const StatusData::StatusInfo& StatusData::GetStatus(const std::string& name) const
 {
 	auto list = m_infoList.find(name);
-	assert(list != m_infoList.end() && "ƒXƒe[ƒ^ƒX‚ªŒ©‚Â‚©‚ç‚È‚¢");
+	assert(list != m_infoList.end() && "ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãŒè¦‹ã¤ã‹ã‚‰ãªã„");
 	return list->second;
 }

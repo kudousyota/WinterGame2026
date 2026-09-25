@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "Vector3.h"
 
 class Character
@@ -11,40 +11,40 @@ public:
 	virtual void Update();
 	virtual void Draw();
 
-	//ƒ_ƒ[ƒW
+	//ãƒ€ãƒ¡ãƒ¼ã‚¸
 	virtual void Damage(int damage);
 
-	//€–S”»’è
+	//æ­»äº¡åˆ¤å®š
 	bool IsDead()const;
 
 private:
-	//ˆÊ’u
+	//ä½ç½®
 	Vector3 m_pos;
-	//‘O
+	//å‰
 	Vector3 m_forward;
-	//Œü‚«
+	//å‘ã
 	Vector3 m_velocity;
-	//ƒXƒs[ƒh
+	//ã‚¹ãƒ”ãƒ¼ãƒ‰
 	float m_speed;
-	//d—Í
+	//é‡åŠ›
 	float m_gravity;
 
-	//ƒXƒe[ƒ^ƒX
+	//ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹
 	//HP
 	int m_hp;
-	//HP‚ÌÅ‘å’l
+	//HPã®æœ€å¤§å€¤
 	int m_maxhp;
-	//UŒ‚—Í
-	//int m_attackPower;//‚½‚Ô‚ñƒAƒ^ƒbƒNƒf[ƒ^‚Ì•û‚É“ü‚ê‚é
+	//æ”»æ’ƒåŠ›
+	//int m_attackPower;//ãŸã¶ã‚“ã‚¢ã‚¿ãƒƒã‚¯ãƒ‡ãƒ¼ã‚¿ã®æ–¹ã«å…¥ã‚Œã‚‹
 	
-	//ó‘Ô
-	//¡’n–Ê‚É‚¢‚é‚©
+	//çŠ¶æ…‹
+	//ä»Šåœ°é¢ã«ã„ã‚‹ã‹
 	bool m_isGround;
-	//¡ƒ_ƒ[ƒW‚ğH‚ç‚Á‚Ä‚¢‚é‚©
+	//ä»Šãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’é£Ÿã‚‰ã£ã¦ã„ã‚‹ã‹
 	bool m_isDamage;
-	//–³“G’†
+	//ç„¡æ•µä¸­
 	bool m_isInvincible;
-	//€–S‚µ‚Ä‚¢‚é‚©
+	//æ­»äº¡ã—ã¦ã„ã‚‹ã‹
 	bool m_isDead;
 
 };

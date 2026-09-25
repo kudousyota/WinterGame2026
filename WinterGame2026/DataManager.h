@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <vector>
 #include <string>
 #include "StatusData.h"
@@ -12,31 +12,31 @@ public:
 		return instance;
 	}
 
-	//ƒf[ƒ^‚Ì“Ç‚İ‚İ
+	//ãƒ‡ãƒ¼ã‚¿ã®èª­ã¿è¾¼ã¿
 	void LoadData();
 
-	//“G‚ÌƒXƒ|[ƒ“ƒf[ƒ^‚ğ•Ô‚·
+	//æ•µã®ã‚¹ãƒãƒ¼ãƒ³ãƒ‡ãƒ¼ã‚¿ã‚’è¿”ã™
 	//const CsvTable& GetSpawnData() const { return m_spawnData; }
 
-	//ƒLƒƒƒ‰ƒNƒ^[‚ÌƒXƒe[ƒ^ƒXƒf[ƒ^‚ğ•Ô‚·
+	//ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã®ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãƒ‡ãƒ¼ã‚¿ã‚’è¿”ã™
 	const StatusData& GetStatusData() const { return m_statusData; }
 
 private:
-	//ƒRƒ“ƒXƒgƒ‰ƒNƒ^‚ğ”ñŒöŠJ‚É‚µ‚ÄƒVƒ“ƒOƒ‹ƒgƒ“‚ğÀŒ»
+	//ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã‚’éå…¬é–‹ã«ã—ã¦ã‚·ãƒ³ã‚°ãƒ«ãƒˆãƒ³ã‚’å®Ÿç¾
 	DataManager() = default;
 	~DataManager() = default;
 	DataManager(const DataManager&) = delete;
 	DataManager& operator=(const DataManager&) = delete;
 
-	//“G‚ÌoŒ»ƒf[ƒ^‚ğƒ[ƒh‚·‚é
+	//æ•µã®å‡ºç¾ãƒ‡ãƒ¼ã‚¿ã‚’ãƒ­ãƒ¼ãƒ‰ã™ã‚‹
 	//void LoadSpawnData();
 
-	//ƒLƒƒƒ‰ƒNƒ^[‚ÌƒXƒe[ƒ^ƒXƒf[ƒ^‚ğƒ[ƒh‚·‚é
+	//ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã®ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãƒ‡ãƒ¼ã‚¿ã‚’ãƒ­ãƒ¼ãƒ‰ã™ã‚‹
 	void LoadStatusData();
 
-	//“G‚ÌoŒ»ƒf[ƒ^
+	//æ•µã®å‡ºç¾ãƒ‡ãƒ¼ã‚¿
 	//CsvTable m_spawnData;
 
-	//ƒLƒƒƒ‰ƒNƒ^[‚ÌƒXƒe[ƒ^ƒXƒf[ƒ^
+	//ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã®ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãƒ‡ãƒ¼ã‚¿
 	StatusData m_statusData;
 };

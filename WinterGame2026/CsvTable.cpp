@@ -1,4 +1,4 @@
-#include "CsvTable.h"
+ï»¿#include "CsvTable.h"
 #include <Windows.h>
 #include <fstream>
 #include <sstream>
@@ -7,7 +7,7 @@
 
 namespace
 {
-	//‘OŒã‚Ì‹ó”’‚ğæ‚èœ‚­
+	//å‰å¾Œã®ç©ºç™½ã‚’å–ã‚Šé™¤ã
 	std::string Trim(const std::string& str)
 	{
 		const char* kSpace = " \t";
@@ -20,7 +20,7 @@ namespace
 		return str.substr(begin, end - begin + 1);
 	}
 
-	//1s‚ğƒJƒ“ƒ}‚Å•ªŠ„‚·‚é
+	//1è¡Œã‚’ã‚«ãƒ³ãƒã§åˆ†å‰²ã™ã‚‹
 	std::vector<std::string> Split(const std::string& line)
 	{
 		std::vector<std::string> tokens;
@@ -36,7 +36,7 @@ namespace
 
 void CsvTable::Load(const std::string& path)
 {
-	//æ‚ÉƒNƒŠƒA‚µ‚Æ‚­
+	//å…ˆã«ã‚¯ãƒªã‚¢ã—ã¨ã
 	m_path = path;
 	m_columnIndex.clear();
 	m_rows.clear();
@@ -45,7 +45,7 @@ void CsvTable::Load(const std::string& path)
 	std::ifstream file(path);
 	if (!file.is_open())
 	{
-		ReportError(-1, "", "CSVƒtƒ@ƒCƒ‹‚ªŠJ‚¯‚È‚¢");
+		ReportError(-1, "", "CSVãƒ•ã‚¡ã‚¤ãƒ«ãŒé–‹ã‘ãªã„");
 		return;
 	}
 
@@ -56,12 +56,12 @@ void CsvTable::Load(const std::string& path)
 	{
 		lineNumber++;
 
-		//Windows‰üs‘Îô
+		//Windowsæ”¹è¡Œå¯¾ç­–
 		if (!line.empty() && line.back() == '\r')
 		{
 			line.pop_back();
 		}
-		//Excel‚ÅUTF-8•Û‘¶‚µ‚½‚Æ‚«‚Éæ“ª‚É•t‚­BOM‚ğæ‚èœ‚­
+		//Excelã§UTF-8ä¿å­˜ã—ãŸã¨ãã«å…ˆé ­ã«ä»˜ãBOMã‚’å–ã‚Šé™¤ã
 		if (lineNumber == 1 && line.compare(0, 3, "\xEF\xBB\xBF") == 0)
 		{
 			line.erase(0, 3);
@@ -71,7 +71,7 @@ void CsvTable::Load(const std::string& path)
 			continue;
 		}
 
-		//Å‰‚Ìs‚Íƒwƒbƒ_[(—ñ–¼)
+		//æœ€åˆã®è¡Œã¯ãƒ˜ãƒƒãƒ€ãƒ¼(åˆ—å)
 		if (!isHeaderRead)
 		{
 			if (line[0] == '#')
@@ -87,7 +87,7 @@ void CsvTable::Load(const std::string& path)
 				}
 				if (m_columnIndex.count(columns[i]) > 0)
 				{
-					ReportError(-1, columns[i], "—ñ–¼‚ªd•¡‚µ‚Ä‚¢‚é");
+					ReportError(-1, columns[i], "åˆ—åãŒé‡è¤‡ã—ã¦ã„ã‚‹");
 					continue;
 				}
 				m_columnIndex[columns[i]] = i;
@@ -96,7 +96,7 @@ void CsvTable::Load(const std::string& path)
 			continue;
 		}
 
-		//2s–ÚˆÈ~‚Ì#‚ÍƒRƒƒ“ƒg
+		//2è¡Œç›®ä»¥é™ã®#ã¯ã‚³ãƒ¡ãƒ³ãƒˆ
 		if (line[0] == '#')
 		{
 			continue;
@@ -108,7 +108,7 @@ void CsvTable::Load(const std::string& path)
 
 	if (!isHeaderRead)
 	{
-		ReportError(-1, "", "ƒwƒbƒ_[s‚ª‚È‚¢(ƒtƒ@ƒCƒ‹‚ª‹ó)");
+		ReportError(-1, "", "ãƒ˜ãƒƒãƒ€ãƒ¼è¡ŒãŒãªã„(ãƒ•ã‚¡ã‚¤ãƒ«ãŒç©º)");
 	}
 }
 
@@ -133,10 +133,10 @@ int CsvTable::GetInt(int row, const std::string& column) const
 	}
 	char* end = nullptr;
 	long value = std::strtol(cell->c_str(), &end, 10);
-	//ÅŒã‚Ü‚Å”š‚Æ‚µ‚Ä“Ç‚ß‚È‚©‚Á‚½‚ç”’l‚¶‚á‚È‚¢
+	//æœ€å¾Œã¾ã§æ•°å­—ã¨ã—ã¦èª­ã‚ãªã‹ã£ãŸã‚‰æ•°å€¤ã˜ã‚ƒãªã„
 	if (*end != '\0')
 	{
-		ReportError(row, column, "®”‚Å‚Í‚È‚¢(\"" + *cell + "\")");
+		ReportError(row, column, "æ•´æ•°ã§ã¯ãªã„(\"" + *cell + "\")");
 		return 0;
 	}
 	return static_cast<int>(value);
@@ -153,7 +153,7 @@ float CsvTable::GetFloat(int row, const std::string& column) const
 	float value = std::strtof(cell->c_str(), &end);
 	if (*end != '\0')
 	{
-		ReportError(row, column, "”’l‚Å‚Í‚È‚¢(\"" + *cell + "\")");
+		ReportError(row, column, "æ•°å€¤ã§ã¯ãªã„(\"" + *cell + "\")");
 		return 0.0f;
 	}
 	return value;
@@ -163,19 +163,19 @@ const std::string* CsvTable::GetCell(int row, const std::string& column) const
 {
 	if (row < 0 || row >= GetRowNum())
 	{
-		ReportError(-1, column, "s”Ô†‚ª”ÍˆÍŠO(" + std::to_string(row) + ")");
+		ReportError(-1, column, "è¡Œç•ªå·ãŒç¯„å›²å¤–(" + std::to_string(row) + ")");
 		return nullptr;
 	}
 	auto it = m_columnIndex.find(column);
 	if (it == m_columnIndex.end())
 	{
-		ReportError(-1, column, "ƒwƒbƒ_[‚É‚±‚Ì—ñ–¼‚ª‚È‚¢");
+		ReportError(-1, column, "ãƒ˜ãƒƒãƒ€ãƒ¼ã«ã“ã®åˆ—åãŒãªã„");
 		return nullptr;
 	}
 	const std::vector<std::string>& cells = m_rows[row];
 	if (it->second >= static_cast<int>(cells.size()) || cells[it->second].empty())
 	{
-		ReportError(row, column, "ƒZƒ‹‚ª‹ó");
+		ReportError(row, column, "ã‚»ãƒ«ãŒç©º");
 		return nullptr;
 	}
 	return &cells[it->second];
@@ -183,11 +183,11 @@ const std::string* CsvTable::GetCell(int row, const std::string& column) const
 
 void CsvTable::ReportError(int row, const std::string& column, const std::string& message) const
 {
-	//—á:Data/Csv/State.csv 2s–Ú [speed] ”’l‚Å‚Í‚È‚¢("abc")
+	//ä¾‹:Data/Csv/State.csv 2è¡Œç›® [speed] æ•°å€¤ã§ã¯ãªã„("abc")
 	std::string text = m_path;
 	if (row >= 0 && row < GetRowNum())
 	{
-		text += " " + std::to_string(m_lineNumbers[row]) + "s–Ú";
+		text += " " + std::to_string(m_lineNumbers[row]) + "è¡Œç›®";
 	}
 	if (!column.empty())
 	{
@@ -196,6 +196,6 @@ void CsvTable::ReportError(int row, const std::string& column, const std::string
 	text += " " + message;
 
 	OutputDebugStringA(("CsvTable: " + text + "\n").c_str());
-	MessageBoxA(nullptr, text.c_str(), "CSV“Ç‚İ‚İƒGƒ‰[", MB_OK | MB_ICONERROR);
-	assert(false && "CSV“Ç‚İ‚İƒGƒ‰[");
+	MessageBoxA(nullptr, text.c_str(), "CSVèª­ã¿è¾¼ã¿ã‚¨ãƒ©ãƒ¼", MB_OK | MB_ICONERROR);
+	assert(false && "CSVèª­ã¿è¾¼ã¿ã‚¨ãƒ©ãƒ¼");
 }

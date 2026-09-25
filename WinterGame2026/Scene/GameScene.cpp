@@ -1,4 +1,4 @@
-#include "GameScene.h"
+ï»¿#include "GameScene.h"
 #include "DxLib.h"
 
 GameScene::GameScene():
@@ -12,11 +12,11 @@ GameScene::~GameScene()
 
 void GameScene::Init()
 {
-	//Zƒoƒbƒtƒ@‚Ìİ’è
-	SetUseZBuffer3D(true);//Zƒoƒbƒtƒ@‚ğg‚¢‚Ü‚·
-	SetWriteZBuffer3D(true);//•`‰æ‚·‚é•¨‘Ì‚ÍZƒoƒbƒtƒ@‚É‚à‹——£‚ğ‘‚«‚Ş
+	//Zãƒãƒƒãƒ•ã‚¡ã®è¨­å®š
+	SetUseZBuffer3D(true);//Zãƒãƒƒãƒ•ã‚¡ã‚’ä½¿ã„ã¾ã™
+	SetWriteZBuffer3D(true);//æç”»ã™ã‚‹ç‰©ä½“ã¯Zãƒãƒƒãƒ•ã‚¡ã«ã‚‚è·é›¢ã‚’æ›¸ãè¾¼ã‚€
 
-	//ƒJƒƒ‰‚Ìİ’è
+	//ã‚«ãƒ¡ãƒ©ã®è¨­å®š
 	SetCameraPositionAndTarget_UpVecY(VGet(0.0f, 300.0f, -700.0f), VGet(0.0f, 0.0f, 0.0f));
 	SetupCamera_Perspective(DX_PI_F / 3.0f);
 	SetCameraNearFar(200.0f, 1500.0f);
@@ -41,7 +41,7 @@ void GameScene::Draw()
 
 void GameScene::DrawGrid()
 {
-	//’¼ü‚Ìn“_‚ÆI“_
+	//ç›´ç·šã®å§‹ç‚¹ã¨çµ‚ç‚¹
 	VECTOR startPos;
 	VECTOR endPos;
 

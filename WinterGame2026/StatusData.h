@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -13,22 +13,22 @@ public:
 	};
 	struct StatusInfo
 	{
-		//ƒLƒƒƒ‰ƒNƒ^[‚Ì–¼‘O
+		//ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã®åå‰
 		std::string characterName;
-		//UŒ‚—Í
+		//æ”»æ’ƒåŠ›
 		int attackPower = 0;
-		//‘Ì—Í
+		//ä½“åŠ›
 		//int hp = 0;
-		//Å‘å‘Ì—Í
+		//æœ€å¤§ä½“åŠ›
 		int maxhp = 0;
-		//‘¬“x
+		//é€Ÿåº¦
 		float speed = 0;
 	};
 
-	//“Ç‚İ‚ñ‚¾CSV‚©‚çƒXƒe[ƒ^ƒX‚ğì‚é
+	//èª­ã¿è¾¼ã‚“ã CSVã‹ã‚‰ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ã‚’ä½œã‚‹
 	void Load(const CsvTable& table);
 
-	//–¼‘O‚©‚çƒXƒe[ƒ^ƒX‚ğæ“¾
+	//åå‰ã‹ã‚‰ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ã‚’å–å¾—
 	const StatusInfo& GetStatus(const std::string& name)const;
 private:
 	std::unordered_map<std::string, StatusInfo> m_infoList;
