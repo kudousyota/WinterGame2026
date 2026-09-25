@@ -135,6 +135,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CsvTable.cpp" />
     <ClCompile Include="DataManager.cpp" />
     <ClCompile Include="Game\Character\Character.cpp" />
     <ClCompile Include="main.cpp" />
@@ -144,6 +145,7 @@
     <ClCompile Include="StatusData.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CsvTable.h" />
     <ClInclude Include="DataManager.h" />
     <ClInclude Include="Game\Character\Character.h" />
     <ClInclude Include="Game.h" />

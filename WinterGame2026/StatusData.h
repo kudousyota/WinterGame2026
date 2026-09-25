@@ -2,7 +2,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
-#include "Vector3.h"
+#include "CsvTable.h"
 class StatusData
 {
 public:
@@ -25,8 +25,8 @@ public:
 		float speed = 0;
 	};
 
-	//CSVの行データを受け取る
-	void Load(const std::vector<std::vector<std::string>>& rows);
+	//読み込んだCSVからステータスを作る
+	void Load(const CsvTable& table);
 
 	//名前からステータスを取得
 	const StatusInfo& GetStatus(const std::string& name)const;

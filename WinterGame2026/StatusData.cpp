@@ -1,27 +1,19 @@
 #include "StatusData.h"
 #include <cassert>
-namespace
-{
-	constexpr int kstatusSize = 5;
-}
-void StatusData::Load(const std::vector<std::vector<std::string>>& rows)
+
+void StatusData::Load(const CsvTable& table)
 {
 	//先にクリアしとく
 	m_infoList.clear();
-	for (const auto& row : rows)
+	for (int row = 0; row < table.GetRowNum(); row++)
 	{
-		if (row.size() < kstatusSize)
-		{
-			//その行だけスキップ
-			continue;
-		}
-
+		//列名で読むので、CSVの列の順番が変わっても列が増えても大丈夫
 		StatusInfo info;
-		info.characterName = row[0];
-		info.attackPower = std::stoi(row[1]);
-		//info.hp	= std::stoi(row[2]);//減ってくから要らない
-		info.maxhp = std::stoi(row[3]);
-		info.speed = std::stof(row[4]);
+		info.characterName = table.GetString(row, "name");
+		info.attackPower = table.GetInt(row, "attackPower");
+		//hpは減っていくので読まない(maxhpで初期化する)
+		info.maxhp = table.GetInt(row, "maxhp");
+		info.speed = table.GetFloat(row, "speed");
 
 		m_infoList[info.characterName] = info;
 	}

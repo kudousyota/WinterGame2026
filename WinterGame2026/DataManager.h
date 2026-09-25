@@ -16,7 +16,7 @@ public:
 	void LoadData();
 
 	//敵のスポーンデータを返す
-	//const std::vector<std::vector<std::string>>& GetSpawnData() const { return m_spawnData; }
+	//const CsvTable& GetSpawnData() const { return m_spawnData; }
 
 	//キャラクターのステータスデータを返す
 	const StatusData& GetStatusData() const { return m_statusData; }
@@ -28,17 +28,14 @@ private:
 	DataManager(const DataManager&) = delete;
 	DataManager& operator=(const DataManager&) = delete;
 
-	//共通のCSV読み込み処理(行ごとに文字列配列にする)
-	std::vector<std::vector<std::string>> LoadCsv(const std::string& path);
-
 	//敵の出現データをロードする
 	//void LoadSpawnData();
 
 	//キャラクターのステータスデータをロードする
 	void LoadStatusData();
 
-	//敵の出現データを格納する二次元配列
-	//std::vector<std::vector<std::string>> m_spawnData;
+	//敵の出現データ
+	//CsvTable m_spawnData;
 
 	//キャラクターのステータスデータ
 	StatusData m_statusData;
