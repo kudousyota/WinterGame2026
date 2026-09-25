@@ -1,4 +1,4 @@
-#include "StatusData.h"
+ï»¿#include "StatusData.h"
 #include <cassert>
 namespace
 {
@@ -6,20 +6,21 @@ namespace
 }
 void StatusData::Load(const std::vector<std::vector<std::string>>& rows)
 {
-	//æ‚ÉƒNƒŠƒA‚µ‚Æ‚­
+	//å…ˆã«ã‚¯ãƒªã‚¢ã—ã¨ã
 	m_infoList.clear();
 	for (const auto& row : rows)
 	{
 		if (row.size() < kstatusSize)
 		{
-			//‚»‚Ìs‚¾‚¯ƒXƒLƒbƒv
+			//ãã®è¡Œã ã‘ã‚¹ã‚­ãƒƒãƒ—
 			continue;
 		}
 
 		StatusInfo info;
 		info.characterName = row[0];
 		info.attackPower = std::stoi(row[1]);
-		//info.hp	= std::stoi(row[2]);//Œ¸‚Á‚Ä‚­‚©‚ç—v‚ç‚È‚¢
+		//æ¸›ã£ã¦ãã‹ã‚‰è¦ã‚‰ãªã„
+		//info.hp	= std::stoi(row[2]);
 		info.maxhp = std::stoi(row[3]);
 		info.speed = std::stof(row[4]);
 
@@ -30,6 +31,6 @@ void StatusData::Load(const std::vector<std::vector<std::string>>& rows)
 const StatusData::StatusInfo& StatusData::GetStatus(const std::string& name) const
 {
 	auto list = m_infoList.find(name);
-	assert(list != m_infoList.end() && "ƒXƒe[ƒ^ƒX‚ªŒ©‚Â‚©‚ç‚È‚¢");
+	assert(list != m_infoList.end() && "ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãŒè¦‹ã¤ã‹ã‚‰ãªã„");
 	return list->second;
 }

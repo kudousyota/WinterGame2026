@@ -1,9 +1,9 @@
-#pragma once
+ï»¿#pragma once
 
-//ƒQ[ƒ€‘S‘Ì‚Åg—p‚·‚é’è”
+//ã‚²ãƒ¼ãƒ å…¨ä½“ã§ä½¿ç”¨ã™ã‚‹å®šæ•°
 namespace Game
 {
-	//‰æ–Êî•ñ
+	//ç”»é¢æƒ…å ±
 	constexpr int kScreenWidth = 1280;
 	constexpr int kScreenHeight = 720;
 	constexpr int kColorBitNum = 32;

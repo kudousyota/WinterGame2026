@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <vector>
 #include <string>
 #include "StatusData.h"
@@ -12,34 +12,34 @@ public:
 		return instance;
 	}
 
-	//ƒf[ƒ^‚Ì“Ç‚İ‚İ
+	//ãƒ‡ãƒ¼ã‚¿ã®èª­ã¿è¾¼ã¿
 	void LoadData();
 
-	//“G‚ÌƒXƒ|[ƒ“ƒf[ƒ^‚ğ•Ô‚·
+	//æ•µã®ã‚¹ãƒãƒ¼ãƒ³ãƒ‡ãƒ¼ã‚¿ã‚’è¿”ã™
 	//const std::vector<std::vector<std::string>>& GetSpawnData() const { return m_spawnData; }
 
-	//ƒLƒƒƒ‰ƒNƒ^[‚ÌƒXƒe[ƒ^ƒXƒf[ƒ^‚ğ•Ô‚·
+	//ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã®ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãƒ‡ãƒ¼ã‚¿ã‚’è¿”ã™
 	const StatusData& GetStatusData() const { return m_statusData; }
 
 private:
-	//ƒRƒ“ƒXƒgƒ‰ƒNƒ^‚ğ”ñŒöŠJ‚É‚µ‚ÄƒVƒ“ƒOƒ‹ƒgƒ“‚ğÀŒ»
+	//ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã‚’éå…¬é–‹ã«ã—ã¦ã‚·ãƒ³ã‚°ãƒ«ãƒˆãƒ³ã‚’å®Ÿç¾
 	DataManager() = default;
 	~DataManager() = default;
 	DataManager(const DataManager&) = delete;
 	DataManager& operator=(const DataManager&) = delete;
 
-	//‹¤’Ê‚ÌCSV“Ç‚İ‚İˆ—(s‚²‚Æ‚É•¶š—ñ”z—ñ‚É‚·‚é)
+	//å…±é€šã®CSVèª­ã¿è¾¼ã¿å‡¦ç†(è¡Œã”ã¨ã«æ–‡å­—åˆ—é…åˆ—ã«ã™ã‚‹)
 	std::vector<std::vector<std::string>> LoadCsv(const std::string& path);
 
-	//“G‚ÌoŒ»ƒf[ƒ^‚ğƒ[ƒh‚·‚é
+	//æ•µã®å‡ºç¾ãƒ‡ãƒ¼ã‚¿ã‚’ãƒ­ãƒ¼ãƒ‰ã™ã‚‹
 	//void LoadSpawnData();
 
-	//ƒLƒƒƒ‰ƒNƒ^[‚ÌƒXƒe[ƒ^ƒXƒf[ƒ^‚ğƒ[ƒh‚·‚é
+	//ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã®ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãƒ‡ãƒ¼ã‚¿ã‚’ãƒ­ãƒ¼ãƒ‰ã™ã‚‹
 	void LoadStatusData();
 
-	//“G‚ÌoŒ»ƒf[ƒ^‚ğŠi”[‚·‚é“ñŸŒ³”z—ñ
+	//æ•µã®å‡ºç¾ãƒ‡ãƒ¼ã‚¿ã‚’æ ¼ç´ã™ã‚‹äºŒæ¬¡å…ƒé…åˆ—
 	//std::vector<std::vector<std::string>> m_spawnData;
 
-	//ƒLƒƒƒ‰ƒNƒ^[‚ÌƒXƒe[ƒ^ƒXƒf[ƒ^
+	//ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã®ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãƒ‡ãƒ¼ã‚¿
 	StatusData m_statusData;
 };

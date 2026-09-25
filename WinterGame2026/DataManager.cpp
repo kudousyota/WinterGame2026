@@ -1,4 +1,4 @@
-#include "DataManager.h"
+ï»¿#include "DataManager.h"
 #include <fstream>
 #include <sstream>
 #include <cassert>
@@ -9,37 +9,37 @@ void DataManager::LoadData()
 	LoadStatusData();
 }
 
-//CSV‚ğ“Ç‚ñ‚Ås‚²‚Æ‚Ì•¶š—ñ”z—ñ‚É‚·‚é‹¤’Êˆ—
+//CSVã‚’èª­ã‚“ã§è¡Œã”ã¨ã®æ–‡å­—åˆ—é…åˆ—ã«ã™ã‚‹å…±é€šå‡¦ç†
 std::vector<std::vector<std::string>> DataManager::LoadCsv(const std::string& path)
 {
 	std::vector<std::vector<std::string>> result;
 
 	std::ifstream file(path);
-	assert(file.is_open() && "CSVƒtƒ@ƒCƒ‹‚ªŠJ‚¯‚È‚¢");
+	assert(file.is_open() && "CSVãƒ•ã‚¡ã‚¤ãƒ«ãŒé–‹ã‘ãªã„");
 
 	std::string line;
 	while (std::getline(file, line))
 	{
-		//Windows‰üs‘Îô
+		//Windowsæ”¹è¡Œå¯¾ç­–
 		if (!line.empty() && line.back() == '\r')
 		{
 			line.pop_back();
 		}
 		if (line.empty() || line[0] == '#')
 		{
-			//ƒRƒƒ“ƒgs‚â‹ós‚ÍƒXƒLƒbƒv
+			//ã‚³ãƒ¡ãƒ³ãƒˆè¡Œã‚„ç©ºè¡Œã¯ã‚¹ã‚­ãƒƒãƒ—
 			continue;
 		}
 
 		std::istringstream iss(line);
 		std::string token;
 		std::vector<std::string> tokens;
-		//ƒJƒ“ƒ}‚Å•ªŠ„‚µ‚Äƒg[ƒNƒ“‚ğæ“¾
+		//ã‚«ãƒ³ãƒã§åˆ†å‰²ã—ã¦ãƒˆãƒ¼ã‚¯ãƒ³ã‚’å–å¾—
 		while (std::getline(iss, token, ','))
 		{
 			tokens.push_back(token);
 		}
-		//•ªŠ„‚µ‚½ƒg[ƒNƒ“‚ÌƒxƒNƒ^[‚ğ¶ƒf[ƒ^‚Æ‚µ‚Ä•Û‘¶
+		//åˆ†å‰²ã—ãŸãƒˆãƒ¼ã‚¯ãƒ³ã®ãƒ™ã‚¯ã‚¿ãƒ¼ã‚’ç”Ÿãƒ‡ãƒ¼ã‚¿ã¨ã—ã¦ä¿å­˜
 		result.push_back(tokens);
 	}
 	return result;
