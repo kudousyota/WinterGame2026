@@ -137,8 +137,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="System\Application.cpp" />
     <ClCompile Include="DataManager.cpp" />
     <ClCompile Include="Game\Character\Character.cpp" />
+    <ClCompile Include="System\Input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Math\Vector3.cpp" />
     <ClCompile Include="Game\Character\Player.cpp" />
@@ -146,9 +148,11 @@
     <ClCompile Include="StatusData.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="System\Application.h" />
     <ClInclude Include="DataManager.h" />
     <ClInclude Include="Game\Character\Character.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="System\Input.h" />
     <ClInclude Include="Math\Vector3.h" />
     <ClInclude Include="Game\Character\Player.h" />
     <ClInclude Include="Scene\GameScene.h" />

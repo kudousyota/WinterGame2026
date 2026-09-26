@@ -1,9 +1,14 @@
 ﻿#pragma once
-class Player
+#include "Character.h"
+class Player : public Character
 {
 public:
 	Player();
-	~Player();
+	~Player()override;
+
+	void Init()override;
+	void Update()override;
+	void Draw()override;
 
 };
 

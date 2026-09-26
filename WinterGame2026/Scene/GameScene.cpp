@@ -1,5 +1,6 @@
 ﻿#include "GameScene.h"
 #include "DxLib.h"
+#include "Character.h"
 
 GameScene::GameScene():
 m_frameCount(0)
@@ -23,6 +24,8 @@ void GameScene::Init()
 
 
 }
+
+
 
 void GameScene::Update()
 {
