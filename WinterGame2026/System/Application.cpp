@@ -1,17 +1,11 @@
-#include "Application.h"
+ï»¿#include "Application.h"
 #include "DxLib.h"
 #include <cassert>
 #include "../System/Input.h"
-//#include "../Scene/SceneController.h"
-//#include "../Scene/TitleScene.h"
 #include "../Scene/GameScene.h"
 #include "../Game.h"
-//#include "EffekseerForDXLib.h"
-//#include "Model.h"
-//#include "Timer.h"
-//#include "../Effect/EffectManager.h"
-//#include "SoundManager.h"
-//#include "../Common/FontManager.h"
+#include "../Comon/Model.h"
+#include "../DataManager.h"
 
 
 Application::Application()
@@ -25,7 +19,7 @@ Application::~Application()
 
 Application& Application::GetInstance()
 {
-	//static‚È‚Ì‚Åƒƒ‚ƒŠ‚ÌêŠ‚ªˆê‚Â‚ÅŠm’è
+	//staticãªã®ã§ãƒ¡ãƒ¢ãƒªã®å ´æ‰€ãŒä¸€ã¤ã§ç¢ºå®š
 	static Application instance;
 	return instance;
 
@@ -34,17 +28,17 @@ Application& Application::GetInstance()
 bool Application::Init()
 {
 
-	//ƒEƒBƒ“ƒhƒEƒ‚[ƒhİ’è
-	ChangeWindowMode(false);
-	//ƒ^ƒCƒgƒ‹•ÏX
+	//ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ãƒ¢ãƒ¼ãƒ‰è¨­å®š
+	ChangeWindowMode(true);
+	//ã‚¿ã‚¤ãƒˆãƒ«å¤‰æ›´
 	SetMainWindowText("Kudonetta");
-	//‰æ–Ê‚ÌƒTƒCƒY•ÏX
+	//ç”»é¢ã®ã‚µã‚¤ã‚ºå¤‰æ›´
 	SetGraphMode(Game::kScreenWidth, Game::kScreenHeight, Game::kColorBitNum);
-	//ƒtƒHƒ“ƒg‚Ì“Ç‚İ‚İ
+	//ãƒ•ã‚©ãƒ³ãƒˆã®èª­ã¿è¾¼ã¿
 	//AddFontResourceEx("Constantia", FR_PRIVATE, NULL);
 
-	//DirectX11‚ğ‚µ‚æ‚¤‚·‚é‚½‚ß‚Ì‰Šú‰»
-	//Effecseer‚ğg—p‚·‚é‚É‚Í•K‚¸İ’è‚·‚é
+	//DirectX11ã‚’ã—ã‚ˆã†ã™ã‚‹ãŸã‚ã®åˆæœŸåŒ–
+	//Effecseerã‚’ä½¿ç”¨ã™ã‚‹ã«ã¯å¿…ãšè¨­å®šã™ã‚‹
 	SetUseDirect3DVersion(DX_DIRECT3D_11);
 
 	if (DxLib_Init() == -1)
@@ -52,30 +46,32 @@ bool Application::Init()
 		return false;
 	}
 
-	//Effekseerg—p‚Ì‰Šú‰»
-	//ˆø”‚É‚Í‰æ–Ê‚É•\¦‚·‚éÅ‘åƒp[ƒeƒBƒNƒ‹‚ğİ’è‚·‚é
+	//Effekseerä½¿ç”¨ã®åˆæœŸåŒ–
+	//å¼•æ•°ã«ã¯ç”»é¢ã«è¡¨ç¤ºã™ã‚‹æœ€å¤§ãƒ‘ãƒ¼ãƒ†ã‚£ã‚¯ãƒ«ã‚’è¨­å®šã™ã‚‹
 	//if (Effekseer_Init(8000) == -1)
 	//{
-	//	return -1;			//ƒGƒ‰[‚ª‹N‚«‚½‚ç’¼‚¿‚ÉI—¹
+	//	return -1;			//ã‚¨ãƒ©ãƒ¼ãŒèµ·ããŸã‚‰ç›´ã¡ã«çµ‚äº†
 	//}
 
-	//ƒtƒ‹ƒXƒNƒŠ[ƒ“ƒEƒCƒ“ƒhƒE‚ÌØ‚è‘Ö‚¦‚ÅƒŠƒ\[ƒX‚ªÁ‚¦‚é‚Ì‚ğ–h‚®
+	//ãƒ•ãƒ«ã‚¹ã‚¯ãƒªãƒ¼ãƒ³ã‚¦ã‚¤ãƒ³ãƒ‰ã‚¦ã®åˆ‡ã‚Šæ›¿ãˆã§ãƒªã‚½ãƒ¼ã‚¹ãŒæ¶ˆãˆã‚‹ã®ã‚’é˜²ã
 	SetChangeScreenModeGraphicsSystemResetFlag(false);
 
-	//•`‰æ‘ÎÛ‚ğƒoƒbƒNƒoƒbƒtƒ@‚É•ÏX
+	//æç”»å¯¾è±¡ã‚’ãƒãƒƒã‚¯ãƒãƒƒãƒ•ã‚¡ã«å¤‰æ›´
 	SetDrawScreen(DX_SCREEN_BACK);
-	//ƒJƒŠƒ“ƒO‚Ìİ’è
+	//ã‚«ãƒªãƒ³ã‚°ã®è¨­å®š
 	SetUseBackCulling(true);
-	//ƒ‚ƒfƒ‹‚Ìƒ[ƒh
-	//Model::Instance().PreloadAll();
-	//ƒTƒEƒ“ƒh‚Ìƒ[ƒh
+	//ãƒ¢ãƒ‡ãƒ«ã®ãƒ­ãƒ¼ãƒ‰
+	Model::Instance().PreloadAll();
+	//ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ã®ãƒ­ãƒ¼ãƒ‰
+	DataManager::GetInstance().LoadData();
+	//ã‚µã‚¦ãƒ³ãƒ‰ã®ãƒ­ãƒ¼ãƒ‰
 	//SoundManager::Instance().Load();
-	//ƒtƒHƒ“ƒg‚Ìƒ[ƒh
+	//ãƒ•ã‚©ãƒ³ãƒˆã®ãƒ­ãƒ¼ãƒ‰
 	//FontManager::Instance().LoadFont();
-	//”wŒiF‚ğİ’è(‚±‚±‚ÅRGB‚ğ•ÏX‚·‚ê‚Î”wŒiF‚ğ•Ï‚¦‚ê‚é)
-	//”–‚¢Â
+	//èƒŒæ™¯è‰²ã‚’è¨­å®š(ã“ã“ã§RGBã‚’å¤‰æ›´ã™ã‚Œã°èƒŒæ™¯è‰²ã‚’å¤‰ãˆã‚Œã‚‹)
+	//è–„ã„é’
 	//SetBackgroundColor(100, 150, 255);
-	//•
+	//é»’
 	SetBackgroundColor(0, 0, 0);
 
 	return true;
@@ -87,24 +83,27 @@ void Application::Run()
 	//SceneController controller;
 	//controller.ChangeScene(std::make_shared<TitleScene>(controller));
 
-	//ˆê’USceneMain‚ğ•\¦‚·‚é
-	GameScene sceneMain;
-	sceneMain.Init();
+	//ä¸€æ—¦SceneMainã‚’è¡¨ç¤ºã™ã‚‹
+	GameScene Gamescene;
+	Gamescene.Init();
 
 
 	while (ProcessMessage() != -1 && !m_IsRequstendExit)
 	{
 
-		//‚±‚ÌƒtƒŒ[ƒ€‚ÌŠJnŠÔ‚ğæ“¾
+		//ã“ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã®é–‹å§‹æ™‚é–“ã‚’å–å¾—
 		LONGLONG start = GetNowHiPerformanceCount();
 
 		ClearDrawScreen();
 		Input::Instance().Update();
-		//ƒ^ƒCƒ}[‚ÌXV(ŠÔƒXƒP[ƒ‹‚âƒEƒBƒbƒ`ƒ^ƒCƒ€‚Ìc‚èƒtƒŒ[ƒ€‚ğŒ¸‚ç‚·)
+		//ã‚¿ã‚¤ãƒãƒ¼ã®æ›´æ–°(æ™‚é–“ã‚¹ã‚±ãƒ¼ãƒ«ã‚„ã‚¦ã‚£ãƒƒãƒã‚¿ã‚¤ãƒ ã®æ®‹ã‚Šãƒ•ãƒ¬ãƒ¼ãƒ ã‚’æ¸›ã‚‰ã™)
 		//Timer::Instance().Update();
 
 		//controller.Update(input);
 		//controller.Draw();
+
+		Gamescene.Update();
+		Gamescene.Draw();
 
 		if (CheckHitKey(KEY_INPUT_ESCAPE))
 		{
@@ -112,7 +111,7 @@ void Application::Run()
 		}
 		ScreenFlip();
 
-		//ƒtƒŒ[ƒ€ƒŒ[ƒg‚U‚O‚ÉŒÅ’è
+		//ãƒ•ãƒ¬ãƒ¼ãƒ ãƒ¬ãƒ¼ãƒˆï¼–ï¼ã«å›ºå®š
 		while (GetNowHiPerformanceCount() - start < 16667)
 		{
 
@@ -122,14 +121,14 @@ void Application::Run()
 
 void Application::Terminate()
 {
-	//ƒtƒHƒ“ƒg‚Ì‰ğ•ú
+	//ãƒ•ã‚©ãƒ³ãƒˆã®è§£æ”¾
 	//RemoveFontResourceEx("Constantia", FR_PRIVATE, NULL);
 	//FontManager::Instance().Destroy();
-	//EffectManager‚ÌI—¹ˆ—‚ğæ‚És‚¤
+	//EffectManagerã®çµ‚äº†å‡¦ç†ã‚’å…ˆã«è¡Œã†
 	//EffectManager::Instns().Terminate();
-	//Effekseer g—p‚ÌI—¹ˆ—
+	//Effekseer ä½¿ç”¨ã®çµ‚äº†å‡¦ç†
 	//Effkseer_End();
-	//ƒvƒŠƒ[ƒh‚µ‚½ƒ‚ƒfƒ‹‚ğ‰ğ•ú
+	//ãƒ—ãƒªãƒ­ãƒ¼ãƒ‰ã—ãŸãƒ¢ãƒ‡ãƒ«ã‚’è§£æ”¾
 	//Model::Instance().ReleseAll();
 	DxLib_End();
 }

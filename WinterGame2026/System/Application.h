@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 class Application
 {
 public:
@@ -17,7 +17,7 @@ private:
 	Application();
 	Application(const Application& app) = delete;
 	void operator=(const Application& app) = delete;
-	//ƒQ[ƒ€‚ÌI—¹‚ªƒŠƒNƒGƒXƒg
+	//ã‚²ãƒ¼ãƒ ã®çµ‚äº†ãŒãƒªã‚¯ã‚¨ã‚¹ãƒˆ
 	bool m_IsRequstendExit = false;
 
 };

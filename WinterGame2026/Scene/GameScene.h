@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include <memory>
+#include "../Game/Character/Player.h"
 class GameScene
 {
 public:
@@ -13,5 +15,7 @@ private:
 
 private:
 	int m_frameCount;
+
+	std::shared_ptr<Player> m_pPlayer;
 };
 

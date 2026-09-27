@@ -1,22 +1,21 @@
-#include "Input.h"
+ï»¿#include "Input.h"
 #include "Dxlib.h"
-
-
-constexpr char kConfigfilename[] = "keyconf.kcnf";
 
 namespace
 {
 	struct KeyConfHeader
 	{
-		//ƒVƒOƒlƒ`ƒƒ4ƒoƒCƒg
+		//ã‚·ã‚°ãƒãƒãƒ£4ãƒã‚¤ãƒˆ
 		char signature[4];
-		//ƒo[ƒWƒ‡ƒ“”Ô†4ƒoƒCƒg
+		//ãƒãƒ¼ã‚¸ãƒ§ãƒ³ç•ªå·4ãƒã‚¤ãƒˆ
 		float version;
-		//ƒf[ƒ^”4ƒoƒCƒg
+		//ãƒ‡ãƒ¼ã‚¿æ•°4ãƒã‚¤ãƒˆ
 		int dataNum;
-		//12ƒoƒCƒg
+		//12ãƒã‚¤ãƒˆ
 	};
+	constexpr char kConfigfilename[] = "keyconf.kcnf";
 }
+
 Input& Input::Instance()
 {
 	static Input input;
@@ -26,16 +25,16 @@ Input& Input::Instance()
 void Input::InitializeInputTable()
 {
 	m_inputTable["ok"] = { { PeripheralType::keyboard,KEY_INPUT_RETURN},
-					  { PeripheralType::pad1,PAD_INPUT_A } };	// PAD‚ÌAƒ{ƒ^ƒ“
+					  { PeripheralType::pad1,PAD_INPUT_A } };	// PADã®Aãƒœã‚¿ãƒ³
 	m_inputTable["pause"] = { { PeripheralType::keyboard,KEY_INPUT_P},
-					   { PeripheralType::pad1,PAD_INPUT_START } };	// PAD‚ÌSTARTƒ{ƒ^ƒ“
+					   { PeripheralType::pad1,PAD_INPUT_START } };	// PADã®STARTãƒœã‚¿ãƒ³
 
 	m_inputTable["Attack"] = { { PeripheralType::keyboard,KEY_INPUT_Z},
-						  { PeripheralType::pad1,PAD_INPUT_3 } };	// PAD‚ÌYƒ{ƒ^ƒ“
+						  { PeripheralType::pad1,PAD_INPUT_3 } };	// PADã®Yãƒœã‚¿ãƒ³
 	m_inputTable["Jump"] = { { PeripheralType::keyboard,KEY_INPUT_LSHIFT},
-						  { PeripheralType::pad1,PAD_INPUT_A } };	// PAD‚ÌAƒ{ƒ^ƒ“
+						  { PeripheralType::pad1,PAD_INPUT_A } };	// PADã®Aãƒœã‚¿ãƒ³
 	m_inputTable["Dodge"] = { { PeripheralType::keyboard,KEY_INPUT_X},
-						{ PeripheralType::pad1,PAD_INPUT_X } };	// PAD‚ÌXƒ{ƒ^ƒ“
+						{ PeripheralType::pad1,PAD_INPUT_X } };	// PADã®Xãƒœã‚¿ãƒ³
 
 	m_inputTable["up"] = { { PeripheralType::keyboard,KEY_INPUT_UP},
 						{ PeripheralType::pad1,PAD_INPUT_UP } };
@@ -46,15 +45,13 @@ void Input::InitializeInputTable()
 	m_inputTable["right"] = { { PeripheralType::keyboard,KEY_INPUT_RIGHT},
 						  { PeripheralType::pad1,PAD_INPUT_RIGHT } };
 	m_inputTable["target"] = { { PeripheralType::keyboard,KEY_INPUT_SPACE},
-							{ PeripheralType::pad1,PAD_INPUT_12 } };	// PAD‚Ì‰EƒXƒeƒBƒbƒN‰Ÿ‚µ‚İ
+							{ PeripheralType::pad1,PAD_INPUT_12 } };	// PADã®å³ã‚¹ãƒ†ã‚£ãƒƒã‚¯æŠ¼ã—è¾¼ã¿
 }
-
-
 
 Input::Input() : m_inputData{}, m_lastInputData{}, m_inputTable{}
 {
 	InitializeInputTable();
-	// ‘SƒCƒxƒ“ƒg‚ğ false ‚Å‰Šú‰»‚µ‚Ä‚¨‚­i‘¶İ‚µ‚È‚¢ƒL[‚Å at ‚ğŒÄ‚Î‚È‚¢‚æ‚¤‚É‚·‚é‚½‚ßj
+	//å…¨ã‚¤ãƒ™ãƒ³ãƒˆã‚’ false ã§åˆæœŸåŒ–ã—ã¦ãŠãï¼ˆå­˜åœ¨ã—ãªã„ã‚­ãƒ¼ã§ at ã‚’å‘¼ã°ãªã„ã‚ˆã†ã«ã™ã‚‹ãŸã‚ï¼‰
 	for (const auto& kv : m_inputTable) {
 		m_inputData[kv.first] = false;
 		m_lastInputData[kv.first] = false;
@@ -70,51 +67,49 @@ void Input::Update()
 
 	GetJoypadDirectInputState(DX_INPUT_PAD1, &m_padState);
 
-	//‚Ü‚¸Œ»İ‚Ì“ü—Íî•ñ‚ğæ“¾
+	//ã¾ãšç¾åœ¨ã®å…¥åŠ›æƒ…å ±ã‚’å–å¾—
 	char keyState[256];
-	//¶‚ÌƒL[ƒ{[ƒhî•ñ
+	//ç”Ÿã®ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰æƒ…å ±
 	GetHitKeyStateAll(keyState);
-	//¶‚ÌPad1‚ğî•ñ
+	//ç”Ÿã®Pad1ã‚’æƒ…å ±
 	int padState = GetJoypadInputState(DX_INPUT_PAD1);
-	//’¼‘O‚ÌƒtƒŒ[ƒ€‚ğXV(XV‚³‚ê‚é‘O‚ÌƒtƒŒ[ƒ€î•ñ‚ğƒRƒs[)
+	//ç›´å‰ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã‚’æ›´æ–°(æ›´æ–°ã•ã‚Œã‚‹å‰ã®ãƒ•ãƒ¬ãƒ¼ãƒ æƒ…å ±ã‚’ã‚³ãƒ”ãƒ¼)
 	m_lastInputData = m_inputData;
-	//‘S‚Ä‚Ì“ü—ÍƒCƒxƒ“ƒg‚ğƒ`ƒFƒbƒN‚·‚é
-	//‚±‚±‚Åm_inputData‚ªXV‚³‚ê‚é
-	//m_inputTable‰ñ‚µ‚ÄŠeƒCƒxƒ“ƒg‚Ì“ü—Í‚ğƒ`ƒFƒbƒN‚·‚é
+	//å…¨ã¦ã®å…¥åŠ›ã‚¤ãƒ™ãƒ³ãƒˆã‚’ãƒã‚§ãƒƒã‚¯ã™ã‚‹
+	//ã“ã“ã§m_inputDataãŒæ›´æ–°ã•ã‚Œã‚‹
+	//m_inputTableå›ã—ã¦å„ã‚¤ãƒ™ãƒ³ãƒˆã®å…¥åŠ›ã‚’ãƒã‚§ãƒƒã‚¯ã™ã‚‹
 	for (const auto& inputInfo : m_inputTable)
 	{
-		auto& input = m_inputData[inputInfo.first];	// inputInfo.first‚É‚Í"ok"“™‚ª“ü‚Á‚Ä‚é
-		// input‚ğ‘‚«Š·‚¦‚é‚ÆAinputData_‚Ì‚»‚ÌƒCƒxƒ“ƒg‚ª‰Ÿ‚³‚ê‚Ä‚é‚©‚Ç‚¤‚©‚ğ’…‚©‚¦‚é‚±‚Æ‚É‚È‚é
-		// InputState‚Ìvector‚ğ‰ñ‚·
+		auto& input = m_inputData[inputInfo.first];// inputInfo.firstã«ã¯"ok"ç­‰ãŒå…¥ã£ã¦ã‚‹
+		//inputã‚’æ›¸ãæ›ãˆã‚‹ã¨ã€inputData_ã®ãã®ã‚¤ãƒ™ãƒ³ãƒˆãŒæŠ¼ã•ã‚Œã¦ã‚‹ã‹ã©ã†ã‹ã‚’ç€ã‹ãˆã‚‹ã“ã¨ã«ãªã‚‹
+		//InputStateã®vectorã‚’å›ã™
 		for (const auto& state : inputInfo.second)
 		{
-			// ‚±‚Ìƒ‹[ƒv‚ğInputState”z—ñ‚Ìƒ‹[ƒv‚È‚Ì‚ÅA‚Ü‚¸“ü—Íí•Ê‚ğƒ`ƒFƒbƒN‚µ‚Ü‚·
+			//ã“ã®ãƒ«ãƒ¼ãƒ—ã‚’InputStateé…åˆ—ã®ãƒ«ãƒ¼ãƒ—ãªã®ã§ã€ã¾ãšå…¥åŠ›ç¨®åˆ¥ã‚’ãƒã‚§ãƒƒã‚¯ã—ã¾ã™
 			switch (state.type)
 			{
-			case PeripheralType::keyboard:	//ƒL[ƒ{[ƒh‚¾‚Á‚½‚ç
-				//GetHitKeyStateAll‚Åæ‚Á‚Ä‚«‚½”z—ñ‚Ì’†g‚ğŒ©‚Ä“ü—Í‚³‚ê‚Ä‚¢‚é‚©‚Ç‚¤‚©ƒ`ƒFƒbƒN
+			case PeripheralType::keyboard://ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰ã ã£ãŸã‚‰
+				//GetHitKeyStateAllã§å–ã£ã¦ããŸé…åˆ—ã®ä¸­èº«ã‚’è¦‹ã¦å…¥åŠ›ã•ã‚Œã¦ã„ã‚‹ã‹ã©ã†ã‹ãƒã‚§ãƒƒã‚¯
 				input = keyState[state.id];
 				break;
-			case PeripheralType::pad1:	//PAD‚¾‚Á‚½‚ç
-				//GetJoypadState‚Åæ‚Á‚Ä‚«‚½ƒrƒbƒgî•ñ‚ğŒ©‚Ä“o˜^‚³‚ê‚Ä‚¢‚éƒrƒbƒgî•ñ‚Æ&‚ğæ‚èA‚»‚Ìƒrƒbƒg‚ª—§‚Á‚Ä‚¢‚é‚©‚Ç‚¤‚©‚ğƒ`ƒFƒbƒN
+			case PeripheralType::pad1://PADã ã£ãŸã‚‰
+				//GetJoypadStateã§å–ã£ã¦ããŸãƒ“ãƒƒãƒˆæƒ…å ±ã‚’è¦‹ã¦ç™»éŒ²ã•ã‚Œã¦ã„ã‚‹ãƒ“ãƒƒãƒˆæƒ…å ±ã¨&ã‚’å–ã‚Šã€ãã®ãƒ“ãƒƒãƒˆãŒç«‹ã£ã¦ã„ã‚‹ã‹ã©ã†ã‹ã‚’ãƒã‚§ãƒƒã‚¯
 				input = (padState & state.id);
 				break;
 			}
-			if (input)	//•K{I
+			if (input)//å¿…é ˆï¼
 			{
-				// ‚±‚±‚Åbreak‚µ‚È‚¢‚ÆAÅŒã‚Ìƒ`ƒFƒbƒN‚Å‰Ÿ‚³‚ê‚Ä‚È‚¢‚Æfalse‚É‚È‚é
+				//ã“ã“ã§breakã—ãªã„ã¨ã€æœ€å¾Œã®ãƒã‚§ãƒƒã‚¯ã§æŠ¼ã•ã‚Œã¦ãªã„ã¨falseã«ãªã‚‹
 				break;
 			}
 		}
 	}
 }
 
-
-
 bool Input::IsPressed(const char* name)const
 {
-	// ‚à‚µu‚È‚¢vƒCƒxƒ“ƒg‚ğ‘—‚ç‚ê‚é‚ÆƒNƒ‰ƒbƒVƒ…‚µ‚Ü‚·
-	return m_inputData.at(name);	// constŠÖ”“à•”‚È‚Ì‚Å[]‚Å‚Í‚È‚­at‚ğg—p‚µ‚Ä‚é
+	//ã‚‚ã—ã‚¤ãƒ™ãƒ³ãƒˆã‚’é€ã‚‰ã‚Œã‚‹ã¨ã‚¯ãƒ©ãƒƒã‚·ãƒ¥ã—ã¾ã™
+	return m_inputData.at(name);//consté–¢æ•°å†…éƒ¨ãªã®ã§[]ã§ã¯ãªãatã‚’ä½¿ç”¨ã—ã¦ã‚‹
 }
 
 bool Input::IsTriggered(const char* name) const
@@ -122,14 +117,10 @@ bool Input::IsTriggered(const char* name) const
 	return m_inputData.at(name) && !m_lastInputData.at(name);
 }
 
-
-
 void Input::Load()
 {
-	// –¢À‘•: İ’èƒtƒ@ƒCƒ‹“Ç‚İ‚İ‚Ís‚í‚È‚¢
+	//æœªå®Ÿè£…:è¨­å®šãƒ•ã‚¡ã‚¤ãƒ«èª­ã¿è¾¼ã¿ã¯è¡Œã‚ãªã„
 }
-
-
 
 float Input::GetStickLX()const
 {
@@ -145,7 +136,7 @@ float Input::GetStickLX()const
 
 float Input::GetStickLY()const
 {
-	//”»’è
+	//åˆ¤å®š
 	float value = -m_padState.Y / 1000.0f;
 
 	if (fabs(value) < 0.2f)
