@@ -1,4 +1,4 @@
-#include "Camera.h"
+ï»¿#include "Camera.h"
 #include "DxLib.h"
 //#include "../System/CollisionManager.h"
 //#include "../Game/Stage.h"
@@ -7,23 +7,23 @@
 
 namespace
 {
-	//’‹“_‚©‚çƒJƒƒ‰‚ÉŒü‚©‚¤ƒxƒNƒgƒ‹
+	//æ³¨è¦–ç‚¹ã‹ã‚‰ã‚«ãƒ¡ãƒ©ã«å‘ã‹ã†ãƒ™ã‚¯ãƒˆãƒ«
 	const Vector3 kTargetToCamera = Vector3(0.0f, 200.0f, 800.0f);
 
-	//’‹“_‚©‚çƒJƒƒ‰‚Ü‚Å‚Ì‹——£
+	//æ³¨è¦–ç‚¹ã‹ã‚‰ã‚«ãƒ¡ãƒ©ã¾ã§ã®è·é›¢
 	constexpr float kCameraDistance = 300.0f;
-	//ƒJƒƒ‰‚Ì‚‚³
+	//ã‚«ãƒ¡ãƒ©ã®é«˜ã•
 	constexpr float kCameraHeight = -250.0f;
 
-	//•âŠÔ
+	//è£œé–“
 	constexpr float kCameraFollow = 0.15f;
 
 	constexpr float kStickDeadZone = 0.001f;
 	constexpr float kCameraRotSpeedX = 1.2f;
 	constexpr float kCameraRotSpeedY = 1.0f;
-	//ƒWƒƒƒXƒg‰ñ”ğ‚Ì‚É‚Ğ‚­ƒJƒƒ‰‚Ì‹——£
+	//ã‚¸ãƒ£ã‚¹ãƒˆå›é¿ã®æ™‚ã«ã²ãã‚«ãƒ¡ãƒ©ã®è·é›¢
 	constexpr float kJustAvoidPullDistance = 150.0f;
-	//ˆø‚¢‚½ƒJƒƒ‰‚ªŒ³‚É–ß‚é‘¬‚³
+	//å¼•ã„ãŸã‚«ãƒ¡ãƒ©ãŒå…ƒã«æˆ»ã‚‹é€Ÿã•
 	constexpr float kPullRecoverySpeed = 0.3f;
 }
 
@@ -57,38 +57,13 @@ void Camera::Init(const Vector3& initialTarget, float initialAngle)
 void Camera::End()
 {
 }
-//targetpos’Ç]‚·‚éŠî€“_
-void Camera::Update(const Vector3& targetpos, const Vector3* lockonpos)
+//targetposè¿½å¾“ã™ã‚‹åŸºæº–ç‚¹
+void Camera::Update(const Vector3& targetPos)
 {
 
-	if (lockonpos != nullptr)
-	{
-		Vector3 toTarget = *lockonpos - targetpos;
-		toTarget.y = 0.0f;
-
-		if (toTarget.SqMagnitude() > 0.0001f)
-		{
-			toTarget = toTarget.Normalize();
-			m_cameraAngleX = atan2f(toTarget.x, toTarget.z);
-		}
-		//…•½‹——£
-		float horizontalDist = sqrtf((lockonpos->x - targetpos.x) * (lockonpos->x - targetpos.x) +
-			(lockonpos->z - targetpos.z) * (lockonpos->z - targetpos.z));
-		if (horizontalDist > 0.0001f)
-		{
-			m_cameraAngleY = atan2f(lockonpos->y - targetpos.y, horizontalDist) * 0.3f;
-		}
-		//ƒsƒbƒ`‚Ì§ŒÀ‚Í’Êí‚Æ“¯‚¶‚à‚Ì‚ğ“K—p‚µ‚Ä‚¨‚­
-		const float kMaxPitch = DX_PI_F * 0.4f;
-		const float kMinPitch = -DX_PI_F * 0.2f;
-		if (m_cameraAngleY > kMaxPitch) m_cameraAngleY = kMaxPitch;
-		if (m_cameraAngleY < kMinPitch) m_cameraAngleY = kMinPitch;
-	}
-	else
-	{
 		int xBuf = 0, yBuf = 0;
 
-		//‰EƒXƒeƒBƒbƒN“ü—Íæ“¾
+		//å³ã‚¹ãƒ†ã‚£ãƒƒã‚¯å…¥åŠ›å–å¾—
 		GetJoypadAnalogInputRight(&xBuf, &yBuf, DX_INPUT_PAD1);
 #ifdef _DEBUG
 
@@ -98,15 +73,15 @@ void Camera::Update(const Vector3& targetpos, const Vector3* lockonpos)
 		DrawFormatString(256, 160, 0xffffff, "CameraAngle : %.3f", m_cameraAngleX);
 #endif //_DEBUG
 
-		//³‹K‰»
+		//æ­£è¦åŒ–
 		float stickX = static_cast<float>(xBuf) / 32767.0f;
 		float stickY = static_cast<float>(yBuf) / 32767.0f;
 
-		//ƒfƒbƒhƒ][ƒ“
+		//ãƒ‡ãƒƒãƒ‰ã‚¾ãƒ¼ãƒ³
 		if (fabsf(stickX) < kStickDeadZone) stickX = 0.0f;
 		if (fabsf(stickY) < kStickDeadZone) stickY = 0.0f;
 
-		//ƒJƒƒ‰¶‰E‰ñ“]
+		//ã‚«ãƒ¡ãƒ©å·¦å³å›è»¢
 		if (stickX != 0.0f)
 		{
 			m_cameraAngleX += stickX * kCameraRotSpeedX;
@@ -115,10 +90,10 @@ void Camera::Update(const Vector3& targetpos, const Vector3* lockonpos)
 		{
 			m_cameraAngleY -= stickY * kCameraRotSpeedY;
 		}
-	}
+
 	const float kMaxPitch = DX_PI_F * 0.4f;
 	const float kMinPitch = -DX_PI_F * 0.2f;
-	//ã‰ºˆÚ“®‚Ì§ŒÀ
+	//ä¸Šä¸‹ç§»å‹•ã®åˆ¶é™
 	if (m_cameraAngleY > kMaxPitch)
 	{
 		m_cameraAngleY = kMaxPitch;
@@ -129,19 +104,19 @@ void Camera::Update(const Vector3& targetpos, const Vector3* lockonpos)
 		m_cameraAngleY = kMinPitch;
 	}
 
-	//Šp“x‚ğ-ƒÎ`ƒÎ‚Éû‚ß‚é
+	//è§’åº¦ã‚’-Ï€ï½Ï€ã«åã‚ã‚‹
 	if (m_cameraAngleX > DX_PI_F)  m_cameraAngleX -= DX_TWO_PI_F;
 	if (m_cameraAngleX < -DX_PI_F) m_cameraAngleX += DX_TWO_PI_F;
 
-	////ƒEƒBƒbƒ`ƒ^ƒCƒ€’†‚ÍƒJƒƒ‰‚ğˆø‚­
+	////ã‚¦ã‚£ãƒƒãƒã‚¿ã‚¤ãƒ ä¸­ã¯ã‚«ãƒ¡ãƒ©ã‚’å¼•ã
 	//if (Timer::Instance().IsEnemySlow())
 	//{
-	//	//–Ú•W’l‚É‹ß‚Ã‚¯‚é
+	//	//ç›®æ¨™å€¤ã«è¿‘ã¥ã‘ã‚‹
 	//	m_pullOffset += (kJustAvoidPullDistance - m_pullOffset) * kPullRecoverySpeed;
 	//}
 	//else
 	//{
-	//	//ƒEƒBƒbƒ`ƒ^ƒCƒ€‚ªI‚í‚Á‚½‚ç™X‚É–ß‚·
+	//	//ã‚¦ã‚£ãƒƒãƒã‚¿ã‚¤ãƒ ãŒçµ‚ã‚ã£ãŸã‚‰å¾ã€…ã«æˆ»ã™
 	//	m_pullOffset += (0.0f - m_pullOffset) * kPullRecoverySpeed;
 	//	if (fabsf(m_pullOffset) < 0.01f)
 	//	{
@@ -149,26 +124,24 @@ void Camera::Update(const Vector3& targetpos, const Vector3* lockonpos)
 	//	}
 	//}
 
-	//ƒvƒŒƒCƒ„[’Ç]æ
-	Vector3 cameraTarget = targetpos;
-	//’‹“_‚ğ‰º‚°‚é
-	cameraTarget.y += -180.0f;
+	//ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼è¿½å¾“å…ˆ
+	Vector3 cameraTarget = targetPos;
 
-	//ˆø‚¢‚½‚±‚Æ‚ğ‰Á–¡‚µ‚½ƒJƒƒ‰‚Ì‹——£
+	//å¼•ã„ãŸã“ã¨ã‚’åŠ å‘³ã—ãŸã‚«ãƒ¡ãƒ©ã®è·é›¢
 	float currentDistace = kCameraDistance + m_pullOffset;
 
-	//ƒJƒƒ‰‚ÌˆÊ’u
+	//ã‚«ãƒ¡ãƒ©ã®ä½ç½®
 	Vector3 offset;
 	offset.x = sinf(m_cameraAngleX) * cosf(m_cameraAngleY) * currentDistace;
 	offset.y = sinf(m_cameraAngleY) * currentDistace;
 	offset.z = cosf(m_cameraAngleX) * cosf(m_cameraAngleY) * currentDistace;
 
-	//ƒvƒŒƒCƒ„[‚ÌŒã‚ë‚©‚çŒ©‚é‚æ‚¤‚É‚·‚é‚È‚çu-offsetv
+	//ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®å¾Œã‚ã‹ã‚‰è¦‹ã‚‹ã‚ˆã†ã«ã™ã‚‹ãªã‚‰ã€Œ-offsetã€
 	Vector3 idealCameraPos = cameraTarget - offset;
 
 	Vector3 hitpos;
 
-	////ƒXƒe[ƒW‚Æ‚ÌƒŒƒC”»’è‚ğs‚¢AƒJƒƒ‰‚ªƒXƒe[ƒW‚É‚ß‚è‚Ü‚È‚¢‚æ‚¤‚É‚·‚é
+	////ã‚¹ãƒ†ãƒ¼ã‚¸ã¨ã®ãƒ¬ã‚¤åˆ¤å®šã‚’è¡Œã„ã€ã‚«ãƒ¡ãƒ©ãŒã‚¹ãƒ†ãƒ¼ã‚¸ã«ã‚ã‚Šè¾¼ã¾ãªã„ã‚ˆã†ã«ã™ã‚‹
 	//if (CollisionManager::Instance().CheckCameraRay(
 	//	m_pStage->GetModelHandle(),
 	//	m_cameraTarget,
@@ -179,30 +152,30 @@ void Camera::Update(const Vector3& targetpos, const Vector3* lockonpos)
 	//	m_cameraPos = hitpos + dir * 10.0f;
 	//}
 
-	//’Ç]
+	//è¿½å¾“
 	m_cameraPos = m_cameraPos + (idealCameraPos - m_cameraPos) * kCameraFollow;
 	m_cameraTarget = m_cameraTarget + (cameraTarget - m_cameraTarget) * kCameraFollow;
 
-	////ƒJƒƒ‰ƒVƒFƒCƒN
+	////ã‚«ãƒ¡ãƒ©ã‚·ã‚§ã‚¤ã‚¯
 	//Vector3 shakeOffset = Timer::Instance().GetShakeOffset();
 	//Vector3 shakenCameraPos = m_cameraPos + shakeOffset;
 	//Vector3 shakenCameraTarget = m_cameraTarget + shakeOffset;
 
-	//ƒJƒƒ‰”½‰f
+	//ã‚«ãƒ¡ãƒ©åæ˜ 
 	//SetCameraPositionAndTarget_UpVecY(shakenCameraPos.ToDxLibVector(), shakenCameraTarget.ToDxLibVector());
 
-	//ƒJƒƒ‰”½‰f
+	//ã‚«ãƒ¡ãƒ©åæ˜ 
 	SetCameraPositionAndTarget_UpVecY(m_cameraPos.ToDxLibVector(), m_cameraTarget.ToDxLibVector());
 
-	//Œõ
+	//å…‰
 	Vector3 camPos = m_cameraPos;
 	Vector3 target = m_cameraTarget;
 
-	////Œõ
+	////å…‰
 	//Vector3 camPos = shakenCameraPos.ToDxLibVector();
 	//Vector3 target = shakenCameraTarget.ToDxLibVector();
 
-	//ƒJƒƒ‰‚©‚ç’‹“_‚Ì•ûŒü
+	//ã‚«ãƒ¡ãƒ©ã‹ã‚‰æ³¨è¦–ç‚¹ã®æ–¹å‘
 	Vector3 LightDir = VNorm(VSub(target, camPos));
 
 	SetLightDirection(LightDir);
@@ -236,7 +209,7 @@ Vector3 Camera::GetRight() const
 	{
 		right = right.Normalize();
 	}
-	//ŠÔˆá‚Á‚Ä‚¢‚½‚©‚ç”½“]
+	//é–“é•ã£ã¦ã„ãŸã‹ã‚‰åè»¢
 	right *= -1;
 
 	return right;
@@ -244,6 +217,6 @@ Vector3 Camera::GetRight() const
 //
 //void Camera::CameraPull()
 //{
-//	//ƒWƒƒƒXƒg‰ñ”ğ‚ÉƒJƒƒ‰‚ğˆø‚­
+//	//ã‚¸ãƒ£ã‚¹ãƒˆå›é¿ã«ã‚«ãƒ¡ãƒ©ã‚’å¼•ã
 //	m_pullOffset = kJustAvoidPullDistance;
 //}

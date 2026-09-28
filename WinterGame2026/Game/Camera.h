@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <memory>
 #include "../Math/Vector3.h"
 class Stage;
@@ -9,33 +9,33 @@ public:
 	~Camera();
 	void Init(const Vector3& initialTarget, float initialAngle);
 	void End();
-	void Update(const Vector3& targetpos, const Vector3* lockonpos = nullptr);
+	void Update(const Vector3& targetPos);
 	void Draw();
 	//void SetStage(std::shared_ptr<Stage> stage) { m_pStage = stage; }
 	Vector3 GetForward() const;
 	Vector3 GetRight() const;
 
-	//ƒEƒBƒbƒ`ƒ^ƒCƒ€‚É‚È‚Á‚½‚çƒJƒƒ‰‚ğ‚Ğ‚­
+	//ã‚¦ã‚£ãƒƒãƒã‚¿ã‚¤ãƒ ã«ãªã£ãŸã‚‰ã‚«ãƒ¡ãƒ©ã‚’ã²ã
 	//void CameraPull();
 
 	const Vector3& GetPos()const { return m_cameraPos; }
 
 
 private:
-	//ƒvƒŒƒCƒ„[‚Ö‚ÌQÆ‚ğ•Û
+	//ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã¸ã®å‚ç…§ã‚’ä¿æŒ
 	std::shared_ptr<Stage> m_pStage;
 
-	//ƒJƒƒ‰‚ÌˆÊ’u
+	//ã‚«ãƒ¡ãƒ©ã®ä½ç½®
 	Vector3 m_cameraTarget = Vector3(0.0f,0.0f,0.0f);
 	Vector3 m_cameraPos  = Vector3(0.0f, 0.0f, 0.0f);
 
-	//ƒJƒƒ‰‚ÌŠp“x
-	//ƒJƒƒ‰‚Ì…•½‰ñ“]Šp“x
+	//ã‚«ãƒ¡ãƒ©ã®è§’åº¦
+	//ã‚«ãƒ¡ãƒ©ã®æ°´å¹³å›è»¢è§’åº¦
 	float m_cameraAngleX = 0.0f;
-	//ƒJƒƒ‰‚Ì‚’¼‰ñ“]Šp“x
+	//ã‚«ãƒ¡ãƒ©ã®å‚ç›´å›è»¢è§’åº¦
 	float m_cameraAngleY = 0.0f;
 
 	float m_cameraTargetY = 0.0f;
-	//ƒWƒƒƒXƒg‰ñ”ğ‚µ‚½‚Éˆø‚­—Ê
+	//ã‚¸ãƒ£ã‚¹ãƒˆå›é¿ã—ãŸæ™‚ã«å¼•ãé‡
 	float m_pullOffset = 0.0f;
 };

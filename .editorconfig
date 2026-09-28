@@ -1,0 +1,5 @@
+root = true
+
+# ソースファイルは常にBOM付きUTF-8で保存する
+[*.{cpp,h,hpp,c,inl}]
+charset = utf-8-bom

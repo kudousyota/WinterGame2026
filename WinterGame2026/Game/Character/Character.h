@@ -55,6 +55,8 @@ protected:
 	Vector3 m_forward = Vector3(0.0f, 0.0f, 0.0f);
 	//向き
 	Vector3 m_velocity = Vector3(0.0f, 0.0f, 0.0f);
+
+	float m_angle = 0.0f;
 	//スピード
 	float m_speed = 0.0f;
 	//重力

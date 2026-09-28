@@ -6,7 +6,7 @@
 
 namespace
 {
-	const Vector3 kPlayerToTarget = Vector3(0.0f, 200.0f, 800.0f);
+	const Vector3 kPlayerToTarget = Vector3(0.0f, 200.0f, 0.0f);
 
 	//重力
 	constexpr float kGravity = 0.5f;
@@ -98,4 +98,10 @@ void Player::Draw()
 Vector3 Player::GetCameraTarget()
 {
 	return m_pos + kPlayerToTarget;
+}
+
+void Player::SetCameraAxis(const Vector3& forward, const Vector3& right)
+{
+	m_cameraForward = forward;
+	m_cameraRight = right;
 }

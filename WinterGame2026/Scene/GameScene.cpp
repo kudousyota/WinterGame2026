@@ -22,14 +22,22 @@ void GameScene::Init()
 	SetupCamera_Perspective(DX_PI_F / 3.0f);
 	SetCameraNearFar(200.0f, 1500.0f);
 
+	//先にプレイヤーを生成
 	m_pPlayer = std::make_shared<Player>();
 	m_pPlayer->Init();
+
+	m_pCamera = std::make_shared<Camera>();
+	m_pCamera->Init(m_pPlayer->GetCameraTarget(),m_pPlayer->GetAngle());
 
 }
 void GameScene::Update()
 {
 	m_frameCount++;
+	//カメラ基準で移動させるためにカメラの向きを渡す
+	m_pPlayer->SetCameraAxis(m_pCamera->GetForward(), m_pCamera->GetRight());
 	m_pPlayer->Update();
+
+	m_pCamera->Update(m_pPlayer->GetCameraTarget());
 }
 
 void GameScene::Draw()
