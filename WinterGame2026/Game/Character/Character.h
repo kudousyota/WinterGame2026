@@ -37,6 +37,7 @@ public:
 	Animation& GetAnim() { return m_anim; }
 
 protected:
+	
 	void LoadStatus(const std::string& name);
 
 	//ステートの更新と切り替えを行う

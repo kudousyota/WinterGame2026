@@ -2,10 +2,11 @@
 #include "DxLib.h"
 #include <cassert>
 #include "../System/Input.h"
+#include "../System/Timer.h"
 #include "../Scene/GameScene.h"
 #include "../Game.h"
 #include "../Comon/Model.h"
-#include "../DataManager.h"
+#include "../DataLoader/DataManager.h"
 
 
 Application::Application()
@@ -97,7 +98,7 @@ void Application::Run()
 		ClearDrawScreen();
 		Input::Instance().Update();
 		//タイマーの更新(時間スケールやウィッチタイムの残りフレームを減らす)
-		//Timer::Instance().Update();
+		Timer::Instance().Update();
 
 		//controller.Update(input);
 		//controller.Draw();

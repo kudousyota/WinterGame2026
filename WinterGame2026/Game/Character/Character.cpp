@@ -1,5 +1,5 @@
 ﻿#include "Character.h"
-#include "../DataManager.h"
+#include "../../DataLoader/DataManager.h"
 Character::Character()
 {
 }

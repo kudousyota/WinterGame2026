@@ -141,12 +141,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DataLoader\AttackData.cpp" />
+    <ClCompile Include="Game\Breath.cpp" />
+    <ClCompile Include="Game\Character\Alien.cpp" />
     <ClCompile Include="Game\Character\Enemy.cpp" />
+    <ClCompile Include="System\Projectile.cpp" />
+    <ClCompile Include="System\ProjectileManager.cpp" />
     <ClCompile Include="System\Animation.cpp" />
     <ClCompile Include="Game\Camera.cpp" />
     <ClCompile Include="Comon\Model.cpp" />
     <ClCompile Include="System\Application.cpp" />
-    <ClCompile Include="DataManager.cpp" />
+    <ClCompile Include="DataLoader\DataManager.cpp" />
     <ClCompile Include="Game\Character\Character.cpp" />
     <ClCompile Include="System\Input.cpp" />
     <ClCompile Include="main.cpp" />
@@ -159,16 +164,22 @@
     <ClCompile Include="Game\Character\State\PlayerStateJump.cpp" />
     <ClCompile Include="Game\Character\State\PlayerStateWalk.cpp" />
     <ClCompile Include="Scene\GameScene.cpp" />
-    <ClCompile Include="StatusData.cpp" />
+    <ClCompile Include="DataLoader\StatusData.cpp" />
     <ClCompile Include="System\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Comon\CharacterType.h" />
+    <ClInclude Include="DataLoader\AttackData.h" />
+    <ClInclude Include="Game\Breath.h" />
+    <ClInclude Include="Game\Character\Alien.h" />
     <ClInclude Include="Game\Character\Enemy.h" />
+    <ClInclude Include="System\Projectile.h" />
+    <ClInclude Include="System\ProjectileManager.h" />
     <ClInclude Include="System\Animation.h" />
     <ClInclude Include="Game\Camera.h" />
     <ClInclude Include="Comon\Model.h" />
     <ClInclude Include="System\Application.h" />
-    <ClInclude Include="DataManager.h" />
+    <ClInclude Include="DataLoader\DataManager.h" />
     <ClInclude Include="Game\Character\Character.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="System\Input.h" />
@@ -182,7 +193,7 @@
     <ClInclude Include="Game\Character\State\PlayerStateWalk.h" />
     <ClInclude Include="Game\Character\State\StateBase.h" />
     <ClInclude Include="Scene\GameScene.h" />
-    <ClInclude Include="StatusData.h" />
+    <ClInclude Include="DataLoader\StatusData.h" />
     <ClInclude Include="System\Timer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -6,11 +6,6 @@
 class StatusData
 {
 public:
-	enum class CharacterType
-	{
-		Player,
-		Enemy,
-	};
 	struct StatusInfo
 	{
 		//キャラクターの名前

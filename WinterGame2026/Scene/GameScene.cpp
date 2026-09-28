@@ -1,6 +1,7 @@
 ﻿#include "GameScene.h"
 #include "DxLib.h"
 #include "../Game/Character/Character.h"
+#include "../System/ProjectileManager.h"
 
 GameScene::GameScene():
 m_frameCount(0)
@@ -36,6 +37,8 @@ void GameScene::Update()
 	//カメラ基準で移動させるためにカメラの向きを渡す
 	m_pPlayer->SetCameraAxis(m_pCamera->GetForward(), m_pCamera->GetRight());
 	m_pPlayer->Update();
+	//飛び道具の更新
+	ProjectileManager::Instance().Update();
 
 	m_pCamera->Update(m_pPlayer->GetCameraTarget());
 }
@@ -43,6 +46,8 @@ void GameScene::Update()
 void GameScene::Draw()
 {
 	m_pPlayer->Draw();
+	//飛び道具の描画
+	ProjectileManager::Instance().Draw();
 #ifdef _DEBUG
 	DrawGrid();
 	DrawString(0, 0, "GameScene", GetColor(255, 255, 255));

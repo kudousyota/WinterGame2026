@@ -4,9 +4,9 @@ class Enemy : public Character
 {
 public:
 	Enemy();
-	~Enemy();
-	void Init();
-	void Update();
-	void Draw();
+	~Enemy()override;
+	void Init()override;
+	void Update()override;
+	void Draw()override;
 };
 
