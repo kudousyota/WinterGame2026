@@ -6,6 +6,8 @@
 
 namespace
 {
+	const Vector3 kPlayerToTarget = Vector3(0.0f, 200.0f, 800.0f);
+
 	//重力
 	constexpr float kGravity = 0.5f;
 	//地面の高さ
@@ -91,4 +93,9 @@ void Player::Draw()
 		DrawFormatString(0, 32, GetColor(255, 255, 255), "Player:%s", m_pState->GetKindName());
 	}
 #endif // _DEBUG
+}
+
+Vector3 Player::GetCameraTarget()
+{
+	return m_pos + kPlayerToTarget;
 }

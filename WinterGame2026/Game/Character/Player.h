@@ -9,6 +9,8 @@ public:
 	void Init()override;
 	void Update()override;
 	void Draw()override;
+
+	Vector3 GetCameraTarget();
 private:
 	int m_modelHandle = -1;
 };

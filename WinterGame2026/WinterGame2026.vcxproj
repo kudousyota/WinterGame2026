@@ -137,6 +137,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Game\Camera.cpp" />
     <ClCompile Include="Comon\Model.cpp" />
     <ClCompile Include="System\Application.cpp" />
     <ClCompile Include="DataManager.cpp" />
@@ -155,6 +156,7 @@
     <ClCompile Include="StatusData.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Game\Camera.h" />
     <ClInclude Include="Comon\Model.h" />
     <ClInclude Include="System\Application.h" />
     <ClInclude Include="DataManager.h" />
