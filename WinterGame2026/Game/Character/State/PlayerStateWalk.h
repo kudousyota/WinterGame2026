@@ -8,5 +8,6 @@ public:
 	using PlayerStateBase::PlayerStateBase;
 
 	void Update() override;
+	void Enter()override;
 	StateKind GetKind() const override { return StateKind::Walk; }
 };

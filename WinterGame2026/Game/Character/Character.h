@@ -3,6 +3,7 @@
 #include "State/StateBase.h"
 #include <memory>
 #include <string>
+#include "../../System/Animation.h"
 class Character
 {
 public:
@@ -32,6 +33,8 @@ public:
 	float GetSpeed()const { return m_speed; }
 	bool IsGround()const { return m_isGround; }
 	void SetInvincible(bool isInvincible) { m_isInvincible = isInvincible; }
+	//アニメーション
+	Animation& GetAnim() { return m_anim; }
 
 protected:
 	void LoadStatus(const std::string& name);
@@ -48,6 +51,7 @@ protected:
 	std::unique_ptr<StateBase> m_pState;
 	//次のステート(ChangeStateで予約される)
 	std::unique_ptr<StateBase> m_pNextState;
+	Animation m_anim;
 
 	//位置
 	Vector3 m_pos = Vector3(0.0f,0.0f,0.0f);
@@ -55,7 +59,7 @@ protected:
 	Vector3 m_forward = Vector3(0.0f, 0.0f, 0.0f);
 	//向き
 	Vector3 m_velocity = Vector3(0.0f, 0.0f, 0.0f);
-
+	//今の角度
 	float m_angle = 0.0f;
 	//スピード
 	float m_speed = 0.0f;

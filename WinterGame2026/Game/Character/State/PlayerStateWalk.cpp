@@ -32,3 +32,7 @@ void PlayerStateWalk::Update()
 
 	Move(1.0f);
 }
+void PlayerStateWalk::Enter()
+{
+	m_player.GetAnim().ChangeAnim("Player|Run", true,0.5f);
+}

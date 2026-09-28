@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="System\Animation.cpp" />
     <ClCompile Include="Game\Camera.cpp" />
     <ClCompile Include="Comon\Model.cpp" />
     <ClCompile Include="System\Application.cpp" />
@@ -158,8 +159,10 @@
     <ClCompile Include="Game\Character\State\PlayerStateWalk.cpp" />
     <ClCompile Include="Scene\GameScene.cpp" />
     <ClCompile Include="StatusData.cpp" />
+    <ClCompile Include="System\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="System\Animation.h" />
     <ClInclude Include="Game\Camera.h" />
     <ClInclude Include="Comon\Model.h" />
     <ClInclude Include="System\Application.h" />
@@ -178,6 +181,7 @@
     <ClInclude Include="Game\Character\State\StateBase.h" />
     <ClInclude Include="Scene\GameScene.h" />
     <ClInclude Include="StatusData.h" />
+    <ClInclude Include="System\Timer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -31,3 +31,8 @@ void PlayerStateIdle::Update()
 
 	StopMove();
 }
+
+void PlayerStateIdle::Enter()
+{
+	m_player.GetAnim().ChangeAnim("Player|Idle", true);
+}

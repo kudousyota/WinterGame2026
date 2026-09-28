@@ -12,6 +12,12 @@ namespace
 	constexpr float kGravity = 0.5f;
 	//地面の高さ
 	constexpr float kGroundY = 0.0f;
+
+	//回転の補完
+	constexpr float kRotateRate = 0.2f;
+
+	//アニメション
+	const char* const kIdleAnimName = "Player|Idle";
 }
 
 Player::Player()
@@ -28,6 +34,8 @@ void Player::Init()
 {
 	//モデルの生成
 	m_modelHandle = Model::Instance().CreatPlayerModel();
+	//アニメションの初期化
+	m_anim.Init(m_modelHandle, kIdleAnimName, true);
 
 	//ステータスの初期化
 	LoadStatus("Player");
@@ -53,6 +61,9 @@ void Player::Update()
 
 	//ステートの更新
 	UpdateState();
+	//アニメーションの更新
+	m_anim.Update(1.0f);
+
 
 	//重力
 	m_velocity.y -= m_gravity;
@@ -78,8 +89,17 @@ void Player::Update()
 		m_forward = moveXZ.Normalize();
 	}
 	//モデルは-Z方向に向きを合わせる
-	float angle = atan2f(m_forward.x, m_forward.z) + DX_PI_F;
-	MV1SetRotationXYZ(m_modelHandle, VGet(0.0f, angle, 0.0f));
+	float targetAngle = atan2f(m_forward.x, m_forward.z) + DX_PI_F;
+
+	//目標の角度との差を-π~πにおさめる(遠回りして回転しないようにする)
+	float diff = targetAngle - m_angle;
+	while (diff > DX_PI_F)  diff -= DX_TWO_PI_F;
+	while (diff < -DX_PI_F) diff += DX_TWO_PI_F;
+
+	//差の一部だけ回転して、少しずつ目標の向きに近づける
+	m_angle += diff * kRotateRate;
+
+	MV1SetRotationXYZ(m_modelHandle, VGet(0.0f, m_angle, 0.0f));
 	MV1SetPosition(m_modelHandle, m_pos);
 }
 
