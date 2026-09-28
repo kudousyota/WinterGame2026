@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Game\Character\Enemy.cpp" />
     <ClCompile Include="System\Animation.cpp" />
     <ClCompile Include="Game\Camera.cpp" />
     <ClCompile Include="Comon\Model.cpp" />
@@ -162,6 +163,7 @@
     <ClCompile Include="System\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Game\Character\Enemy.h" />
     <ClInclude Include="System\Animation.h" />
     <ClInclude Include="Game\Camera.h" />
     <ClInclude Include="Comon\Model.h" />
