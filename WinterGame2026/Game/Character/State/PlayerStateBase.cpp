@@ -35,6 +35,5 @@ void PlayerStateBase::Move(float speedScale)
 
 void PlayerStateBase::StopMove()
 {
-	auto vel = m_player.GetVelocity();
-	m_player.SetVelocity(Vector3(0.0f, vel.y, 0.0f));
+	m_player.StopMove();
 }

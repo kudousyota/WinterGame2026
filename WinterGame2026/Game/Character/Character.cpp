@@ -33,6 +33,11 @@ bool Character::IsDead() const
 	return m_isDead;
 }
 
+void Character::StopMove()
+{
+	m_velocity = Vector3(0.0f, m_velocity.y, 0.0f);
+}
+
 void Character::ChangeState(std::unique_ptr<StateBase> nextState)
 {
 	m_pNextState = std::move(nextState);

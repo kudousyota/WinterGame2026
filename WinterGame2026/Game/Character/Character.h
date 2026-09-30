@@ -26,7 +26,11 @@ public:
 	//現在のステートの種類を取得
 	StateBase::StateKind GetStateKind()const;
 
+	//水平方向の速度を0にする(Y方向の速度は維持)
+	void StopMove();
+
 	//ステートから操作するためのアクセサ
+	const Vector3& GetPos()const { return m_pos; }
 	const Vector3& GetVelocity()const { return m_velocity; }
 	void SetVelocity(const Vector3& velocity) { m_velocity = velocity; }
 	const Vector3& GetForward()const { return m_forward; }
