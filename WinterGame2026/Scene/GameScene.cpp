@@ -2,6 +2,7 @@
 #include "DxLib.h"
 #include "../Game/Character/Character.h"
 #include "../System/ProjectileManager.h"
+#include "../Game/Character/Alien.h"
 
 GameScene::GameScene():
 m_frameCount(0)
@@ -27,6 +28,10 @@ void GameScene::Init()
 	m_pPlayer = std::make_shared<Player>();
 	m_pPlayer->Init();
 
+	//エイリアンの生成
+	m_pAlien = std::make_shared<Alien>();
+	m_pAlien->Init();
+
 	m_pCamera = std::make_shared<Camera>();
 	m_pCamera->Init(m_pPlayer->GetCameraTarget(),m_pPlayer->GetAngle());
 
@@ -37,6 +42,9 @@ void GameScene::Update()
 	//カメラ基準で移動させるためにカメラの向きを渡す
 	m_pPlayer->SetCameraAxis(m_pCamera->GetForward(), m_pCamera->GetRight());
 	m_pPlayer->Update();
+
+	m_pAlien->Update();
+	
 	//飛び道具の更新
 	ProjectileManager::Instance().Update();
 
@@ -46,6 +54,7 @@ void GameScene::Update()
 void GameScene::Draw()
 {
 	m_pPlayer->Draw();
+	m_pAlien->Draw();
 	//飛び道具の描画
 	ProjectileManager::Instance().Draw();
 #ifdef _DEBUG

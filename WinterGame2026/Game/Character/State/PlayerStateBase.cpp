@@ -22,7 +22,7 @@ Vector3 PlayerStateBase::GetMoveInput() const
 		dir = dir.Normalize();
 	}
 
-	//入力をカメラ基準の方向に変換する(上入力でカメラの向いている方向へ進む)
+	//入力をカメラ基準の方向に変換する
 	return m_player.GetCameraRight() * dir.x + m_player.GetCameraForward() * dir.z;
 }
 
