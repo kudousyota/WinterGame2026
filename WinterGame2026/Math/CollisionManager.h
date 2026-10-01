@@ -15,8 +15,20 @@ public:
 	std::vector<Character*> CheckAttackSphere(const AttackData& attackdata, const Vector3& pos);
 	//攻撃用のカプセル判定
 	std::vector<Character*> CheckAttackCapsule(const AttackData& attackdata, const Vector3& start, const Vector3& end);
-	//ステージとの判定
-	bool CheckStageWall(Character* caracter, int stagehandle);
+	//ステージの壁との判定結果
+	struct WallHitResult
+	{
+		//壁に当たったか
+		bool isHit = false;
+		//押し出し後の足元の位置
+		Vector3 pos;
+		//押し出した方向(壁ずりに使う)
+		Vector3 normal;
+	};
+	//指定した足元位置で壁との判定をして、押し出し後の位置を返す(キャラクターの位置は書き換えない)
+	WallHitResult ResolveStageWall(const Character& character, int stagehandle, const Vector3& footPos);
+	//ステージとの判定(押し出し後の位置をキャラクターに反映する)
+	bool CheckStageWall(Character* character, int stagehandle);
 	//ステージの地面
 	bool CheckStageGround(Character* character, int stagehandle, float& outGroundY, Vector3& outGroundNormal);
 	//カメラとステージの判定

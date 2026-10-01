@@ -207,100 +207,129 @@ std::vector<Character*> CollisionManager::CheckAttackCapsule(const AttackData& a
 	}
 	return hitCharacters;
 }
-//キャラクターとステージの壁との衝突を判定し、めり込んでいた場合は壁の外側へ押し出す
-bool CollisionManager::CheckStageWall(Character* character, int stagehandle)
+//指定した足元位置でキャラクターとステージの壁との衝突を判定し、押し出し後の位置を求める
+//キャラクターの位置は書き換えない(反映は呼び出し側で行う)
+CollisionManager::WallHitResult CollisionManager::ResolveStageWall(const Character& character, int stagehandle, const Vector3& footPos)
 {
-	//プレイヤーのカプセル情報を取得
-	float radius = character->GetCollisionRadius();
+	WallHitResult result;
+	result.pos = footPos;
 
-	//足元基準の現在地
-	Vector3 pos = character->GetPos();
-	//このフレームで一回でもポリゴンに当たったか確認
-	bool hitAny = false;
+	//押し出し途中の位置
+	Vector3 pos = footPos;
+	//押し出した量の合計(壁ずりの法線に使う)
+	Vector3 totalPush(0.0f, 0.0f, 0.0f);
 
-	//当たっていたら
-	//4回判定する
+	//角などで複数の壁に当たったときのために数回押し出す
 	const int kMaxIteration = 4;
 	for (int iter = 0; iter < kMaxIteration; iter++)
 	{
 		//押し出し途中の位置でカプセルの始点と終点を作成
-		Character::Capsule capsule = character->GetCapsuleAt(pos);
+		Character::Capsule capsule = character.GetCapsuleAt(pos);
 		VECTOR start = capsule.start;
 		VECTOR end = capsule.end;
+		float radius = capsule.radius;
+
 		//ステージとのカプセル衝突判定
 		auto hit = MV1CollCheck_Capsule(stagehandle, -1, start, end, radius);
-		//何もヒットしなければ,これ以上押し出す必要はない
+		//何もヒットしなければ、これ以上押し出す必要はない
 		if (hit.HitNum == 0)
 		{
 			MV1CollResultPolyDimTerminate(hit);
 			break;
 		}
-		//ポリゴンに当たったか記録
-		//ここでは壁ポリゴンに当たったかを一旦保留にする
-		//一番めり込んだポリゴンを探すための変数
-		float maxDepth = -FLT_MAX;
-		//一番深いポリゴンの法線を保持
-		Vector3 bestNormal;
-		//当たったポリゴンをチェック
+
+		//一番深くめり込んでいるポリゴンを探す
+		float maxPush = 0.0f;
+		Vector3 bestDir;
 		for (int i = 0; i < hit.HitNum; i++)
 		{
-			Vector3 fullNormal(hit.Dim[i].Normal.x, hit.Dim[i].Normal.y, hit.Dim[i].Normal.z);
-			fullNormal = fullNormal.Normalize();
+			const auto& poly = hit.Dim[i];
 
-			//歩ける床と坂とみなして壁判定から除外
-			//歩行可能な坂道は壁として扱わない
-			if (fullNormal.y >= kWalkableSlopeCos)
-			{
-				//坂と床はスキップ
-				continue;
-			}
-			//法線のY成分を無視してXZ平面に投射
-			Vector3 rawNormal(hit.Dim[i].Normal.x, 0.0f, hit.Dim[i].Normal.z);
-
-			//ほぼ水平なポリゴン床は壁判定から除外
-			float lenSq = rawNormal.SqMagnitude();
-			if (lenSq < 0.0001f)
+			//歩行可能な床・坂道は壁として扱わない
+			Vector3 polyNormal = Vector3(poly.Normal).Normalize();
+			if (polyNormal.y >= kWalkableSlopeCos)
 			{
 				continue;
 			}
-			//歩行可能な坂道は壁として扱わない
-			Vector3 normal(hit.Dim[i].Normal.x, 0.0f, hit.Dim[i].Normal.z);
 
-			normal = normal.Normalize();
-			//ポリゴンの頂点の一つを平面上の点として使う
-			Vector3 planepoint(hit.Dim[i].Position[0].x,
-				hit.Dim[i].Position[0].y,
-				hit.Dim[i].Position[0].z);
+			//カプセル軸と三角形の最近接点を求める
+			SEGMENT_TRIANGLE_RESULT segTri;
+			Segment_Triangle_Analyse(&start, &end, &poly.Position[0], &poly.Position[1], &poly.Position[2], &segTri);
 
-			//カプセル軸
-			Vector3 axispoint(pos.x, planepoint.y, pos.z);
-			//平面点からカプセル軸への距離を法線方向に射影
-			float signedDist = normal.Dot(axispoint - planepoint);
-
-			//半径よりも平面に近ければめり込んでいる
-			float depth = radius - signedDist;
-			//最も深くめり込んでいるポリゴンを記録
-			if (depth > maxDepth)
+			//半径より離れていればめり込んでいない
+			if (segTri.Seg_Tri_MinDist_Square >= radius * radius)
 			{
-				maxDepth = depth;
-				bestNormal = normal;
+				continue;
 			}
 
-		}
-		//実際に壁として押し出しが発生した場合のみ hitAny を立てる
-		//実際にめり込んでいた場合のみ、その分だけ壁の法線方向に押し出す
-		if (maxDepth > 0.0f)
-		{
-			pos += bestNormal * maxDepth;
-			hitAny = true;
+			//三角形上の点 → カプセル軸上の点 のベクトル
+			Vector3 diff = Vector3(segTri.Seg_MinDist_Pos) - Vector3(segTri.Tri_MinDist_Pos);
+			//壁は水平方向にだけ押し出す
+			Vector3 dir(diff.x, 0.0f, diff.z);
+			float horizontalDist = dir.Magnitude();
+
+			float push = 0.0f;
+			if (horizontalDist > 0.0001f)
+			{
+				dir = dir / horizontalDist;
+				//水平に押し出したあと、最近接点までの距離がちょうど半径になる量
+				//(radius^2 = (horizontalDist + push)^2 + diff.y^2 から求める)
+				push = sqrtf(radius * radius - diff.y * diff.y) - horizontalDist;
+			}
+			else
+			{
+				//カプセル軸が三角形に刺さっている場合はポリゴンの法線方向に押し出す
+				dir = Vector3(polyNormal.x, 0.0f, polyNormal.z);
+				//ほぼ水平なポリゴン(天井など)は壁として扱わない
+				if (dir.SqMagnitude() < 0.0001f)
+				{
+					continue;
+				}
+				dir = dir.Normalize();
+				push = radius;
+			}
+
+			//一番深いものを記録
+			if (push > maxPush)
+			{
+				maxPush = push;
+				bestDir = dir;
+			}
 		}
 		//ヒット結果のメモリを解放
 		MV1CollResultPolyDimTerminate(hit);
+
+		//押し出す必要がなければ終了
+		if (maxPush <= 0.0f)
+		{
+			break;
+		}
+		//一番深い壁から押し出す
+		pos += bestDir * maxPush;
+		totalPush += bestDir * maxPush;
+		result.isHit = true;
 	}
-	//押し出し後の最終的な座標をキャラクターに反映
-	character->SetPosition(pos);
-	//壁に一度でも当たったかを返す
-	return hitAny;
+
+	result.pos = pos;
+	//押し出した方向を壁の法線として返す
+	if (result.isHit && totalPush.SqMagnitude() > 0.000001f)
+	{
+		result.normal = totalPush.Normalize();
+	}
+	return result;
+}
+
+//キャラクターとステージの壁との衝突を判定し、めり込んでいた場合は壁の外側へ押し出す
+bool CollisionManager::CheckStageWall(Character* character, int stagehandle)
+{
+	WallHitResult wall = ResolveStageWall(*character, stagehandle, character->GetPos());
+	//押し出し後の座標をキャラクターに反映
+	if (wall.isHit)
+	{
+		character->SetPosition(wall.pos);
+	}
+	//壁に当たったかを返す
+	return wall.isHit;
 }
 
 bool CollisionManager::CheckStageGround(Character* character, int stagehandle, float& outGroundY, Vector3& outGroundNormal)

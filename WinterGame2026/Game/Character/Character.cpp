@@ -1,6 +1,7 @@
 ﻿#include "Character.h"
 #include "../../DataLoader/DataManager.h"
 #include "../../DataLoader/AttackData.h"
+#include "../../Math/CollisionManager.h"
 Character::Character()
 {
 }
@@ -70,6 +71,39 @@ bool Character::IsDead() const
 void Character::StopMove()
 {
 	m_velocity = Vector3(0.0f, m_velocity.y, 0.0f);
+}
+
+void Character::MoveHorizontalWithStage(int stageHandle)
+{
+	Vector3 move(m_velocity.x, 0.0f, m_velocity.z);
+
+	//1回に動く距離を半径の半分以下にする
+	float stepLength = m_collisionRadius * 0.5f;
+	if (stepLength <= 0.0f)
+	{
+		//当たり判定の大きさが設定されていなければそのまま動かす
+		m_pos += move;
+		return;
+	}
+	int stepNum = static_cast<int>(move.Magnitude() / stepLength) + 1;
+	Vector3 step = move / static_cast<float>(stepNum);
+
+	for (int i = 0; i < stepNum; i++)
+	{
+		m_pos += step;
+
+		auto wall = CollisionManager::Instance().ResolveStageWall(*this, stageHandle, m_pos);
+		if (!wall.isHit) continue;
+
+		m_pos = wall.pos;
+
+		//壁ずり:壁に向かう成分を消して、残りの移動と速度を壁に沿わせる
+		float stepInto = step.Dot(wall.normal);
+		if (stepInto < 0.0f) step -= wall.normal * stepInto;
+
+		float velocityInto = m_velocity.Dot(wall.normal);
+		if (velocityInto < 0.0f) m_velocity -= wall.normal * velocityInto;
+	}
 }
 
 void Character::ChangeState(std::unique_ptr<StateBase> nextState)

@@ -85,6 +85,10 @@ protected:
 	
 	void LoadStatus(const std::string& name);
 
+	//水平方向の移動をステージの壁と判定しながら行う
+	//速い移動でも壁をすり抜けないように分割して移動し、壁に沿って滑らせる
+	void MoveHorizontalWithStage(int stageHandle);
+
 	//ジャスト回避が成功したときに呼ばれる(処理は派生クラスで書く)
 	virtual void OnJustDodge() {}
 
