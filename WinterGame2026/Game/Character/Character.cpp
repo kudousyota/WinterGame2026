@@ -48,6 +48,20 @@ void Character::OnHit(const AttackData& attackData)
 	ApplyDamage(attackData.GetDamage());
 }
 
+Character::Capsule Character::GetCapsuleAt(const Vector3& footPos) const
+{
+	Capsule capsule;
+	capsule.radius = m_collisionRadius;
+	//下の球の中心は足元から半径分上
+	capsule.start = footPos + Vector3(0.0f, m_collisionRadius, 0.0f);
+	//上の球の中心は頭のてっぺんから半径分下
+	//高さが半径の2倍より小さい場合は球として扱う
+	float endY = m_collisionHeight - m_collisionRadius;
+	if (endY < m_collisionRadius) endY = m_collisionRadius;
+	capsule.end = footPos + Vector3(0.0f, endY, 0.0f);
+	return capsule;
+}
+
 bool Character::IsDead() const
 {
 	return m_isDead;

@@ -22,8 +22,8 @@ namespace
 	//当たり判定
 	//カプセルの半径
 	constexpr float kCollisionRadius = 40.0f;
-	//カプセルの高さ
-	constexpr float kCollisionHeight = 120.0f;
+	//カプセルの高さ(足元から頭のてっぺんまで)
+	constexpr float kCollisionHeight = 200.0f;
 	//ジャスト回避の判定半径
 	constexpr float kJustDodgeRadius = 80.0f;
 }

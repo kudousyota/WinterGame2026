@@ -9,6 +9,17 @@ class AttackData;
 class Character
 {
 public:
+	//当たり判定用のカプセル
+	struct Capsule
+	{
+		//下の球の中心
+		Vector3 start;
+		//上の球の中心
+		Vector3 end;
+		//半径
+		float radius = 0.0f;
+	};
+
 	Character();
 	virtual~Character();
 
@@ -50,11 +61,15 @@ public:
 	//当たり判定用のアクセサ
 	//位置を設定する(押し出しなどで使う)
 	void SetPosition(const Vector3& pos) { m_pos = pos; }
-	//カプセルの始点(足元から半径分上げた位置)
-	Vector3 GetCollisionPosition()const { return m_pos + Vector3(0.0f, m_collisionRadius, 0.0f); }
+	//現在位置のカプセルを取得
+	Capsule GetCapsule()const { return GetCapsuleAt(m_pos); }
+	//指定した足元位置にいるときのカプセルを取得(押し出し計算の途中などで使う)
+	Capsule GetCapsuleAt(const Vector3& footPos)const;
+	//体の中心(ロックオン・エフェクト・狙う位置などに使う)
+	Vector3 GetCenterPos()const { return m_pos + Vector3(0.0f, m_collisionHeight * 0.5f, 0.0f); }
 	//カプセルの半径
 	float GetCollisionRadius()const { return m_collisionRadius; }
-	//カプセルの高さ(始点から終点までの長さ)
+	//カプセルの高さ(足元から頭のてっぺんまでの全体の高さ)
 	float GetCollisionHeight()const { return m_collisionHeight; }
 	//ジャスト回避の判定半径
 	float GetJustDodgeRadius()const { return m_justDodgeRadius; }
@@ -123,7 +138,7 @@ protected:
 	//当たり判定
 	//カプセルの半径
 	float m_collisionRadius = 0.0f;
-	//カプセルの高さ
+	//カプセルの高さ(足元から頭のてっぺんまでの全体の高さ)
 	float m_collisionHeight = 0.0f;
 	//ジャスト回避の判定半径
 	float m_justDodgeRadius = 0.0f;

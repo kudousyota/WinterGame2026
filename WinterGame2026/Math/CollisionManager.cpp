@@ -87,11 +87,11 @@ std::vector<Character*> CollisionManager::CheckAttackSphere(const AttackData& at
 		}
 
 		//キャラクターのカプセル情報を取得
-		float capsuleHeight = character->GetCollisionHeight();
+		Character::Capsule capsule = character->GetCapsule();
 
 		//カプセルの線分(a -> b)
-		Vector3 a = character->GetCollisionPosition();
-		Vector3 b = Vector3(a.x, a.y + capsuleHeight, a.z);
+		Vector3 a = capsule.start;
+		Vector3 b = capsule.end;
 
 		Vector3 ab = b - a;
 		Vector3 ap = pos - a;
@@ -130,7 +130,7 @@ std::vector<Character*> CollisionManager::CheckAttackSphere(const AttackData& at
 		}
 
 		//ジャスト回避が不発、または受付時間外だった場合、通常の判定でチェック
-		float normalRadius = character->GetCollisionRadius();
+		float normalRadius = capsule.radius;
 		float combinedNormal = attackdata.GetRadius() + normalRadius;
 
 		if (dist2 <= combinedNormal * combinedNormal)
@@ -166,12 +166,11 @@ std::vector<Character*> CollisionManager::CheckAttackCapsule(const AttackData& a
 			continue;
 		}
 		//相手キャラクターのカプセル情報を取得
-		float capsuleRadius = character->GetCollisionRadius();
-		float capsuleHeight = character->GetCollisionHeight();
+		Character::Capsule capsule = character->GetCapsule();
+		float capsuleRadius = capsule.radius;
 
-		Vector3 a = character->GetCollisionPosition();
-
-		Vector3 b = a + Vector3(0.0f, capsuleHeight, 0.0f);
+		Vector3 a = capsule.start;
+		Vector3 b = capsule.end;
 		//攻撃カプセルの軸と相手カプセルの軸との最短距離を求める
 		float distance = Segment_Segment_MinLength(start, end, a, b);
 
@@ -213,7 +212,6 @@ bool CollisionManager::CheckStageWall(Character* character, int stagehandle)
 {
 	//プレイヤーのカプセル情報を取得
 	float radius = character->GetCollisionRadius();
-	float height = character->GetCollisionHeight();
 
 	//足元基準の現在地
 	Vector3 pos = character->GetPos();
@@ -225,9 +223,10 @@ bool CollisionManager::CheckStageWall(Character* character, int stagehandle)
 	const int kMaxIteration = 4;
 	for (int iter = 0; iter < kMaxIteration; iter++)
 	{
-		//カプセルの始点と終点を作成
-		VECTOR start = Vector3(pos.x, pos.y + radius, pos.z);
-		VECTOR end = VAdd(start, Vector3(0.0f, height - radius * 2.0f, 0.0f));
+		//押し出し途中の位置でカプセルの始点と終点を作成
+		Character::Capsule capsule = character->GetCapsuleAt(pos);
+		VECTOR start = capsule.start;
+		VECTOR end = capsule.end;
 		//ステージとのカプセル衝突判定
 		auto hit = MV1CollCheck_Capsule(stagehandle, -1, start, end, radius);
 		//何もヒットしなければ,これ以上押し出す必要はない
@@ -354,14 +353,16 @@ bool CollisionManager::CheckCameraRay(const int stagehandle, const Vector3& star
 void CollisionManager::ResolveCharacterCollision(Character* characterA, Character* characterB)
 {
 	//Aのカプセル軸
-	Vector3 aStart = characterA->GetCollisionPosition();
-	Vector3 aEnd = aStart + Vector3(0.0f, characterA->GetCollisionHeight(), 0.0f);
-	float radiusA = characterA->GetCollisionRadius();
+	Character::Capsule capsuleA = characterA->GetCapsule();
+	Vector3 aStart = capsuleA.start;
+	Vector3 aEnd = capsuleA.end;
+	float radiusA = capsuleA.radius;
 
 	//Bのカプセル軸
-	Vector3 bStart = characterB->GetCollisionPosition();
-	Vector3 bEnd = bStart + Vector3(0.0f, characterB->GetCollisionHeight(), 0.0f);
-	float radiusB = characterB->GetCollisionRadius();
+	Character::Capsule capsuleB = characterB->GetCapsule();
+	Vector3 bStart = capsuleB.start;
+	Vector3 bEnd = capsuleB.end;
+	float radiusB = capsuleB.radius;
 
 	//2本の軸の最近接点を求める
 	Vector3 closestA, closestB;
@@ -488,18 +489,12 @@ void CollisionManager::ClosestPointSegmentSegment(const Vector3& p1, const Vecto
 //2つのキャラクターのカプセルが重なっているか判定する
 bool CollisionManager::CheckCharacterCapsule(Character* characterA, Character* characterB)
 {
-	//AのカプセルAの軸を作る
-	Vector3 aStart = characterA->GetCollisionPosition();
-	Vector3 aEnd = aStart + Vector3(0.0f, characterA->GetCollisionHeight(), 0.0f);
-	float radiusA = characterA->GetCollisionRadius();
-
-	//Bのカプセルの軸を作る
-	Vector3 bStart = characterB->GetCollisionPosition();
-	Vector3 bEnd = bStart + Vector3(0.0f, characterB->GetCollisionHeight(), 0.0f);
-	float radiusB = characterB->GetCollisionRadius();
+	//AとBのカプセルを取得
+	Character::Capsule capsuleA = characterA->GetCapsule();
+	Character::Capsule capsuleB = characterB->GetCapsule();
 
 	//ここで純粋な幾何計算関数に投げる
-	return CheckCapsule(aStart, aEnd, radiusA, bStart, bEnd, radiusB);
+	return CheckCapsule(capsuleA.start, capsuleA.end, capsuleA.radius, capsuleB.start, capsuleB.end, capsuleB.radius);
 }
 //2つのカプセルが重なっているか判定する
 //カプセル同士の判定は、中心軸となる2本の線分の最短距離と
