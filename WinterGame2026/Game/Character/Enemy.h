@@ -12,6 +12,9 @@ public:
 	void Update()override;
 	void Draw()override;
 
+	//キャラクタータイプを取得
+	CharacterType GetCharacterType()const override { return CharacterType::Enemy; }
+
 	//狙う相手を設定する
 	void SetTarget(const Character* target) { m_pTarget = target; }
 

@@ -1,5 +1,6 @@
 ﻿#include "Character.h"
 #include "../../DataLoader/DataManager.h"
+#include "../../DataLoader/AttackData.h"
 Character::Character()
 {
 }
@@ -26,6 +27,25 @@ void Character::Draw()
 void Character::Damage(int damage)
 {
 	m_hp -= damage;
+}
+
+void Character::ApplyDamage(int damage)
+{
+	//ジャスト回避受付中ならジャスト回避成功
+	if (m_isJustDodgeWindow && damage <= 0)
+	{
+		OnJustDodge();
+		return;
+	}
+	//無敵中はダメージを受けない
+	if (m_isInvincible) return;
+
+	Damage(damage);
+}
+
+void Character::OnHit(const AttackData& attackData)
+{
+	ApplyDamage(attackData.GetDamage());
 }
 
 bool Character::IsDead() const

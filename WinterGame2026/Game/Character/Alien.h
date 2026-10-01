@@ -8,6 +8,9 @@ public:
 	void Init()override;
 	void Update()override;
 	void Draw()override;
+
+	//キャラクタータイプを取得
+	CharacterType GetCharacterType()const override { return CharacterType::Enemy; }
 private:
 	int m_modelHandle = -1;
 };

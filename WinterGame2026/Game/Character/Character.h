@@ -4,6 +4,8 @@
 #include <memory>
 #include <string>
 #include "../../System/Animation.h"
+#include "../../Comon/CharacterType.h"
+class AttackData;
 class Character
 {
 public:
@@ -16,6 +18,11 @@ public:
 
 	//ダメージ
 	virtual void Damage(int damage);
+	//当たり判定から呼ばれるダメージ処理
+	//ジャスト回避受付中にダメージ0で呼ばれた場合はジャスト回避成功として扱う
+	virtual void ApplyDamage(int damage);
+	//攻撃が当たったときに呼ばれる
+	virtual void OnHit(const AttackData& attackData);
 
 	//死亡判定
 	bool IsDead()const;
@@ -38,7 +45,24 @@ public:
 	bool IsGround()const { return m_isGround; }
 	void SetInvincible(bool isInvincible) { m_isInvincible = isInvincible; }
 	//キャラクタータイプを取得
-	virtual std::string GetCharacterType()const = 0;
+	virtual CharacterType GetCharacterType()const = 0;
+
+	//当たり判定用のアクセサ
+	//位置を設定する(押し出しなどで使う)
+	void SetPosition(const Vector3& pos) { m_pos = pos; }
+	//カプセルの始点(足元から半径分上げた位置)
+	Vector3 GetCollisionPosition()const { return m_pos + Vector3(0.0f, m_collisionRadius, 0.0f); }
+	//カプセルの半径
+	float GetCollisionRadius()const { return m_collisionRadius; }
+	//カプセルの高さ(始点から終点までの長さ)
+	float GetCollisionHeight()const { return m_collisionHeight; }
+	//ジャスト回避の判定半径
+	float GetJustDodgeRadius()const { return m_justDodgeRadius; }
+	//ジャスト回避の受付中か
+	bool IsJustDodgeWindow()const { return m_isJustDodgeWindow; }
+	void SetJustDodgeWindow(bool isJustDodgeWindow) { m_isJustDodgeWindow = isJustDodgeWindow; }
+	//無敵中か
+	bool IsInvincible()const { return m_isInvincible; }
 	//アニメーション
 	Animation& GetAnim() { return m_anim; }
 
@@ -46,7 +70,8 @@ protected:
 	
 	void LoadStatus(const std::string& name);
 
-	
+	//ジャスト回避が成功したときに呼ばれる(処理は派生クラスで書く)
+	virtual void OnJustDodge() {}
 
 	//ステートの更新と切り替えを行う
 	void UpdateState();
@@ -92,6 +117,16 @@ protected:
 	bool m_isInvincible = false;
 	//死亡しているか
 	bool m_isDead = false;
+	//ジャスト回避の受付中か
+	bool m_isJustDodgeWindow = false;
+
+	//当たり判定
+	//カプセルの半径
+	float m_collisionRadius = 0.0f;
+	//カプセルの高さ
+	float m_collisionHeight = 0.0f;
+	//ジャスト回避の判定半径
+	float m_justDodgeRadius = 0.0f;
 
 };
 

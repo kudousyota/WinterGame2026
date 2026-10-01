@@ -1,6 +1,7 @@
 ﻿#include "CollisionManager.h"
 #include "../Game/Character/Character.h"
 #include <algorithm>
+#include <cfloat>
 #include <vector>
 #include "../DataLoader/AttackData.h"
 #include "../System/Timer.h"
@@ -197,10 +198,12 @@ std::vector<Character*> CollisionManager::CheckAttackCapsule(const AttackData& a
 		if (distance <= hitRange)
 		{
 			character->OnHit(attackdata);
+			//ヒットしたキャラクターを記録
+			hitCharacters.push_back(character);
 
 			//ヒットストップ・カメラシェイク
 			//Timer::Instance().RequestHitStop(kHitStopFrame);
-			/Timer::Instance().RequestShake(kShakePower, kShakeFrame);
+			//Timer::Instance().RequestShake(kShakePower, kShakeFrame);
 		}
 	}
 	return hitCharacters;

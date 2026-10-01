@@ -4,6 +4,12 @@
 namespace
 {
 	const char* const kIdleAnimName = "Alien|Idle";
+
+	//当たり判定
+	//カプセルの半径
+	constexpr float kCollisionRadius = 40.0f;
+	//カプセルの高さ
+	constexpr float kCollisionHeight = 120.0f;
 }
 
 Alien::Alien()
@@ -29,6 +35,9 @@ void Alien::Init()
 	//最初はカメラの方向かせる
 	m_forward = Vector3(0.0f, 0.0f, 0.0f);
 	//m_gravity = 
+	//当たり判定の初期化
+	m_collisionRadius = kCollisionRadius;
+	m_collisionHeight = kCollisionHeight;
 	MV1SetPosition(m_modelHandle, m_pos);
 
 }

@@ -10,6 +10,9 @@ public:
 	void Update()override;
 	void Draw()override;
 
+	//キャラクタータイプを取得
+	CharacterType GetCharacterType()const override { return CharacterType::Player; }
+
 	Vector3 GetCameraTarget();
 	float GetAngle() { return m_angle; }
 
