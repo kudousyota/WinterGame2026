@@ -37,12 +37,16 @@ public:
 	float GetSpeed()const { return m_speed; }
 	bool IsGround()const { return m_isGround; }
 	void SetInvincible(bool isInvincible) { m_isInvincible = isInvincible; }
+	//キャラクタータイプを取得
+	virtual std::string GetCharacterType()const = 0;
 	//アニメーション
 	Animation& GetAnim() { return m_anim; }
 
 protected:
 	
 	void LoadStatus(const std::string& name);
+
+	
 
 	//ステートの更新と切り替えを行う
 	void UpdateState();

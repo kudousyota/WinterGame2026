@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Math\CollisionManager.cpp" />
     <ClCompile Include="DataLoader\AttackData.cpp" />
     <ClCompile Include="DataLoader\AttackTable.cpp" />
     <ClCompile Include="Game\Breath.cpp" />
@@ -170,6 +171,7 @@
     <ClCompile Include="System\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Math\CollisionManager.h" />
     <ClInclude Include="Comon\CharacterType.h" />
     <ClInclude Include="DataLoader\AttackData.h" />
     <ClInclude Include="DataLoader\AttackTable.h" />
