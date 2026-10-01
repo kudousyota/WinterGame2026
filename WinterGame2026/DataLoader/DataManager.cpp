@@ -7,6 +7,7 @@ void DataManager::LoadData()
 {
 	//LoadSpawnData();
 	LoadStatusData();
+	LoadAttackTable();
 }
 
 //CSVを読んで行ごとの文字列配列にする共通処理
@@ -53,4 +54,9 @@ std::vector<std::vector<std::string>> DataManager::LoadCsv(const std::string& pa
 void DataManager::LoadStatusData()
 {
 	m_statusData.Load(LoadCsv("Data/Csv/State.csv"));
+}
+
+void DataManager::LoadAttackTable()
+{
+	m_attackTable.Load(LoadCsv("Data/Csv/Attack.csv"));
 }

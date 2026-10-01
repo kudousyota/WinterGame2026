@@ -142,9 +142,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DataLoader\AttackData.cpp" />
+    <ClCompile Include="DataLoader\AttackTable.cpp" />
     <ClCompile Include="Game\Breath.cpp" />
     <ClCompile Include="Game\Character\Alien.cpp" />
     <ClCompile Include="Game\Character\Enemy.cpp" />
+    <ClCompile Include="Game\Character\State\PlayerStateAttack.cpp" />
     <ClCompile Include="System\Projectile.cpp" />
     <ClCompile Include="System\ProjectileManager.cpp" />
     <ClCompile Include="System\Animation.cpp" />
@@ -170,9 +172,11 @@
   <ItemGroup>
     <ClInclude Include="Comon\CharacterType.h" />
     <ClInclude Include="DataLoader\AttackData.h" />
+    <ClInclude Include="DataLoader\AttackTable.h" />
     <ClInclude Include="Game\Breath.h" />
     <ClInclude Include="Game\Character\Alien.h" />
     <ClInclude Include="Game\Character\Enemy.h" />
+    <ClInclude Include="Game\Character\State\PlayerStateAttack.h" />
     <ClInclude Include="System\Projectile.h" />
     <ClInclude Include="System\ProjectileManager.h" />
     <ClInclude Include="System\Animation.h" />

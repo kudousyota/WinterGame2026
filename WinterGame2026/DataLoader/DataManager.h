@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include "StatusData.h"
+#include "AttackTable.h"
 
 class DataManager
 {
@@ -21,6 +22,9 @@ public:
 	//キャラクターのステータスデータを返す
 	const StatusData& GetStatusData() const { return m_statusData; }
 
+	//攻撃データを返す
+	const AttackTable& GetAttackTable() const { return m_attackTable; }
+
 private:
 	//コンストラクタを非公開にしてシングルトンを実現
 	DataManager() = default;
@@ -37,9 +41,15 @@ private:
 	//キャラクターのステータスデータをロードする
 	void LoadStatusData();
 
+	//攻撃データをロードする
+	void LoadAttackTable();
+
 	//敵の出現データを格納する二次元配列
 	//std::vector<std::vector<std::string>> m_spawnData;
 
 	//キャラクターのステータスデータ
 	StatusData m_statusData;
+
+	//攻撃データ
+	AttackTable m_attackTable;
 };

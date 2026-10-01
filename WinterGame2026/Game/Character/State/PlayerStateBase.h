@@ -2,6 +2,7 @@
 #include <memory>
 #include "StateBase.h"
 #include "../Player.h"
+#include "../../../DataLoader/AttackData.h"
 
 //プレイヤー用ステートの基底クラス
 class PlayerStateBase : public StateBase
@@ -19,6 +20,8 @@ protected:
 	{
 		m_player.ChangeState(std::make_unique<Type>(m_player));
 	}
+	//攻撃ステートに遷移する(攻撃の種類を渡す必要があるので専用の関数にする)
+	void ChangeAttackState(AttackType type);
 
 	//左スティックの入力をXZ平面の移動方向として取得する
 	Vector3 GetMoveInput() const;

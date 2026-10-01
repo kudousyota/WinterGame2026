@@ -13,6 +13,7 @@ public:
 		Jump,//ジャンプ
 		Dodge,//回避
 		Death,//死亡
+		Attack,//攻撃
 	};
 
 	virtual ~StateBase() = default;
@@ -37,6 +38,7 @@ public:
 		case StateKind::Walk:	return "Walk";
 		case StateKind::Jump:	return "Jump";
 		case StateKind::Dodge:	return "Dodge";
+		case StateKind::Attack:	return "Attack";
 		case StateKind::Death:	return "Death";
 		default:				return "null";
 		}

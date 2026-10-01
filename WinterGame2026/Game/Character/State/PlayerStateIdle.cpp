@@ -22,6 +22,13 @@ void PlayerStateIdle::Update()
 		return;
 	}
 
+	//攻撃ボタンが押されたらコンボの1段目を出す
+	if (input.IsTriggered("Attack"))
+	{
+		ChangeAttackState(AttackType::Punch);
+		return;
+	}
+
 	//移動入力があればWalkにする
 	if (GetMoveInput().SqMagnitude() > 0.0f)
 	{

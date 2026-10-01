@@ -1,4 +1,5 @@
 ﻿#include "PlayerStateBase.h"
+#include "PlayerStateAttack.h"
 #include "../../../System/Input.h"
 
 Vector3 PlayerStateBase::GetMoveInput() const
@@ -36,4 +37,9 @@ void PlayerStateBase::Move(float speedScale)
 void PlayerStateBase::StopMove()
 {
 	m_player.StopMove();
+}
+
+void PlayerStateBase::ChangeAttackState(AttackType type)
+{
+	m_player.ChangeState(std::make_unique<PlayerStateAttack>(m_player, type));
 }

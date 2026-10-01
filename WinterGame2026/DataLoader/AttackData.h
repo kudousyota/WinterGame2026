@@ -6,7 +6,15 @@ enum class AttackType
 	Punch,
 	Rush,
 	Kick,
-	SkyKick,
+	JumpKick,
+	Punching,
+	Kicking,
+	MmaKick,
+	SideKick,
+	RotateKick,
+	HurricaneKick,
+	LegSweep,
+	MeleeKick,
 	Attack,
 	Breath,
 	WitchHand,
@@ -31,6 +39,8 @@ public:
 	int GetDamage()const { return m_damage; }
 	//攻撃の半径
 	float GetRadius() const { return m_radius; }
+
+	
 
 private:
 	CharacterType m_attacker = CharacterType::Player;
