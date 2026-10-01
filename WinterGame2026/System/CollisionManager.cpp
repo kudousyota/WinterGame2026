@@ -11,7 +11,7 @@ namespace
 	constexpr float kWalkableSlopeAngleDeg = 60.0f;
 	//歩行可能な傾斜角度を判定するためのcos値
 	//法線のY成分と比較して、床・坂道と壁を判別する
-	const float kWalkableSlopeCos = cosf(kWalkableSlopeAngleDeg * (DX_PI / 180.0f));
+	const float kWalkableSlopeCos = cosf(kWalkableSlopeAngleDeg * (DX_PI_F / 180.0f));
 
 	//ヒットストップフレーム
 	constexpr int kHitStopFrame = 10;
@@ -39,9 +39,6 @@ void CollisionManager::ResolveCollisionsFor(Character* character)
 	{
 		//自分自身との判定はしない
 		if (other == nullptr || other == character) continue;
-
-		//二回押し出しがおきから重複処理を避けるためにポインタの順序で一方のみ処理する
-		if (other < character) continue;
 
 		//衝突していたら解決
 		if (CheckCharacterCapsule(character, other))
@@ -121,8 +118,7 @@ std::vector<Character*> CollisionManager::CheckAttackSphere(const AttackData& at
 			//もし相手がジャスト回避受付中なら、ジャスト回避成功
 			if (character->IsJustDodgeWindow())
 			{
-				//ダメージ0で呼び出すして中でジャスト回避処理が走る
-				character->ApplyDamage(0);
+				character->OnJustDodge();
 				//通常ダメージは与えない
 				continue;
 			}
@@ -185,7 +181,7 @@ std::vector<Character*> CollisionManager::CheckAttackCapsule(const AttackData& a
 			if (character->IsJustDodgeWindow())
 			{
 				//ジャスト回避成功
-				character->ApplyDamage(0);
+				character->OnJustDodge();
 				//通常の攻撃判定はしない
 				continue;
 			}
@@ -197,10 +193,12 @@ std::vector<Character*> CollisionManager::CheckAttackCapsule(const AttackData& a
 		if (distance <= hitRange)
 		{
 			character->OnHit(attackdata);
+			//ヒットしたキャラクターを記録
+			hitCharacters.push_back(character);
 
 			//ヒットストップ・カメラシェイク
 			//Timer::Instance().RequestHitStop(kHitStopFrame);
-			/Timer::Instance().RequestShake(kShakePower, kShakeFrame);
+			//Timer::Instance().RequestShake(kShakePower, kShakeFrame);
 		}
 	}
 	return hitCharacters;
@@ -223,8 +221,9 @@ bool CollisionManager::CheckStageWall(Character* character, int stagehandle)
 	for (int iter = 0; iter < kMaxIteration; iter++)
 	{
 		//カプセルの始点と終点を作成
+		//(キャラ同士・攻撃判定と同じカプセル形状にそろえる)
 		VECTOR start = Vector3(pos.x, pos.y + radius, pos.z);
-		VECTOR end = VAdd(start, Vector3(0.0f, height - radius * 2.0f, 0.0f));
+		VECTOR end = VAdd(start, Vector3(0.0f, height, 0.0f));
 		//ステージとのカプセル衝突判定
 		auto hit = MV1CollCheck_Capsule(stagehandle, -1, start, end, radius);
 		//何もヒットしなければ,これ以上押し出す必要はない
