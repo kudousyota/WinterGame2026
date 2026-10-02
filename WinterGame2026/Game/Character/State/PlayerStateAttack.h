@@ -21,6 +21,6 @@ private:
 	const AttackTable::AttackInfo& m_info;
 	//攻撃を始めてからのフレーム数
 	int m_frame = 0;
-	//次の攻撃の入力が予約されているか
-	bool m_isComboReserved = false;
+	//予約されている次の攻撃(入力がなければ空)
+	std::optional<AttackType> m_reservedNext;
 };

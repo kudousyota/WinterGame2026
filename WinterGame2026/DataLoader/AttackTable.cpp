@@ -2,7 +2,7 @@
 #include <cassert>
 namespace
 {
-	constexpr int kAttackInfoSize = 9;
+	constexpr int kAttackInfoSize = 10;
 
 	//CSVに書いた名前をAttackTypeに変換する
 	AttackType NameToAttackType(const std::string& name)
@@ -52,10 +52,14 @@ void AttackTable::Load(const std::vector<std::vector<std::string>>& rows)
 		info.damage = std::stoi(row[5]);
 		info.radius = std::stof(row[6]);
 		info.animName = row[7];
-		//Noneならコンボなし
+		//Noneならそのボタンではコンボがつながらない
 		if (row[8] != "None")
 		{
-			info.next = NameToAttackType(row[8]);
+			info.nextPunch = NameToAttackType(row[8]);
+		}
+		if (row[9] != "None")
+		{
+			info.nextKick = NameToAttackType(row[9]);
 		}
 
 		m_infoList[info.type] = info;

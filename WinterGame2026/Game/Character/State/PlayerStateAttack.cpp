@@ -30,18 +30,23 @@ void PlayerStateAttack::Update()
 			ChangeState<PlayerStateDodge>();
 			return;
 		}
-		if (m_info.next && input.IsTriggered("Attack"))
+		//押したボタンによって次の攻撃が変わる(後から押した方を優先)
+		if (m_info.nextPunch && input.IsTriggered("Punch"))
 		{
-			m_isComboReserved = true;
+			m_reservedNext = m_info.nextPunch;
+		}
+		if (m_info.nextKick && input.IsTriggered("Kick"))
+		{
+			m_reservedNext = m_info.nextKick;
 		}
 	}
 
 	//攻撃が終わったら次の攻撃かIdleかWalkにする
 	if (m_frame >= m_info.totalFrame)
 	{
-		if (m_isComboReserved)
+		if (m_reservedNext)
 		{
-			ChangeAttackState(*m_info.next);
+			ChangeAttackState(*m_reservedNext);
 		}
 		else if (GetMoveInput().SqMagnitude() > 0.0f)
 		{

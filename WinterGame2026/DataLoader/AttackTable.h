@@ -27,8 +27,10 @@ public:
 		float radius = 0.0f;
 		//アニメーションの名前
 		std::string animName;
-		//コンボで次に出す攻撃(なければ空)
-		std::optional<AttackType> next;
+		//コンボ中にパンチを押したとき次に出す攻撃(なければ空)
+		std::optional<AttackType> nextPunch;
+		//コンボ中にキックを押したとき次に出す攻撃(なければ空)
+		std::optional<AttackType> nextKick;
 	};
 
 	//CSVの行データを受け取る

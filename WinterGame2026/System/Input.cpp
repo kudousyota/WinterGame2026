@@ -29,12 +29,15 @@ void Input::InitializeInputTable()
 	m_inputTable["pause"] = { { PeripheralType::keyboard,KEY_INPUT_P},
 					   { PeripheralType::pad1,PAD_INPUT_START } };	// PADのSTARTボタン
 
-	m_inputTable["Attack"] = { { PeripheralType::keyboard,KEY_INPUT_Z},
-						  { PeripheralType::pad1,PAD_INPUT_3 } };	// PADのYボタン
+	m_inputTable["Punch"] = { { PeripheralType::keyboard,KEY_INPUT_Z},
+						  { PeripheralType::pad1,PAD_INPUT_3 } };	// PADのXボタン
+	m_inputTable["Kick"] = {{PeripheralType::keyboard,KEY_INPUT_X},
+							{ PeripheralType::pad1,PAD_INPUT_4 } };	// PADのYボタン
+
 	m_inputTable["Jump"] = { { PeripheralType::keyboard,KEY_INPUT_LSHIFT},
 						  { PeripheralType::pad1,PAD_INPUT_A } };	// PADのAボタン
-	m_inputTable["Dodge"] = { { PeripheralType::keyboard,KEY_INPUT_X},
-						{ PeripheralType::pad1,PAD_INPUT_X } };	// PADのXボタン
+	m_inputTable["Dodge"] = { { PeripheralType::keyboard,KEY_INPUT_C},
+						{ PeripheralType::pad1,PAD_INPUT_2 } };	// PADのBボタン
 
 	m_inputTable["up"] = { { PeripheralType::keyboard,KEY_INPUT_UP},
 						{ PeripheralType::pad1,PAD_INPUT_UP } };

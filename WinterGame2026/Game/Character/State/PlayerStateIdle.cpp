@@ -22,10 +22,17 @@ void PlayerStateIdle::Update()
 		return;
 	}
 
-	//攻撃ボタンが押されたらコンボの1段目を出す
-	if (input.IsTriggered("Attack"))
+	//パンチボタンが押されたらパンチコンボの1段目を出す
+	if (input.IsTriggered("Punch"))
 	{
 		ChangeAttackState(AttackType::Punch);
+		return;
+	}
+
+	//キックボタンが押されたらキックコンボの1段目を出す
+	if (input.IsTriggered("Kick"))
+	{
+		ChangeAttackState(AttackType::Kick);
 		return;
 	}
 
