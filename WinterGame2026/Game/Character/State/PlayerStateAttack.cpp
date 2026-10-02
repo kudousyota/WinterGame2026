@@ -41,14 +41,17 @@ void PlayerStateAttack::Update()
 		}
 	}
 
-	//攻撃が終わったら次の攻撃かIdleかWalkにする
+	//次の攻撃が予約されていたら、構えに戻るモーションを待たずに次の攻撃にする
+	if (m_reservedNext && m_frame >= m_info.cancelFrame)
+	{
+		ChangeAttackState(*m_reservedNext);
+		return;
+	}
+
+	//攻撃が終わったらIdleかWalkにする
 	if (m_frame >= m_info.totalFrame)
 	{
-		if (m_reservedNext)
-		{
-			ChangeAttackState(*m_reservedNext);
-		}
-		else if (GetMoveInput().SqMagnitude() > 0.0f)
+		if (GetMoveInput().SqMagnitude() > 0.0f)
 		{
 			ChangeState<PlayerStateWalk>();
 		}

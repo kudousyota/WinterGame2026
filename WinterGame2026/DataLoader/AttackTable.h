@@ -21,6 +21,8 @@ public:
 		int hitEndFrame = 0;
 		//次の攻撃の入力を受け付け始めるフレーム
 		int comboStartFrame = 0;
+		//次の攻撃が予約されていたら、このフレームで次の攻撃に切り替える
+		int cancelFrame = 0;
 		//ダメージ
 		int damage = 0;
 		//攻撃判定の半径
