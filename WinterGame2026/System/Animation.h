@@ -17,10 +17,10 @@ public:
 	/// <summary>
 	/// 更新
 	/// </summary>
-	/// <param name="speed">アニメーションスピード</param>
-	void Update(float speed);
+	/// <param name="timeScale">時間の倍率(スローモーションなど)。1.0で等倍</param>
+	void Update(float timeScale = 1.0f);
 	//アニメーションのブレンド
-	void AnimBlend();
+	void AnimBlend(float timeScale);
 	/// <summary>
 	/// アニメーションの再生をする
 	/// m_isEndを初期化

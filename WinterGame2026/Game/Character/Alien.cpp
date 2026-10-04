@@ -1,5 +1,6 @@
 ﻿#include "Alien.h"
 #include "../../Comon/Model.h"
+#include "../../System/Timer.h"
 
 namespace
 {
@@ -56,7 +57,9 @@ void Alien::Update()
 	//ステートの更新
 
 	//アニメーションの更新
-	m_anim.Update(0.5f);
+	//ゲーム全体の時間倍率に敵専用の倍率を掛ける(ジャスト回避中は遅くなる)
+	float timeScale = Timer::Instance().GetTimeScale() * Timer::Instance().GetEnemyTimeScale();
+	m_anim.Update(timeScale);
 
 }
 

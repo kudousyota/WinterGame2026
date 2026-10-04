@@ -1,10 +1,12 @@
 ﻿#include "Animation.h"
 #include <DxLib.h>
-#include "Timer.h"
 namespace
 {
 	//アニメーションを切り替えるフレーム数
 	constexpr int kAnimChangeFrame = 10;
+	//1フレームで進めるアニメーションのフレーム数
+	//アニメーションのfps(30) / ゲームのfps(60)
+	constexpr float kAnimFrameRate = 0.5f;
 }
 Animation::Animation()
 {
@@ -50,17 +52,15 @@ void Animation::Init(int modelHandle, std::string name, bool isRoop, float timeS
 	m_currentAnimName = name;
 }
 
-void Animation::Update(float speed)
+void Animation::Update(float timeScale)
 {
-	//時間のスケールを取得//0から1の値を返す
-	float timeScale = Timer::Instance().GetTimeScale();
 	//アニメーションの更新
 	//アニメーションのフレーム更新
-	m_currentAnimCount += 1.0f * timeScale * m_animTimeScale * speed;
+	m_currentAnimCount += kAnimFrameRate * timeScale * m_animTimeScale;
 	//前のアニメーションの更新
-	m_prevAnimCount += 1.0f * timeScale * m_prevAnimTimeScale * speed;
+	m_prevAnimCount += kAnimFrameRate * timeScale * m_prevAnimTimeScale;
 	//アニメーションのブレンド
-	AnimBlend();
+	AnimBlend(timeScale);
 	//アニメーションのループ処理
 	//アタッチしたアニメーションの総フレームを取得
 	float totalAnimCount = MV1GetAttachAnimTotalTime(m_modelHandle, m_currentAnimHandle);
@@ -104,7 +104,7 @@ void Animation::Update(float speed)
 	}
 }
 
-void Animation::AnimBlend()
+void Animation::AnimBlend(float timeScale)
 {
 	if (m_prevAnimHandle == -1)
 	{
@@ -113,9 +113,6 @@ void Animation::AnimBlend()
 	}
 	else
 	{
-		//timeScale
-		float timeScale = Timer::Instance().GetTimeScale();//時間のスケールを取得する//0から1の値を返す//0.5なら、時間が半分になる
-
 		m_animChangeFrame += 1.0f * timeScale;//アニメーションを切り替えるフレーム数を増やす
 		//currentAnimBlendのブレンド率を計算
 		float rate = m_animChangeFrame / kAnimChangeFrame;//アニメーションを切り替えるフレーム数で割ることで、0から1までの値を作る

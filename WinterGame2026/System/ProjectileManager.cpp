@@ -23,7 +23,8 @@ Projectile* ProjectileManager::Add(std::unique_ptr<Projectile> projectile)
 void ProjectileManager::Update()
 {
 	//敵の飛び道具なので敵と同じ時間倍率で動かす(ウィッチタイム中は遅くなる)
-	float timeScale = Timer::Instance().GetEnemyTimeScale();
+	//ゲーム全体の時間倍率に敵専用の倍率を掛ける
+	float timeScale = Timer::Instance().GetTimeScale() * Timer::Instance().GetEnemyTimeScale();
 	//登録した全ての飛び道具を更新する
 	for (auto& projectile : m_pProjectiles)
 	{

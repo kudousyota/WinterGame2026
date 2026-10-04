@@ -163,7 +163,7 @@
     <ClCompile Include="System\Input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Math\Vector3.cpp" />
-    <ClCompile Include="Game\Character\Player.cpp" />
+    <ClCompile Include="Game\Character\Player\Player.cpp" />
     <ClCompile Include="Game\Character\State\PlayerStateBase.cpp" />
     <ClCompile Include="Game\Character\State\PlayerStateDeath.cpp" />
     <ClCompile Include="Game\Character\State\PlayerStateDodge.cpp" />
@@ -198,7 +198,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="System\Input.h" />
     <ClInclude Include="Math\Vector3.h" />
-    <ClInclude Include="Game\Character\Player.h" />
+    <ClInclude Include="Game\Character\Player\Player.h" />
     <ClInclude Include="Game\Character\State\EnemyStateBase.h" />
     <ClInclude Include="Game\Character\State\PlayerStateBase.h" />
     <ClInclude Include="Game\Character\State\PlayerStateDeath.h" />

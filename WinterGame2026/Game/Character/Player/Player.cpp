@@ -1,5 +1,6 @@
 ﻿#include "Player.h"
 #include "../Comon/Model.h"
+#include "../../System/Timer.h"
 #include "State/PlayerStateIdle.h"
 #include "State/PlayerStateDeath.h"
 #include <cmath>
@@ -74,7 +75,7 @@ void Player::Update()
 	//ステートの更新
 	UpdateState();
 	//アニメーションの更新
-	m_anim.Update(1.0f);
+	m_anim.Update(Timer::Instance().GetTimeScale());
 
 
 	//重力
