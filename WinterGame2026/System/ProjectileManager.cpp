@@ -3,11 +3,12 @@
 #include "Timer.h"
 #include <algorithm>
 
-//シングルトンインスタンスを取得//シングルトンがいっぱいあるのよくないから設計悩み
-ProjectileManager& ProjectileManager::Instance()
+ProjectileManager::ProjectileManager()
 {
-	static ProjectileManager manager;
-	return manager;
+}
+
+ProjectileManager::~ProjectileManager()
+{
 }
 //飛び道具を登録
 Projectile* ProjectileManager::Add(std::unique_ptr<Projectile> projectile)

@@ -19,6 +19,9 @@ public:
 	//void CameraPull();
 
 	const Vector3& GetPos()const { return m_cameraPos; }
+	//カメラの水平・垂直の回転角度
+	float GetAngleX()const { return m_cameraAngleX; }
+	float GetAngleY()const { return m_cameraAngleY; }
 
 
 private:

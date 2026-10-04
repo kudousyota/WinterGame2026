@@ -15,6 +15,9 @@ public:
 
 	//データの読み込み
 	void LoadData();
+	//ゲーム中にデータを読み直す(デバッグ用)
+	//読み込みに失敗したら今のデータのままにしてfalseを返す
+	bool ReloadData();
 
 	//敵のスポーンデータを返す
 	//const std::vector<std::vector<std::string>>& GetSpawnData() const { return m_spawnData; }

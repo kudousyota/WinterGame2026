@@ -10,8 +10,6 @@ public:
 	{
 		//キャラクターの名前
 		std::string characterName;
-		//攻撃力
-		int attackPower = 0;
 		//体力
 		//int hp = 0;
 		//最大体力

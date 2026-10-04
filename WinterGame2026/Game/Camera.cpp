@@ -1,6 +1,6 @@
 ﻿#include "Camera.h"
 #include "DxLib.h"
-//#include "../System/CollisionManager.h"
+//#include "../System/StageCollision.h"
 //#include "../Game/Stage.h"
 //#include "../System/Model.h"
 //#include "../System/Timer.h" 
@@ -65,13 +65,6 @@ void Camera::Update(const Vector3& targetPos)
 
 		//右スティック入力取得
 		GetJoypadAnalogInputRight(&xBuf, &yBuf, DX_INPUT_PAD1);
-#ifdef _DEBUG
-
-
-		DrawFormatString(256, 128, 0xffffff, "Right Stick X : %d", xBuf);
-		DrawFormatString(256, 144, 0xffffff, "Right Stick Y : %d", yBuf);
-		DrawFormatString(256, 160, 0xffffff, "CameraAngle : %.3f", m_cameraAngleX);
-#endif //_DEBUG
 
 		//正規化
 		float stickX = static_cast<float>(xBuf) / 32767.0f;
@@ -142,7 +135,7 @@ void Camera::Update(const Vector3& targetPos)
 	Vector3 hitpos;
 
 	////ステージとのレイ判定を行い、カメラがステージにめり込まないようにする
-	//if (CollisionManager::Instance().CheckCameraRay(
+	//if (StageCollision::CheckCameraRay(
 	//	m_pStage->GetModelHandle(),
 	//	m_cameraTarget,
 	//	m_cameraPos,

@@ -142,6 +142,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="System\CollisionManager.cpp" />
+    <ClCompile Include="System\StageCollision.cpp" />
+    <ClCompile Include="Math\Geometry.cpp" />
+    <ClCompile Include="Game\Damage.cpp" />
+    <ClCompile Include="System\DebugTool.cpp" />
     <ClCompile Include="DataLoader\AttackData.cpp" />
     <ClCompile Include="DataLoader\AttackTable.cpp" />
     <ClCompile Include="Game\Breath.cpp" />
@@ -172,6 +176,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="System\CollisionManager.h" />
+    <ClInclude Include="System\StageCollision.h" />
+    <ClInclude Include="Math\Geometry.h" />
+    <ClInclude Include="Game\Damage.h" />
+    <ClInclude Include="System\DebugTool.h" />
     <ClInclude Include="Comon\CharacterType.h" />
     <ClInclude Include="DataLoader\AttackData.h" />
     <ClInclude Include="DataLoader\AttackTable.h" />

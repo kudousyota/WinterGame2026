@@ -12,15 +12,21 @@ public:
 	void Enter() override;
 	void Update() override;
 	StateKind GetKind() const override { return StateKind::Attack; }
+#ifdef _DEBUG
+	std::string GetDebugInfo() const override;
+#endif
 
 private:
 	//今攻撃判定が出ているか
 	bool IsHitActive() const;
 
 	//今の攻撃のデータ
-	const AttackTable::AttackInfo& m_info;
+	//CSVを読み直してもこの攻撃の途中で中身が消えないようにコピーで持つ
+	AttackTable::AttackInfo m_info;
 	//攻撃を始めてからのフレーム数
 	int m_frame = 0;
+	//この攻撃の番号(コンボの次の攻撃は別の番号になる)
+	int m_attackId = 0;
 	//予約されている次の攻撃(入力がなければ空)
 	std::optional<AttackType> m_reservedNext;
 };

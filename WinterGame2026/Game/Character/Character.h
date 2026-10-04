@@ -3,9 +3,27 @@
 #include "State/StateBase.h"
 #include <memory>
 #include <string>
+#include <vector>
+#include <unordered_map>
 #include "../../System/Animation.h"
 #include "../../Comon/CharacterType.h"
-class AttackData;
+#include "../../DataLoader/AttackData.h"
+
+//攻撃の申請
+//攻撃ステートは判定をせず、これをキャラクターに渡すだけにする
+//判定はGameSceneが全員の移動が終わった後にまとめて行う
+struct AttackRequest
+{
+	//ダメージ・半径・誰の攻撃か
+	AttackData data;
+	//攻撃1回ごとの番号(同じ攻撃が何度も当たらないようにするのに使う)
+	int attackId = 0;
+	//足元からキャラクターの前方への距離
+	float forwardOffset = 0.0f;
+	//足元からの高さ
+	float height = 0.0f;
+};
+
 class Character
 {
 public:
@@ -14,6 +32,9 @@ public:
 
 	virtual void Init();
 	virtual void Update();
+	//当たり判定の押し出しなどが終わった後に呼ばれる
+	//確定した位置・向きをモデルに反映する
+	virtual void LateUpdate() {}
 	virtual void Draw();
 
 	//ダメージ
@@ -38,6 +59,8 @@ public:
 	void SetVelocity(const Vector3& velocity) { m_velocity = velocity; }
 	const Vector3& GetForward()const { return m_forward; }
 	float GetSpeed()const { return m_speed; }
+	int GetHp()const { return m_hp; }
+	int GetMaxHp()const { return m_maxhp; }
 	bool IsGround()const { return m_isGround; }
 	void SetInvincible(bool isInvincible) { m_isInvincible = isInvincible; }
 	//キャラクタータイプを取得
@@ -70,10 +93,36 @@ public:
 	//ジャスト回避の受付中か
 	bool IsJustDodgeWindow()const { return m_isJustDodgeWindow; }
 
-	//攻撃を受けたときに呼ばれる
-	virtual void OnHit(const AttackData& attackData);
+	//攻撃を受けられる状態か(無敵中・死亡中は受けない)
+	bool CanBeHit()const { return !m_isInvincible && !m_isDead; }
+	//攻撃を受けたときに呼ばれる(damageは補正を計算した後の最終ダメージ)
+	virtual void OnHit(const AttackData& attackData, int damage);
 	//ジャスト回避に成功したときに呼ばれる
 	virtual void OnJustDodge() {}
+
+	//攻撃する側
+	//攻撃を始めるたびに新しい番号を発行する
+	int IssueAttackId() { return ++m_attackIdCounter; }
+	//攻撃を申請する(判定はGameSceneが行う)
+	void RequestAttack(const AttackRequest& request) { m_attackRequests.push_back(request); }
+	//このフレームに申請された攻撃を取り出す(取り出したら空になる)
+	std::vector<AttackRequest> TakeAttackRequests();
+	//申請された攻撃の判定位置
+	Vector3 GetAttackPos(const AttackRequest& request)const;
+
+	//攻撃を受ける側
+	//この攻撃はもう受けたか
+	bool HasReceivedAttack(const Character* attacker, int attackId)const;
+	//この攻撃を受けたことを記録する
+	void MarkAttackReceived(const Character* attacker, int attackId);
+
+	//読み直したステータスを反映する(今のHPは残す)
+	void ReloadStatus();
+
+#ifdef _DEBUG
+	//デバッグ表示用のステート情報
+	std::string GetDebugStateText()const;
+#endif
 
 protected:
 	
@@ -113,9 +162,17 @@ protected:
 	int m_hp = 0;
 	//HPの最大値
 	int m_maxhp = 0;
-	//攻撃力
-	int m_attackPower = 0;//たぶんアタックデータの方に入れる
-	
+	//State.csvでの名前(読み直しに使う)
+	std::string m_statusName;
+
+	//攻撃
+	//発行した攻撃番号
+	int m_attackIdCounter = 0;
+	//このフレームに申請された攻撃
+	std::vector<AttackRequest> m_attackRequests;
+	//攻撃してきた相手ごとに、最後に受けた攻撃番号を覚えておく(相手は所有しない)
+	std::unordered_map<const Character*, int> m_lastReceivedAttackId;
+
 	//状態
 	//今地面にいるか
 	bool m_isGround = false;

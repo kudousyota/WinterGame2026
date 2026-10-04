@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <string>
 
 //ステートパターンの基底クラス
 //キャラクターごとの具体的なステートはこれを継承して作る
@@ -43,5 +44,7 @@ public:
 		default:				return "null";
 		}
 	}
+	//ステートごとの詳しいデバッグ情報(攻撃のフレームなど)
+	virtual std::string GetDebugInfo() const { return ""; }
 #endif
 };

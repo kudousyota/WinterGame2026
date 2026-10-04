@@ -29,11 +29,35 @@ void Character::Damage(int damage)
 	m_hp -= damage;
 }
 
-void Character::OnHit(const AttackData& attackData)
+void Character::OnHit(const AttackData& attackData, int damage)
 {
 	//無敵中・死亡中はダメージを受けない
-	if (m_isInvincible || m_isDead) return;
-	Damage(attackData.GetDamage());
+	if (!CanBeHit()) return;
+	Damage(damage);
+}
+
+std::vector<AttackRequest> Character::TakeAttackRequests()
+{
+	std::vector<AttackRequest> requests;
+	requests.swap(m_attackRequests);
+	return requests;
+}
+
+Vector3 Character::GetAttackPos(const AttackRequest& request) const
+{
+	//足元から前方と上方向にずらした位置
+	return m_pos + m_forward * request.forwardOffset + Vector3(0.0f, request.height, 0.0f);
+}
+
+bool Character::HasReceivedAttack(const Character* attacker, int attackId) const
+{
+	auto it = m_lastReceivedAttackId.find(attacker);
+	return it != m_lastReceivedAttackId.end() && it->second == attackId;
+}
+
+void Character::MarkAttackReceived(const Character* attacker, int attackId)
+{
+	m_lastReceivedAttackId[attacker] = attackId;
 }
 
 bool Character::IsDead() const
@@ -84,9 +108,36 @@ void Character::ApplyNextState()
 
 void Character::LoadStatus(const std::string& name)
 {
+	m_statusName = name;
 	auto& status = DataManager::GetInstance().GetStatusData().GetStatus(name);
 	m_maxhp = status.maxhp;
 	m_hp = status.maxhp;//初期HPは最大値から使用
 	m_speed = status.speed;
-	m_attackPower = status.attackPower;
 }
+
+void Character::ReloadStatus()
+{
+	//ステータスを読み込んでいないキャラクターは何もしない
+	if (m_statusName.empty()) return;
+
+	auto& status = DataManager::GetInstance().GetStatusData().GetStatus(m_statusName);
+	m_maxhp = status.maxhp;
+	m_speed = status.speed;
+	//最大HPが下がったときだけ今のHPを合わせる
+	if (m_hp > m_maxhp) m_hp = m_maxhp;
+}
+
+#ifdef _DEBUG
+std::string Character::GetDebugStateText() const
+{
+	if (!m_pState) return "State:none";
+
+	std::string text = std::string("State:") + m_pState->GetKindName();
+	std::string info = m_pState->GetDebugInfo();
+	if (!info.empty())
+	{
+		text += "  " + info;
+	}
+	return text;
+}
+#endif

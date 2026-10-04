@@ -4,6 +4,15 @@
 namespace
 {
 	const char* const kIdleAnimName = "Alien|Idle";
+
+	//最初の位置(プレイヤーと重ならないように少し奥に置く)
+	const Vector3 kStartPos = Vector3(0.0f, 0.0f, 300.0f);
+
+	//体の大きさ(デバッグ表示のカプセルを見ながら調整する)
+	//身長
+	constexpr float kHeight = 200.0f;
+	//当たり判定のカプセルの半径
+	constexpr float kCollisionRadius = 50.0f;
 }
 
 Alien::Alien()
@@ -23,9 +32,12 @@ void Alien::Init()
 	//アニメーションの初期化
 	m_anim.Init(m_modelHandle,kIdleAnimName,true);
 	//ステータスの初期化
-	//LoadStatus("Enemy");
+	LoadStatus("Alien");
 	//場所
-	m_pos = Vector3(0.0f, 0.0f, 0.0f);
+	m_pos = kStartPos;
+	//体の大きさ
+	m_height = kHeight;
+	m_collisionRadius = kCollisionRadius;
 	//最初はカメラの方向かせる
 	m_forward = Vector3(0.0f, 0.0f, 0.0f);
 	//m_gravity = 
@@ -46,6 +58,12 @@ void Alien::Update()
 	//アニメーションの更新
 	m_anim.Update(0.5f);
 
+}
+
+void Alien::LateUpdate()
+{
+	//当たり判定で押し出された後の位置をモデルに反映する
+	MV1SetPosition(m_modelHandle, m_pos);
 }
 
 void Alien::Draw()

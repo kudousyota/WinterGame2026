@@ -18,6 +18,14 @@ namespace
 
 	//アニメション
 	const char* const kIdleAnimName = "Player|Idle";
+
+	//体の大きさ(デバッグ表示のカプセルを見ながら調整する)
+	//身長
+	constexpr float kHeight = 180.0f;
+	//当たり判定のカプセルの半径
+	constexpr float kCollisionRadius = 30.0f;
+	//ジャスト回避判定の半径
+	constexpr float kJustDodgeRadius = 50.0f;
 }
 
 Player::Player()
@@ -44,6 +52,10 @@ void Player::Init()
 	//最初はカメラの方を向かせる
 	m_forward = Vector3(0.0f, 0.0f, -1.0f);
 	m_gravity = kGravity;
+	//体の大きさ
+	m_height = kHeight;
+	m_collisionRadius = kCollisionRadius;
+	m_justDodgeRadius = kJustDodgeRadius;
 	MV1SetPosition(m_modelHandle, m_pos);
 
 	//最初はIdleで初期化
@@ -98,7 +110,11 @@ void Player::Update()
 
 	//差の一部だけ回転して、少しずつ目標の向きに近づける
 	m_angle += diff * kRotateRate;
+}
 
+void Player::LateUpdate()
+{
+	//当たり判定で押し出された後の位置をモデルに反映する
 	MV1SetRotationXYZ(m_modelHandle, VGet(0.0f, m_angle, 0.0f));
 	MV1SetPosition(m_modelHandle, m_pos);
 }
@@ -106,13 +122,6 @@ void Player::Update()
 void Player::Draw()
 {
 	MV1DrawModel(m_modelHandle);
-#ifdef _DEBUG
-	//現在のステートを表示
-	if (m_pState)
-	{
-		DrawFormatString(0, 32, GetColor(255, 255, 255), "Player:%s", m_pState->GetKindName());
-	}
-#endif // _DEBUG
 }
 
 Vector3 Player::GetCameraTarget()

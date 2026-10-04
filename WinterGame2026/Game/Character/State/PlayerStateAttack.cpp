@@ -5,6 +5,14 @@
 #include "../../../System/Input.h"
 #include "../../../DataLoader/DataManager.h"
 
+namespace
+{
+	//攻撃判定を出す位置(足元から前方への距離と高さ)
+	//TODO:骨の位置から出すようにしたらCSVで攻撃ごとに指定する
+	constexpr float kHitForwardOffset = 60.0f;
+	constexpr float kHitHeight = 100.0f;
+}
+
 PlayerStateAttack::PlayerStateAttack(Player& player, AttackType type) :
 	PlayerStateBase(player),
 	m_info(DataManager::GetInstance().GetAttackTable().GetInfo(type))
@@ -16,6 +24,8 @@ void PlayerStateAttack::Enter()
 	//攻撃中はその場で止まる
 	StopMove();
 	m_player.GetAnim().ChangeAnim(m_info.animName, false);
+	//攻撃ごとに新しい番号をもらう
+	m_attackId = m_player.IssueAttackId();
 }
 
 void PlayerStateAttack::Update()
@@ -64,11 +74,26 @@ void PlayerStateAttack::Update()
 
 	if (IsHitActive())
 	{
-		//TODO:当たり判定ができたらここで m_info.damage と m_info.radius を使って判定する
+		//攻撃を申請するだけ(判定はGameSceneが全員の移動が終わった後に行う)
+		AttackRequest request{ AttackData(CharacterType::Player, m_info.type, m_info.damage, m_info.radius) };
+		request.attackId = m_attackId;
+		request.forwardOffset = kHitForwardOffset;
+		request.height = kHitHeight;
+		m_player.RequestAttack(request);
 	}
 
 	m_frame++;
 }
+
+#ifdef _DEBUG
+std::string PlayerStateAttack::GetDebugInfo() const
+{
+	char buf[128];
+	sprintf_s(buf, "%s  Frame:%d/%d  Hit:%s  Id:%d",
+		m_info.animName.c_str(), m_frame, m_info.totalFrame, IsHitActive() ? "ON" : "OFF", m_attackId);
+	return buf;
+}
+#endif
 
 bool PlayerStateAttack::IsHitActive() const
 {

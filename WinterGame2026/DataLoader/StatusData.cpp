@@ -2,7 +2,7 @@
 #include <cassert>
 namespace
 {
-	constexpr int kstatusSize = 5;
+	constexpr int kstatusSize = 4;
 }
 void StatusData::Load(const std::vector<std::vector<std::string>>& rows)
 {
@@ -18,11 +18,10 @@ void StatusData::Load(const std::vector<std::vector<std::string>>& rows)
 
 		StatusInfo info;
 		info.characterName = row[0];
-		info.attackPower = std::stoi(row[1]);
 		//減ってくから要らない
-		//info.hp	= std::stoi(row[2]);
-		info.maxhp = std::stoi(row[3]);
-		info.speed = std::stof(row[4]);
+		//info.hp	= std::stoi(row[1]);
+		info.maxhp = std::stoi(row[2]);
+		info.speed = std::stof(row[3]);
 
 		m_infoList[info.characterName] = info;
 	}

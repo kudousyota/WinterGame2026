@@ -2,12 +2,33 @@
 #include <fstream>
 #include <sstream>
 #include <cassert>
+#include <stdexcept>
 
 void DataManager::LoadData()
 {
 	//LoadSpawnData();
 	LoadStatusData();
 	LoadAttackTable();
+}
+
+bool DataManager::ReloadData()
+{
+	//一旦別の変数に読み込んで、全部成功したときだけ差し替える
+	//(編集途中のCSVで数字が読めなくても、今のデータが壊れないようにする)
+	StatusData statusData;
+	AttackTable attackTable;
+	try
+	{
+		statusData.Load(LoadCsv("Data/Csv/State.csv"));
+		attackTable.Load(LoadCsv("Data/Csv/Attack.csv"));
+	}
+	catch (const std::exception&)
+	{
+		return false;
+	}
+	m_statusData = std::move(statusData);
+	m_attackTable = std::move(attackTable);
+	return true;
 }
 
 //CSVを読んで行ごとの文字列配列にする共通処理

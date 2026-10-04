@@ -8,6 +8,7 @@ public:
 
 	void Init()override;
 	void Update()override;
+	void LateUpdate()override;
 	void Draw()override;
 
 	CharacterType GetCharacterType()const override { return CharacterType::Player; }
