@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Character.h"
+#include "../Character.h"
 
 //敵の基底クラス
 //どの敵にも共通する処理だけを持つ(敵ごとの処理は派生クラスに書く)

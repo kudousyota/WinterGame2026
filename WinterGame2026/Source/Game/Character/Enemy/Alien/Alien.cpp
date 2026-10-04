@@ -1,6 +1,6 @@
 ﻿#include "Alien.h"
-#include "../../Comon/Model.h"
-#include "../../System/Timer.h"
+#include "../../../../Common/Model.h"
+#include "../../../../System/Timer.h"
 
 namespace
 {

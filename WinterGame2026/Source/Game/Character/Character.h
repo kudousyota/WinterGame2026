@@ -1,12 +1,12 @@
 ﻿#pragma once
 #include "Vector3.h"
-#include "State/StateBase.h"
+#include "StateBase.h"
 #include <memory>
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include "../../System/Animation.h"
-#include "../../Comon/CharacterType.h"
+#include "../../Common/CharacterType.h"
 #include "../../DataLoader/AttackData.h"
 
 //攻撃の申請

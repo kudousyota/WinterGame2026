@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include <memory>
-#include "../Game/Character/Player.h"
+#include "../Game/Character/Player/Player.h"
 #include "../Game/Camera.h"
-#include "../Game/Character/Alien.h"
+#include "../Game/Character/Enemy/Alien/Alien.h"
 #include "../System/CollisionManager.h"
 #include "../System/ProjectileManager.h"
 #include "../System/DebugTool.h"

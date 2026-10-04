@@ -2,8 +2,8 @@
 #include "PlayerStateIdle.h"
 #include "PlayerStateWalk.h"
 #include "PlayerStateDodge.h"
-#include "../../../System/Input.h"
-#include "../../../DataLoader/DataManager.h"
+#include "../../../../System/Input.h"
+#include "../../../../DataLoader/DataManager.h"
 
 namespace
 {

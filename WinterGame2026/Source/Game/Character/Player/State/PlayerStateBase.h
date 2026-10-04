@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include <memory>
-#include "StateBase.h"
+#include "../../StateBase.h"
 #include "../Player.h"
-#include "../../../DataLoader/AttackData.h"
+#include "../../../../DataLoader/AttackData.h"
 
 //プレイヤー用ステートの基底クラス
 class PlayerStateBase : public StateBase

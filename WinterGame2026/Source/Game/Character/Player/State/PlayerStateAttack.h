@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "PlayerStateBase.h"
-#include "../../../DataLoader/AttackTable.h"
+#include "../../../../DataLoader/AttackTable.h"
 
 //プレイヤーの攻撃状態
 //攻撃の違いはCSVのデータで表すので、どの攻撃もこのクラス一つで処理する

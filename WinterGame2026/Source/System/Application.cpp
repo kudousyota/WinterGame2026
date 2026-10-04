@@ -5,7 +5,7 @@
 #include "../System/Timer.h"
 #include "../Scene/GameScene.h"
 #include "../Game.h"
-#include "../Comon/Model.h"
+#include "../Common/Model.h"
 #include "../DataLoader/DataManager.h"
 
 

@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "../Comon/CharacterType.h"
+#include "../Common/CharacterType.h"
 //値を表すだけなので処理はない
 enum class AttackType
 {

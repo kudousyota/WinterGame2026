@@ -1,7 +1,7 @@
 ﻿#include "GameScene.h"
 #include "DxLib.h"
 #include "../Game/Character/Character.h"
-#include "../Game/Character/Alien.h"
+#include "../Game/Character/Enemy/Alien/Alien.h"
 #include "../Game/Damage.h"
 #include "../System/Timer.h"
 

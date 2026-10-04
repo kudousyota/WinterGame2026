@@ -15,207 +15,207 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="Source\main.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Scene\GameScene.cpp">
+    <ClCompile Include="Source\Scene\GameScene.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Character\Character.cpp">
+    <ClCompile Include="Source\Game\Character\Character.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Math\Vector3.cpp">
+    <ClCompile Include="Source\Math\Vector3.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="DataLoader\StatusData.cpp">
+    <ClCompile Include="Source\DataLoader\StatusData.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="DataLoader\DataManager.cpp">
+    <ClCompile Include="Source\DataLoader\DataManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Character\Player\Player.cpp">
+    <ClCompile Include="Source\Game\Character\Player\Player.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="System\Input.cpp">
+    <ClCompile Include="Source\System\Input.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="System\Application.cpp">
+    <ClCompile Include="Source\System\Application.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Comon\Model.cpp">
+    <ClCompile Include="Source\Common\Model.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Character\State\PlayerStateBase.cpp">
+    <ClCompile Include="Source\Game\Character\Player\State\PlayerStateBase.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Character\State\PlayerStateDeath.cpp">
+    <ClCompile Include="Source\Game\Character\Player\State\PlayerStateDeath.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Character\State\PlayerStateDodge.cpp">
+    <ClCompile Include="Source\Game\Character\Player\State\PlayerStateDodge.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Character\State\PlayerStateIdle.cpp">
+    <ClCompile Include="Source\Game\Character\Player\State\PlayerStateIdle.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Character\State\PlayerStateJump.cpp">
+    <ClCompile Include="Source\Game\Character\Player\State\PlayerStateJump.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Character\State\PlayerStateWalk.cpp">
+    <ClCompile Include="Source\Game\Character\Player\State\PlayerStateWalk.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Camera.cpp">
+    <ClCompile Include="Source\Game\Camera.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="System\Animation.cpp">
+    <ClCompile Include="Source\System\Animation.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="System\Timer.cpp">
+    <ClCompile Include="Source\System\Timer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Character\Enemy.cpp">
+    <ClCompile Include="Source\Game\Character\Enemy\Enemy.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Character\Alien.cpp">
+    <ClCompile Include="Source\Game\Character\Enemy\Alien\Alien.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Breath.cpp">
+    <ClCompile Include="Source\Game\Breath.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="System\ProjectileManager.cpp">
+    <ClCompile Include="Source\System\ProjectileManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="System\Projectile.cpp">
+    <ClCompile Include="Source\System\Projectile.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="DataLoader\AttackData.cpp">
+    <ClCompile Include="Source\DataLoader\AttackData.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="DataLoader\AttackTable.cpp">
+    <ClCompile Include="Source\DataLoader\AttackTable.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Character\State\PlayerStateAttack.cpp">
+    <ClCompile Include="Source\Game\Character\Player\State\PlayerStateAttack.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="System\CollisionManager.cpp">
+    <ClCompile Include="Source\System\CollisionManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="System\StageCollision.cpp">
+    <ClCompile Include="Source\System\StageCollision.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Math\Geometry.cpp">
+    <ClCompile Include="Source\Math\Geometry.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Damage.cpp">
+    <ClCompile Include="Source\Game\Damage.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="System\DebugTool.cpp">
+    <ClCompile Include="Source\System\DebugTool.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Game.h">
+    <ClInclude Include="Source\Game.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Scene\GameScene.h">
+    <ClInclude Include="Source\Scene\GameScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Character\Character.h">
+    <ClInclude Include="Source\Game\Character\Character.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Math\Vector3.h">
+    <ClInclude Include="Source\Math\Vector3.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="DataLoader\StatusData.h">
+    <ClInclude Include="Source\DataLoader\StatusData.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="DataLoader\DataManager.h">
+    <ClInclude Include="Source\DataLoader\DataManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Character\Player\Player.h">
+    <ClInclude Include="Source\Game\Character\Player\Player.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="System\Input.h">
+    <ClInclude Include="Source\System\Input.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="System\Application.h">
+    <ClInclude Include="Source\System\Application.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Comon\Model.h">
+    <ClInclude Include="Source\Common\Model.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Character\State\StateBase.h">
+    <ClInclude Include="Source\Game\Character\StateBase.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Character\State\PlayerStateBase.h">
+    <ClInclude Include="Source\Game\Character\Player\State\PlayerStateBase.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Character\State\EnemyStateBase.h">
+    <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateBase.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Character\State\PlayerStateDeath.h">
+    <ClInclude Include="Source\Game\Character\Player\State\PlayerStateDeath.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Character\State\PlayerStateDodge.h">
+    <ClInclude Include="Source\Game\Character\Player\State\PlayerStateDodge.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Character\State\PlayerStateIdle.h">
+    <ClInclude Include="Source\Game\Character\Player\State\PlayerStateIdle.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Character\State\PlayerStateJump.h">
+    <ClInclude Include="Source\Game\Character\Player\State\PlayerStateJump.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Character\State\PlayerStateWalk.h">
+    <ClInclude Include="Source\Game\Character\Player\State\PlayerStateWalk.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Camera.h">
+    <ClInclude Include="Source\Game\Camera.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="System\Animation.h">
+    <ClInclude Include="Source\System\Animation.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="System\Timer.h">
+    <ClInclude Include="Source\System\Timer.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Character\Enemy.h">
+    <ClInclude Include="Source\Game\Character\Enemy\Enemy.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Character\Alien.h">
+    <ClInclude Include="Source\Game\Character\Enemy\Alien\Alien.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Breath.h">
+    <ClInclude Include="Source\Game\Breath.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="System\ProjectileManager.h">
+    <ClInclude Include="Source\System\ProjectileManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="System\Projectile.h">
+    <ClInclude Include="Source\System\Projectile.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="DataLoader\AttackData.h">
+    <ClInclude Include="Source\DataLoader\AttackData.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="DataLoader\AttackTable.h">
+    <ClInclude Include="Source\DataLoader\AttackTable.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Comon\CharacterType.h">
+    <ClInclude Include="Source\Common\CharacterType.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Character\State\PlayerStateAttack.h">
+    <ClInclude Include="Source\Game\Character\Player\State\PlayerStateAttack.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="System\CollisionManager.h">
+    <ClInclude Include="Source\System\CollisionManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="System\StageCollision.h">
+    <ClInclude Include="Source\System\StageCollision.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Math\Geometry.h">
+    <ClInclude Include="Source\Math\Geometry.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Damage.h">
+    <ClInclude Include="Source\Game\Damage.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="System\DebugTool.h">
+    <ClInclude Include="Source\System\DebugTool.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

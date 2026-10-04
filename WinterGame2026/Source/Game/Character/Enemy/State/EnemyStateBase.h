@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include <memory>
-#include "StateBase.h"
+#include "../../StateBase.h"
 #include "../Enemy.h"
 
 //敵用ステートの基底クラス

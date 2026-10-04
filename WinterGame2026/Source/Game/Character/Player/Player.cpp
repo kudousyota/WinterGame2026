@@ -1,6 +1,6 @@
 ﻿#include "Player.h"
-#include "../Comon/Model.h"
-#include "../../System/Timer.h"
+#include "../../../Common/Model.h"
+#include "../../../System/Timer.h"
 #include "State/PlayerStateIdle.h"
 #include "State/PlayerStateDeath.h"
 #include <cmath>

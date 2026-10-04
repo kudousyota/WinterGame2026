@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include "Character.h"
-class Alien : public Character
+#include "../Enemy.h"
+class Alien : public Enemy
 {
 public:
 	Alien();
@@ -10,7 +10,6 @@ public:
 	void LateUpdate()override;
 	void Draw()override;
 
-	CharacterType GetCharacterType()const override { return CharacterType::Enemy; }
 private:
 	int m_modelHandle = -1;
 };
