@@ -4,6 +4,7 @@
 #include "../Game/Character/Enemy/Alien/Alien.h"
 #include "../Game/Damage.h"
 #include "../System/Timer.h"
+#include "../Game.h"
 
 namespace
 {
@@ -13,6 +14,8 @@ namespace
 	constexpr float kShakePower = 17.0f;
 	//カメラシェイクのフレーム数
 	constexpr int kShakeFrame = 15;
+	//ウィッチタイム中に画面に重ねる色の濃さ(0～255)
+	constexpr int kWitchTimeOverlayAlpha = 128;
 }
 
 GameScene::GameScene():
@@ -42,6 +45,8 @@ void GameScene::Init()
 	//エイリアンの生成
 	m_pAlien = std::make_shared<Alien>();
 	m_pAlien->Init();
+	//エイリアンはプレイヤーを狙う
+	m_pAlien->SetTarget(m_pPlayer.get());
 
 	//当たり判定に登録(登録・解除はシーンだけが行う)
 	m_collision.Register(m_pPlayer.get());
@@ -85,6 +90,14 @@ void GameScene::Update()
 
 void GameScene::Draw()
 {
+	//ウィッチタイム中は背景を紫にする(キャラクターより先に描いて、キャラクターには色を乗せない)
+	if (Timer::Instance().IsEnemySlow())
+	{
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, kWitchTimeOverlayAlpha);
+		DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(125, 0, 185), true);
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	}
+
 	m_pPlayer->Draw();
 	m_pAlien->Draw();
 	//飛び道具の描画

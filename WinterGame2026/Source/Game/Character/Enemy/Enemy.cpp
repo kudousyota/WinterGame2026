@@ -1,4 +1,5 @@
 ﻿#include "Enemy.h"
+#include "../../../System/Timer.h"
 #include <cfloat>
 
 Enemy::Enemy()
@@ -48,4 +49,21 @@ void Enemy::MoveToTarget(float speedScale)
 
 	Vector3 move = toTarget.Normalize() * (m_speed * speedScale);
 	m_velocity = Vector3(move.x, m_velocity.y, move.z);
+}
+
+void Enemy::FaceTarget()
+{
+	if (!m_pTarget) return;
+
+	Vector3 toTarget = m_pTarget->GetPos() - m_pos;
+	toTarget.y = 0.0f;
+	//ほぼ重なっている時は向きが決まらないので今の向きのまま
+	if (toTarget.SqMagnitude() <= 0.0f) return;
+
+	m_forward = toTarget.Normalize();
+}
+
+float Enemy::GetTimeScale() const
+{
+	return Timer::Instance().GetTimeScale() * Timer::Instance().GetEnemyTimeScale();
 }

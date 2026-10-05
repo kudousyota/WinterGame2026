@@ -13,6 +13,9 @@ public:
 
 	CharacterType GetCharacterType()const override { return CharacterType::Player; }
 
+	//ジャスト回避に成功したらウィッチタイムを発動する
+	void OnJustDodge()override;
+
 	Vector3 GetCameraTarget();
 	float GetAngle() { return m_angle; }
 

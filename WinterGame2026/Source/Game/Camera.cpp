@@ -3,7 +3,7 @@
 //#include "../System/StageCollision.h"
 //#include "../Game/Stage.h"
 //#include "../System/Model.h"
-//#include "../System/Timer.h" 
+#include "../System/Timer.h"
 
 namespace
 {
@@ -101,21 +101,21 @@ void Camera::Update(const Vector3& targetPos)
 	if (m_cameraAngleX > DX_PI_F)  m_cameraAngleX -= DX_TWO_PI_F;
 	if (m_cameraAngleX < -DX_PI_F) m_cameraAngleX += DX_TWO_PI_F;
 
-	////ウィッチタイム中はカメラを引く
-	//if (Timer::Instance().IsEnemySlow())
-	//{
-	//	//目標値に近づける
-	//	m_pullOffset += (kJustAvoidPullDistance - m_pullOffset) * kPullRecoverySpeed;
-	//}
-	//else
-	//{
-	//	//ウィッチタイムが終わったら徐々に戻す
-	//	m_pullOffset += (0.0f - m_pullOffset) * kPullRecoverySpeed;
-	//	if (fabsf(m_pullOffset) < 0.01f)
-	//	{
-	//		m_pullOffset = 0.0f;
-	//	}
-	//}
+	//ウィッチタイム中はカメラを引く
+	if (Timer::Instance().IsEnemySlow())
+	{
+		//目標値に近づける
+		m_pullOffset += (kJustAvoidPullDistance - m_pullOffset) * kPullRecoverySpeed;
+	}
+	else
+	{
+		//ウィッチタイムが終わったら徐々に戻す
+		m_pullOffset += (0.0f - m_pullOffset) * kPullRecoverySpeed;
+		if (fabsf(m_pullOffset) < 0.01f)
+		{
+			m_pullOffset = 0.0f;
+		}
+	}
 
 	//プレイヤー追従先
 	Vector3 cameraTarget = targetPos;

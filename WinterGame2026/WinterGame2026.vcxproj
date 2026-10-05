@@ -151,6 +151,9 @@
     <ClCompile Include="Source\Game\Breath.cpp" />
     <ClCompile Include="Source\Game\Character\Enemy\Alien\Alien.cpp" />
     <ClCompile Include="Source\Game\Character\Enemy\Enemy.cpp" />
+    <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateAttack.cpp" />
+    <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateChase.cpp" />
+    <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateIdle.cpp" />
     <ClCompile Include="Source\Game\Character\Player\State\PlayerStateAttack.cpp" />
     <ClCompile Include="Source\System\Projectile.cpp" />
     <ClCompile Include="Source\System\ProjectileManager.cpp" />
@@ -200,6 +203,9 @@
     <ClInclude Include="Source\Math\Vector3.h" />
     <ClInclude Include="Source\Game\Character\Player\Player.h" />
     <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateBase.h" />
+    <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateAttack.h" />
+    <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateChase.h" />
+    <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateIdle.h" />
     <ClInclude Include="Source\Game\Character\Player\State\PlayerStateBase.h" />
     <ClInclude Include="Source\Game\Character\Player\State\PlayerStateDeath.h" />
     <ClInclude Include="Source\Game\Character\Player\State\PlayerStateDodge.h" />

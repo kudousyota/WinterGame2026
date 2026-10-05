@@ -8,6 +8,8 @@ namespace
 	constexpr int kDodgeFrame = 20;
 	//回避中の移動速度の倍率
 	constexpr float kDodgeSpeedScale = 3.0f;
+	//ジャスト回避を受け付けるフレーム数(回避の出始め)
+	constexpr int kJustDodgeFrame = 8;
 }
 
 void PlayerStateDodge::Enter()
@@ -25,6 +27,8 @@ void PlayerStateDodge::Enter()
 
 	//回避中は無敵
 	m_player.SetInvincible(true);
+	//回避の出始めはジャスト回避を受け付ける
+	m_player.SetJustDodgeWindow(true);
 }
 
 void PlayerStateDodge::Update()
@@ -50,10 +54,17 @@ void PlayerStateDodge::Update()
 	m_player.SetVelocity(Vector3(move.x, vel.y, move.z));
 
 	m_frame++;
+
+	//受付時間を過ぎたらジャスト回避は成立しない(無敵は続く)
+	if (m_frame >= kJustDodgeFrame)
+	{
+		m_player.SetJustDodgeWindow(false);
+	}
 }
 
 void PlayerStateDodge::Exit()
 {
 	//無敵を解除する
 	m_player.SetInvincible(false);
+	m_player.SetJustDodgeWindow(false);
 }

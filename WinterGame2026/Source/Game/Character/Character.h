@@ -63,6 +63,7 @@ public:
 	int GetMaxHp()const { return m_maxhp; }
 	bool IsGround()const { return m_isGround; }
 	void SetInvincible(bool isInvincible) { m_isInvincible = isInvincible; }
+	void SetJustDodgeWindow(bool isWindow) { m_isJustDodgeWindow = isWindow; }
 	//キャラクタータイプを取得
 	virtual CharacterType GetCharacterType()const = 0;
 	//アニメーション

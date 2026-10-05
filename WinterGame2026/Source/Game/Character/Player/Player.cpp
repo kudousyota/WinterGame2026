@@ -27,6 +27,12 @@ namespace
 	constexpr float kCollisionRadius = 30.0f;
 	//ジャスト回避判定の半径
 	constexpr float kJustDodgeRadius = 50.0f;
+
+	//ウィッチタイム
+	//敵の時間の倍率
+	constexpr float kWitchTimeScale = 0.2f;
+	//続くフレーム数
+	constexpr int kWitchTimeFrame = 300;
 }
 
 Player::Player()
@@ -123,6 +129,12 @@ void Player::LateUpdate()
 void Player::Draw()
 {
 	MV1DrawModel(m_modelHandle);
+}
+
+void Player::OnJustDodge()
+{
+	//敵だけ時間を遅くする(敵・飛び道具は敵専用の倍率を掛けて動いている)
+	Timer::Instance().SetEnemyTimeScaleForFrames(kWitchTimeScale, kWitchTimeFrame);
 }
 
 Vector3 Player::GetCameraTarget()
