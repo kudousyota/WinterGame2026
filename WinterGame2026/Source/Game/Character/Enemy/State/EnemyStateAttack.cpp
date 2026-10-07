@@ -29,7 +29,7 @@ void EnemyStateAttack::Update()
 {
 	m_enemy.StopMove();
 
-	//攻撃が終わったら待機(攻撃の後の隙)にする
+	//攻撃が終わったら攻撃の後隙にする
 	if (m_frame >= m_info.totalFrame)
 	{
 		ChangeState<EnemyStateIdle>();

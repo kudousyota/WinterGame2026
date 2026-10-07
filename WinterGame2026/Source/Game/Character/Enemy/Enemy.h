@@ -52,7 +52,7 @@ protected:
 	std::string m_idleAnimName;
 	//移動のアニメーション
 	std::string m_moveAnimName;
-	//攻撃の種類(フレームやダメージはAttack.csvに書く)
+	//攻撃の種類(フレームやダメージはcsvに書く)
 	AttackType m_attackType = AttackType::Attack;
 };
 

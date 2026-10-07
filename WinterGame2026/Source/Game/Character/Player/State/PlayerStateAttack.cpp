@@ -8,12 +8,12 @@
 namespace
 {
 	//攻撃判定を出す位置(足元から前方への距離と高さ)
-	//TODO:骨の位置から出すようにしたらCSVで攻撃ごとに指定する
+	//ボーンの位置から出すようにしたらCSVで攻撃ごとに指定する
 	constexpr float kHitForwardOffset = 60.0f;
 	constexpr float kHitHeight = 100.0f;
 }
 
-PlayerStateAttack::PlayerStateAttack(Player& player, AttackType type) :
+PlayerStateAttack::PlayerStateAttack(Player& player, AttackType type):
 	PlayerStateBase(player),
 	m_info(DataManager::GetInstance().GetAttackTable().GetInfo(type))
 {
@@ -74,14 +74,13 @@ void PlayerStateAttack::Update()
 
 	if (IsHitActive())
 	{
-		//攻撃を申請するだけ(判定はGameSceneが全員の移動が終わった後に行う)
-		AttackRequest request{ AttackData(CharacterType::Player, m_info.type, m_info.damage, m_info.radius) };
+		//攻撃を申請するだけ
+		AttackRequest request{AttackData(CharacterType::Player, m_info.type, m_info.damage, m_info.radius)};
 		request.attackId = m_attackId;
 		request.forwardOffset = kHitForwardOffset;
 		request.height = kHitHeight;
 		m_player.RequestAttack(request);
 	}
-
 	m_frame++;
 }
 

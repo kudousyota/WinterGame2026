@@ -61,31 +61,31 @@ void Camera::End()
 void Camera::Update(const Vector3& targetPos)
 {
 
-		int xBuf = 0, yBuf = 0;
+	int xBuf = 0, yBuf = 0;
 
-		//右スティック入力取得
-		GetJoypadAnalogInputRight(&xBuf, &yBuf, DX_INPUT_PAD1);
+	//右スティック入力取得
+	GetJoypadAnalogInputRight(&xBuf, &yBuf, DX_INPUT_PAD1);
 
-		//正規化
-		float stickX = static_cast<float>(xBuf) / 32767.0f;
-		float stickY = static_cast<float>(yBuf) / 32767.0f;
+	//正規化
+	float stickX = static_cast<float>(xBuf) / 32767.0f;
+	float stickY = static_cast<float>(yBuf) / 32767.0f;
 
-		//デッドゾーン
-		if (fabsf(stickX) < kStickDeadZone) stickX = 0.0f;
-		if (fabsf(stickY) < kStickDeadZone) stickY = 0.0f;
+	//デッドゾーン
+	if (fabsf(stickX) < kStickDeadZone) stickX = 0.0f;
+	if (fabsf(stickY) < kStickDeadZone) stickY = 0.0f;
 
-		//カメラ左右回転
-		if (stickX != 0.0f)
-		{
-			m_cameraAngleX += stickX * kCameraRotSpeedX;
-		}
-		if (stickY != 0.0f)
-		{
-			m_cameraAngleY -= stickY * kCameraRotSpeedY;
-		}
+	//カメラ左右回転
+	if (stickX != 0.0f)
+	{
+		m_cameraAngleX += stickX * kCameraRotSpeedX;
+	}
+	if (stickY != 0.0f)
+	{
+		m_cameraAngleY -= stickY * kCameraRotSpeedY;
+	}
 
-	const float kMaxPitch = DX_PI_F * 0.4f;
-	const float kMinPitch = -DX_PI_F * 0.2f;
+	float kMaxPitch = DX_PI_F * 0.4f;
+	float kMinPitch = -DX_PI_F * 0.2f;
 	//上下移動の制限
 	if (m_cameraAngleY > kMaxPitch)
 	{

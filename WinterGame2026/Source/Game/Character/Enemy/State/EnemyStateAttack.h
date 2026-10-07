@@ -4,7 +4,7 @@
 
 //敵の攻撃状態
 //攻撃の中身はプレイヤーと同じくAttack.csvのデータで表す
-//判定が出るまでのフレーム(予備動作)がプレイヤーにとっての回避のタイミングになる
+//判定が出るまでのフレームがプレイヤーにとっての回避のタイミングになる
 class EnemyStateAttack : public EnemyStateBase
 {
 public:
