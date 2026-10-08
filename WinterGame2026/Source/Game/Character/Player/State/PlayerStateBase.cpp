@@ -1,5 +1,7 @@
 ﻿#include "PlayerStateBase.h"
 #include "PlayerStateAttack.h"
+#include "PlayerStateJump.h"
+#include "PlayerStateDodge.h"
 #include "../../../../System/Input.h"
 
 Vector3 PlayerStateBase::GetMoveInput() const
@@ -42,4 +44,45 @@ void PlayerStateBase::StopMove()
 void PlayerStateBase::ChangeAttackState(AttackType type)
 {
 	m_player.ChangeState(std::make_unique<PlayerStateAttack>(m_player, type));
+}
+
+bool PlayerStateBase::TryGroundAction(int bufferFrame)
+{
+	auto& input = Input::Instance();
+
+	//ジャンプボタンが押されたらJumpにする
+	if (input.IsTriggered("Jump"))
+	{
+		ChangeState<PlayerStateJump>();
+		return true;
+	}
+
+	//回避ボタンが押されたらDodgeにする
+	if (input.IsBuffered("Dodge", bufferFrame))
+	{
+		//回避に使ったので消費する
+		input.ConsumeBuffer("Dodge");
+		ChangeState<PlayerStateDodge>();
+		return true;
+	}
+
+	//パンチボタンが押されたらパンチコンボの1段目を出す
+	if (input.IsBuffered("Punch", bufferFrame))
+	{
+		//1段目に使った入力を消して、2段目が勝手に出ないようにする
+		input.ConsumeBuffer("Punch");
+		ChangeAttackState(AttackType::Punch);
+		return true;
+	}
+
+	//キックボタンが押されたらキックコンボの1段目を出す
+	if (input.IsBuffered("Kick", bufferFrame))
+	{
+		//1段目に使った入力を消して、2段目が勝手に出ないようにする
+		input.ConsumeBuffer("Kick");
+		ChangeAttackState(AttackType::Kick);
+		return true;
+	}
+
+	return false;
 }

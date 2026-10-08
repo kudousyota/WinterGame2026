@@ -30,6 +30,11 @@ protected:
 	//水平方向の速度を0にする(Y方向の速度は維持)
 	void StopMove();
 
+	//地上で出せる行動(ジャンプ・回避・攻撃)の入力を見て、あればステートを切り替える
+	//切り替えたらtrueを返す(呼び出し側はそのままreturnする)
+	//bufferFrame:先行入力を何フレーム前まで受け付けるか(ステートごとに指定する)
+	bool TryGroundAction(int bufferFrame);
+
 protected:
 	//持ち主のプレイヤー(ステートはプレイヤーが所有して参照で持つ)
 	Player& m_player;

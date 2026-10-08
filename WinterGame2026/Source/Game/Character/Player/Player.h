@@ -24,6 +24,10 @@ public:
 	
 	const Vector3& GetCameraForward()const { return m_cameraForward; }
 	const Vector3& GetCameraRight()const { return m_cameraRight; }
+	
+	//すぐ振り向く
+	void FaceTo(const Vector3& dir);
+
 private:
 	int m_modelHandle = -1;
 

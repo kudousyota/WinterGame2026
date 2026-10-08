@@ -11,7 +11,7 @@ namespace
 	//ボーンの位置から出すようにしたらCSVで攻撃ごとに指定する
 	constexpr float kHitForwardOffset = 60.0f;
 	constexpr float kHitHeight = 100.0f;
-	//先行入力を覚えておくフレーム数(Idle・Walkと同じ値にする)
+	//先行入力を覚えておくフレーム数
 	constexpr int kInputBufferFrame = 8;
 }
 
@@ -23,6 +23,15 @@ PlayerStateAttack::PlayerStateAttack(Player& player, AttackType type):
 
 void PlayerStateAttack::Enter()
 {
+	//入力があればその方向に向く
+	//入力がなければ今の向きを維持する
+	auto dir = GetMoveInput();
+	if (dir.SqMagnitude() > 0.0f)
+	{
+		//長さが1より短いと攻撃判定がずれるので正規化する
+		m_player.FaceTo(dir.Normalize());
+	}
+
 	//攻撃中はその場で止まる
 	StopMove();
 	m_player.GetAnim().ChangeAnim(m_info.animName, false);
@@ -45,15 +54,32 @@ void PlayerStateAttack::Update()
 			return;
 		}
 		//押したボタンによって次の攻撃が変わる(後から押した方を優先)
-		if (m_info.nextPunch && input.IsBuffered("Punch", kInputBufferFrame))
+		//次の攻撃がないボタンは押されていない扱いにする
+		std::optional<int> punchFrame;
+		std::optional<int> kickFrame;
+		if (m_info.nextPunch)
 		{
-			m_reservedNext = m_info.nextPunch;
-			input.ConsumeBuffer("Punch");//次の攻撃に使ったので消費する
+			punchFrame = input.GetBufferedFrame("Punch", kInputBufferFrame);
 		}
-		if (m_info.nextKick && input.IsBuffered("Kick", kInputBufferFrame))
+		if (m_info.nextKick)
 		{
-			m_reservedNext = m_info.nextKick;
-			input.ConsumeBuffer("Kick");//次の攻撃に使ったので消費する
+			kickFrame = input.GetBufferedFrame("Kick", kInputBufferFrame);
+		}
+
+		if (punchFrame || kickFrame)
+		{
+			//押したフレームが新しい方を選ぶ(同時押しはキックを優先)
+			if (kickFrame && (!punchFrame || *kickFrame >= *punchFrame))
+			{
+				m_reservedNext = m_info.nextKick;
+			}
+			else
+			{
+				m_reservedNext = m_info.nextPunch;
+			}
+			//負けた方も消費しないと、次のフレームで予約が上書きされてしまう
+			input.ConsumeBuffer("Punch");
+			input.ConsumeBuffer("Kick");
 		}
 	}
 

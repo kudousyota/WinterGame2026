@@ -147,3 +147,11 @@ void Player::SetCameraAxis(const Vector3& forward, const Vector3& right)
 	m_cameraForward = forward;
 	m_cameraRight = right;
 }
+
+void Player::FaceTo(const Vector3& dir)
+{
+	//判定の向きも変える
+	m_forward = dir;
+	//モデルの向きもすぐ合わせる
+	m_angle = atan2f(dir.x, dir.z) + DX_PI_F;
+}

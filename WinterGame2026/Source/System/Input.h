@@ -42,6 +42,8 @@ public:
 
 	//フレーム以内に押されたかどうか
 	bool IsBuffered(const char* name, int frame)const;
+	//フレーム以内に押されていたら、押されたフレーム番号を返す(なければ値なし)
+	std::optional<int> GetBufferedFrame(const char* name, int frame)const;
 	//使った入力をリセットする(2回反応しないようにする)
 	void ConsumeBuffer(const char* name);
 

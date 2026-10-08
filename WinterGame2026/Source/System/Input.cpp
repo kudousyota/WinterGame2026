@@ -162,15 +162,24 @@ float Input::GetStickLY()const
 
 bool Input::IsBuffered(const char* name, int frame) const
 {
+	return GetBufferedFrame(name, frame).has_value();
+}
+
+std::optional<int> Input::GetBufferedFrame(const char* name, int frame) const
+{
 	//最後に押されたフレーム番号を取得する
 	const auto& lastFrame = m_lastTriggeredFrame.at(name);
 	if (!lastFrame.has_value())
 	{
 		//一度も押されていない、または使用済み
-		return false;
+		return std::nullopt;
 	}
-	//押されてからの経過フレーム数が指定されたフレーム数以内かどうかを判定する
-	return m_nowFrame - lastFrame.value() <= frame;
+	//押されてからの経過フレーム数が指定されたフレーム数を過ぎていたら無効
+	if (m_nowFrame - lastFrame.value() > frame)
+	{
+		return std::nullopt;
+	}
+	return lastFrame;
 }
 
 void Input::ConsumeBuffer(const char* name)
