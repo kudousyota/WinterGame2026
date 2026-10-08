@@ -4,6 +4,8 @@ class Timer
 {
 public:
 	static Timer& Instance();
+
+	void Update();
 	void SetTimeScale(float scale) { m_timeScale = scale; }
 
 	float GetTimeScale() const { return m_timeScale; }
@@ -11,7 +13,8 @@ public:
 	//敵専用のタイムスケール
 	float GetEnemyTimeScale()const { return m_enemyTimeScale; }
 
-	void Update();
+	//ゲーム内の時間を取得する
+	int GetGameTime()const { return m_gameTime; }
 
 	void SetTimeScaleForFrames(float timescale, int frames);
 
@@ -19,14 +22,10 @@ public:
 
 	bool IsEnemySlow() const;
 
-	////ヒットストップをリクエストする
-	//void RequestHitStop(int frame);
-	////今ヒットストップ中かどうか
-	//bool IsHitStop()const { return m_hitStopFrame > 0; }
-	////カメラシェイクをリクエスト
-	//void RequestShake(float power, int frame);
-	////今フレームのシェイクオフセットを取得する
-	//Vector3 GetShakeOffset() const;
+	//ヒットストップをリクエストする
+	void RequestHitStop(int frame);
+	//今ヒットストップ中かどうか
+	bool IsHitStop()const { return m_isHitStop; }
 private:
 	//コンストラクタとデストラクタをプライベートにして、シングルトンパターンを実装
 	Timer() = default;
@@ -46,5 +45,8 @@ private:
 	//ゲーム内の時間を図るための変数
 	int m_gameTime = 0;
 
+	//ヒットストップの残りフレーム数
 	int m_hitStopFrame = 0;
+	//このフレームがヒットストップ中かどうか
+	bool m_isHitStop = false;
 };

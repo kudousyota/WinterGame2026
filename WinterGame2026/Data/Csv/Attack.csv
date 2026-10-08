@@ -10,4 +10,4 @@ JumpKick,90,18,40,50,90,30,60,Player|FlyingKick,None,None
 Kicking,136,58,94,100,136,20,60,Player|Kicking,None,None
 LegSweep,124,60,100,104,124,25,90,Player|LegSweep,None,None
 MeleeKick,86,30,50,30,52,15,60,Player|StandingMeleeKick,Punching,RotateKick
-Attack,100,50,60,100,100,10,70,Alien|Attack,None,None
+Attack,100,50,60,100,100,0,70,Alien|Attack,None,None

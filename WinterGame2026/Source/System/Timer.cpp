@@ -9,6 +9,16 @@ Timer& Timer::Instance()
 
 void Timer::Update()
 {
+	//ヒットストップ
+	m_isHitStop = m_hitStopFrame > 0;
+	if (m_isHitStop)
+	{
+		m_hitStopFrame--;
+		//止まっている間はウィッチタイムなどの残り時間も減らさない
+		return;
+	}
+
+
 	//ゲーム全体の時間
 	if (m_frameCount > 0)
 	{
@@ -26,6 +36,8 @@ void Timer::Update()
 			m_enemyTimeScale = 1.0f;
 		}
 	}
+	//ゲーム内の時間を進める
+	m_gameTime++;
 }
 
 void Timer::SetTimeScaleForFrames(float timescale, int frames)
@@ -47,4 +59,10 @@ void Timer::SetEnemyTimeScaleForFrames(float scale, int frames)
 bool Timer::IsEnemySlow() const
 {
 	return m_frameCountEnemy > 0;
+}
+
+void Timer::RequestHitStop(int frame)
+{
+	//連続で当たっても止まる時間が伸び続けないように、長い方を使う
+	m_hitStopFrame = (std::max)(m_hitStopFrame, frame);
 }

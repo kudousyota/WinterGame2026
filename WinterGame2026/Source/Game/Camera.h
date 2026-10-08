@@ -18,6 +18,9 @@ public:
 	//ウィッチタイムになったらカメラをひく
 	//void CameraPull();
 
+	//カメラを揺らす(今の揺れより弱い揺れでは上書きしない)
+	void Shake(float power, int frame);
+
 	const Vector3& GetPos()const { return m_cameraPos; }
 	//カメラの水平・垂直の回転角度
 	float GetAngleX()const { return m_cameraAngleX; }
@@ -41,4 +44,14 @@ private:
 	float m_cameraTargetY = 0.0f;
 	//ジャスト回避した時に引く量
 	float m_pullOffset = 0.0f;
+
+	//今フレームの揺れの量を求める
+	Vector3 CalcShakeOffset() const;
+
+	//カメラシェイクの強さ
+	float m_shakePower = 0.0f;
+	//カメラシェイクの残りフレーム数
+	int m_shakeFrame = 0;
+	//カメラシェイクの全体のフレーム数(だんだん弱くするのに使う)
+	int m_shakeTotalFrame = 0;
 };

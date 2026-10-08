@@ -149,24 +149,21 @@ void Camera::Update(const Vector3& targetPos)
 	m_cameraPos = m_cameraPos + (idealCameraPos - m_cameraPos) * kCameraFollow;
 	m_cameraTarget = m_cameraTarget + (cameraTarget - m_cameraTarget) * kCameraFollow;
 
-	////カメラシェイク
-	//Vector3 shakeOffset = Timer::Instance().GetShakeOffset();
-	//Vector3 shakenCameraPos = m_cameraPos + shakeOffset;
-	//Vector3 shakenCameraTarget = m_cameraTarget + shakeOffset;
+	//カメラシェイク(揺れは見た目だけなので、m_cameraPosには足さない)
+	Vector3 shakeOffset = CalcShakeOffset();
+	if (m_shakeFrame > 0)
+	{
+		m_shakeFrame--;
+	}
+	Vector3 shakenCameraPos = m_cameraPos + shakeOffset;
+	Vector3 shakenCameraTarget = m_cameraTarget + shakeOffset;
 
 	//カメラ反映
-	//SetCameraPositionAndTarget_UpVecY(shakenCameraPos.ToDxLibVector(), shakenCameraTarget.ToDxLibVector());
-
-	//カメラ反映
-	SetCameraPositionAndTarget_UpVecY(m_cameraPos.ToDxLibVector(), m_cameraTarget.ToDxLibVector());
+	SetCameraPositionAndTarget_UpVecY(shakenCameraPos.ToDxLibVector(), shakenCameraTarget.ToDxLibVector());
 
 	//光
-	Vector3 camPos = m_cameraPos;
-	Vector3 target = m_cameraTarget;
-
-	////光
-	//Vector3 camPos = shakenCameraPos.ToDxLibVector();
-	//Vector3 target = shakenCameraTarget.ToDxLibVector();
+	Vector3 camPos = shakenCameraPos;
+	Vector3 target = shakenCameraTarget;
 
 	//カメラから注視点の方向
 	Vector3 LightDir = VNorm(VSub(target, camPos));
@@ -206,6 +203,31 @@ Vector3 Camera::GetRight() const
 	right *= -1;
 
 	return right;
+}
+
+void Camera::Shake(float power, int frame)
+{
+	//今の揺れより弱い揺れでは上書きしない
+	if (m_shakeFrame > 0 && power < m_shakePower) return;
+
+	m_shakePower = power;
+	m_shakeFrame = frame;
+	m_shakeTotalFrame = frame;
+}
+
+Vector3 Camera::CalcShakeOffset() const
+{
+	if (m_shakeFrame <= 0 || m_shakeTotalFrame <= 0) return Vector3(0.0f, 0.0f, 0.0f);
+
+	//残り時間に合わせてだんだん弱くする
+	float power = m_shakePower * static_cast<float>(m_shakeFrame) / static_cast<float>(m_shakeTotalFrame);
+
+	//-power～powerのランダムな値
+	auto randRange = [power]()
+		{
+			return (static_cast<float>(GetRand(2000)) / 1000.0f - 1.0f) * power;
+		};
+	return Vector3(randRange(), randRange(), randRange());
 }
 //
 //void Camera::CameraPull()

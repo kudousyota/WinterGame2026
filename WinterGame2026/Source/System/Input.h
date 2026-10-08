@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <array>
 #include <map>
+#include <optional>
 #include <string>
 #include <vector>
 #include "DxLib.h"
@@ -26,7 +27,7 @@ public:
 	Input();
 	//これを毎フレーム呼び出す
 	//入力情報を入れる
-	void Update();
+	void Update(int nowFrame);
 	//特定のボタンが押されたかどうか
 	bool IsPressed(const char* name)const;
 
@@ -39,6 +40,10 @@ public:
 	float GetStickLX()const;
 	float GetStickLY()const;
 
+	//フレーム以内に押されたかどうか
+	bool IsBuffered(const char* name, int frame)const;
+	//使った入力をリセットする(2回反応しないようにする)
+	void ConsumeBuffer(const char* name);
 
 private:
 	//イベント名と実際の入力の対応表
@@ -51,6 +56,13 @@ private:
 
 	//コントローラーの入力情報
 	DINPUT_JOYSTATE m_padState;
+
+	//今のフレーム番号(ゲーム内の時計)
+	int m_nowFrame = 0;
+
+	//ボタンごとの最後に押されたフレーム番号
+	//一度も押されていない(または使用済み)のボタンは値なし
+	std::map<std::string, std::optional<int>> m_lastTriggeredFrame;
 
 	void InitializeInputTable();
 };

@@ -11,6 +11,8 @@ namespace
 	//ボーンの位置から出すようにしたらCSVで攻撃ごとに指定する
 	constexpr float kHitForwardOffset = 60.0f;
 	constexpr float kHitHeight = 100.0f;
+	//先行入力を覚えておくフレーム数(Idle・Walkと同じ値にする)
+	constexpr int kInputBufferFrame = 8;
 }
 
 PlayerStateAttack::PlayerStateAttack(Player& player, AttackType type):
@@ -35,19 +37,23 @@ void PlayerStateAttack::Update()
 	//受付フレームを過ぎたら次の攻撃の入力と回避キャンセルを受け付ける
 	if (m_frame >= m_info.comboStartFrame)
 	{
-		if (input.IsTriggered("Dodge"))
+		//受付前に押した回避もここで拾う(消費しないと攻撃後に遅れて回避が出る)
+		if (input.IsBuffered("Dodge", kInputBufferFrame))
 		{
+			input.ConsumeBuffer("Dodge");
 			ChangeState<PlayerStateDodge>();
 			return;
 		}
 		//押したボタンによって次の攻撃が変わる(後から押した方を優先)
-		if (m_info.nextPunch && input.IsTriggered("Punch"))
+		if (m_info.nextPunch && input.IsBuffered("Punch", kInputBufferFrame))
 		{
 			m_reservedNext = m_info.nextPunch;
+			input.ConsumeBuffer("Punch");//次の攻撃に使ったので消費する
 		}
-		if (m_info.nextKick && input.IsTriggered("Kick"))
+		if (m_info.nextKick && input.IsBuffered("Kick", kInputBufferFrame))
 		{
 			m_reservedNext = m_info.nextKick;
+			input.ConsumeBuffer("Kick");//次の攻撃に使ったので消費する
 		}
 	}
 

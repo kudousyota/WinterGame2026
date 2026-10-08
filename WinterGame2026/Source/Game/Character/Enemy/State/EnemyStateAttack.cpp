@@ -4,7 +4,7 @@
 
 namespace
 {
-	//攻撃判定を出す位置(足元から前方への距離と高さ)
+	//攻撃判定を出す位置
 	constexpr float kHitForwardOffset = 100.0f;
 	constexpr float kHitHeight = 100.0f;
 }
@@ -19,7 +19,7 @@ void EnemyStateAttack::Enter()
 {
 	//攻撃中はその場で止まる
 	m_enemy.StopMove();
-	//攻撃を始めた時の方向に攻撃する(途中で向きを変えないので横に避けられる)
+	//攻撃を始めた時の方向に攻撃する
 	m_enemy.FaceTarget();
 	m_enemy.GetAnim().ChangeAnim(m_info.animName, false);
 	m_attackId = m_enemy.IssueAttackId();
@@ -38,7 +38,7 @@ void EnemyStateAttack::Update()
 
 	if (IsHitActive())
 	{
-		//攻撃を申請するだけ(判定はGameSceneが全員の移動が終わった後に行う)
+		//攻撃を申請するだけ
 		AttackRequest request{ AttackData(CharacterType::Enemy, m_info.type, m_info.damage, m_info.radius) };
 		request.attackId = m_attackId;
 		request.forwardOffset = kHitForwardOffset;

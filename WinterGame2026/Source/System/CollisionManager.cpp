@@ -52,7 +52,7 @@ void CollisionManager::ResolveAll()
 //球状の攻撃判定を行う
 std::vector<CollisionManager::AttackHit> CollisionManager::CheckAttackSphere(const AttackData& attackdata, const Vector3& pos)
 {
-	//デバッグ表示用に記録(球は始点と終点が同じカプセルとして扱う)
+	//デバッグ表示用に記録
 	m_debugAttackShapes.push_back({ pos, pos, attackdata.GetRadius() });
 
 	std::vector<AttackHit> hits;

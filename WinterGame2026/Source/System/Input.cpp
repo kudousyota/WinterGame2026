@@ -54,20 +54,20 @@ void Input::InitializeInputTable()
 Input::Input() : m_inputData{}, m_lastInputData{}, m_inputTable{}
 {
 	InitializeInputTable();
-	//全イベントを false で初期化しておく（存在しないキーで at を呼ばないようにするため）
+	//全イベントを false で初期化しておく存在しないキーでatを呼ばないようにするため
 	for (const auto& kv : m_inputTable) {
 		m_inputData[kv.first] = false;
 		m_lastInputData[kv.first] = false;
+		//最初はどのボタンも押されていない
+		m_lastTriggeredFrame[kv.first] = std::nullopt;
 	}
 	Load();
 
-
-
 }
 
-void Input::Update()
+void Input::Update(int nowFrame)
 {
-
+	m_nowFrame = nowFrame;
 	GetJoypadDirectInputState(DX_INPUT_PAD1, &m_padState);
 
 	//まず現在の入力情報を取得
@@ -105,6 +105,16 @@ void Input::Update()
 				//ここでbreakしないと、最後のチェックで押されてないとfalseになる
 				break;
 			}
+		}
+	}
+
+	//全ボタンの状態が確定してから、押された瞬間のボタンのフレーム番号を記録する
+	//押していないボタンは前の記録のまま
+	for (auto& [name, frame] : m_lastTriggeredFrame)
+	{
+		if (IsTriggered(name.c_str()))
+		{
+			frame = m_nowFrame;
 		}
 	}
 }
@@ -148,4 +158,23 @@ float Input::GetStickLY()const
 	}
 
 	return value;
+}
+
+bool Input::IsBuffered(const char* name, int frame) const
+{
+	//最後に押されたフレーム番号を取得する
+	const auto& lastFrame = m_lastTriggeredFrame.at(name);
+	if (!lastFrame.has_value())
+	{
+		//一度も押されていない、または使用済み
+		return false;
+	}
+	//押されてからの経過フレーム数が指定されたフレーム数以内かどうかを判定する
+	return m_nowFrame - lastFrame.value() <= frame;
+}
+
+void Input::ConsumeBuffer(const char* name)
+{
+	//同じ入力で2回反応しないように、最後に押されたフレーム番号をリセットする
+	m_lastTriggeredFrame.at(name) = std::nullopt;
 }

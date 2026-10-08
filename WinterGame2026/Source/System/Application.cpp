@@ -96,9 +96,9 @@ void Application::Run()
 		LONGLONG start = GetNowHiPerformanceCount();
 
 		ClearDrawScreen();
-		Input::Instance().Update();
 		//タイマーの更新(時間スケールやウィッチタイムの残りフレームを減らす)
 		Timer::Instance().Update();
+		Input::Instance().Update(Timer::Instance().GetGameTime());
 
 		//controller.Update(input);
 		//controller.Draw();

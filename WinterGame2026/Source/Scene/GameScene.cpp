@@ -9,11 +9,11 @@
 namespace
 {
 	//ヒットストップフレーム
-	constexpr int kHitStopFrame = 10;
+	constexpr int kHitStopFrame = 5;
 	//カメラシェイクの強さ
-	constexpr float kShakePower = 17.0f;
+	constexpr float kShakePower = 8.0f;
 	//カメラシェイクのフレーム数
-	constexpr int kShakeFrame = 15;
+	constexpr int kShakeFrame = 12;
 	//ウィッチタイム中に画面に重ねる色の濃さ(0～255)
 	constexpr int kWitchTimeOverlayAlpha = 128;
 }
@@ -64,6 +64,13 @@ void GameScene::Update()
 	if (!m_debug.ShouldUpdateGame()) return;
 #endif // _DEBUG
 
+	//ヒットストップ中はキャラクターを止めて、カメラ(シェイク)だけ動かす
+	if (Timer::Instance().IsHitStop())
+	{
+		m_pCamera->Update(m_pPlayer->GetCameraTarget());
+		return;
+	}
+
 	m_frameCount++;
 	m_collision.BeginFrame();
 	//カメラ基準で移動させるためにカメラの向きを渡す
@@ -108,7 +115,7 @@ void GameScene::Draw()
 	if (m_debug.IsShowCollision()) m_collision.DrawDebug();
 	//文字情報
 	m_debug.Draw(GetDebugTargets(), *m_pCamera, m_frameCount);
-#endif // _DEBUG
+#endif //_DEBUG
 
 }
 
@@ -161,8 +168,8 @@ void GameScene::ApplyAttackHit(Character& attacker, const AttackRequest& request
 	target.OnHit(request.data, Damage::Calc(request.data, attacker, target));
 
 	//ヒットストップ・カメラシェイク
-	//Timer::Instance().RequestHitStop(kHitStopFrame);
-	//Timer::Instance().RequestShake(kShakePower, kShakeFrame);
+	Timer::Instance().RequestHitStop(kHitStopFrame);
+	m_pCamera->Shake(kShakePower, kShakeFrame);
 }
 
 void GameScene::DrawGrid()
