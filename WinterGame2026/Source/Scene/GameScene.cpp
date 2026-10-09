@@ -64,6 +64,10 @@ void GameScene::Update()
 	if (!m_debug.ShouldUpdateGame()) return;
 #endif // _DEBUG
 
+	//タイマーの更新(時間スケールやウィッチタイムの残りフレームを減らす)
+	//一時停止・スロー中に進めると、先行入力やヒットストップの時間がずれるので、ゲームが進むときだけ更新する
+	Timer::Instance().Update();
+
 	//ヒットストップ中はキャラクターを止めて、カメラ(シェイク)だけ動かす
 	if (Timer::Instance().IsHitStop())
 	{

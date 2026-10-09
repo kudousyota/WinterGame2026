@@ -15,6 +15,16 @@ namespace
 	constexpr int kMessageFrame = 120;
 	//文字の行の高さ
 	constexpr int kLineHeight = 16;
+
+	//ボタン名をデバッグ表示用の日本語にする
+	const char* GetButtonNameJp(const std::string& name)
+	{
+		if (name == "Jump")  return "ジャンプ";
+		if (name == "Dodge") return "回避";
+		if (name == "Punch") return "パンチ";
+		if (name == "Kick")  return "キック";
+		return name.c_str();
+	}
 }
 
 DebugTool::DebugTool()
@@ -105,6 +115,23 @@ void DebugTool::Draw(const std::vector<Target>& targets, const Camera& camera, i
 	y += kLineHeight;
 	//カメラ
 	DrawFormatString(0, y, white, "Camera  AngleX:%.3f  AngleY:%.3f", camera.GetAngleX(), camera.GetAngleY());
+	y += kLineHeight;
+	//最後に使われた入力が何フレーム前に押されたか(黄色はバッファのおかげで出た入力)
+	const auto& used = input.GetDebugUsedInput();
+	if (used.age > 0)
+	{
+		DrawFormatString(0, y, yellow, "先行入力  %s：%dF前に押した入力を使用(バッファで成功)  [使ってから%dF経過]",
+			GetButtonNameJp(used.name), used.age, input.GetNowFrame() - used.frame);
+	}
+	else if (used.age == 0)
+	{
+		DrawFormatString(0, y, white, "先行入力  %s：押したフレームにそのまま使用(バッファなしでも成功)  [使ってから%dF経過]",
+			GetButtonNameJp(used.name), input.GetNowFrame() - used.frame);
+	}
+	else
+	{
+		DrawString(0, y, "先行入力  まだ記録なし", white);
+	}
 	y += kLineHeight;
 
 	//読み直しの結果

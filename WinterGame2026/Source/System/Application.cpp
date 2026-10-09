@@ -96,8 +96,8 @@ void Application::Run()
 		LONGLONG start = GetNowHiPerformanceCount();
 
 		ClearDrawScreen();
-		//タイマーの更新(時間スケールやウィッチタイムの残りフレームを減らす)
-		Timer::Instance().Update();
+		//入力は毎フレーム読む
+		//タイマーはゲームが進むときだけ進めたいので、シーンの中で更新する
 		Input::Instance().Update(Timer::Instance().GetGameTime());
 
 		//controller.Update(input);

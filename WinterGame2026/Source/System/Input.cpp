@@ -184,6 +184,21 @@ std::optional<int> Input::GetBufferedFrame(const char* name, int frame) const
 
 void Input::ConsumeBuffer(const char* name)
 {
+	auto& lastFrame = m_lastTriggeredFrame.at(name);
+#ifdef _DEBUG
+	//押されていない(または使用済み)なら記録しない
+	if (lastFrame.has_value())
+	{
+		int age = m_nowFrame - lastFrame.value();
+		//同じフレームに複数消費されたら、新しく押された方(実際に使われた方)を残す
+		if (m_debugUsedInput.frame != m_nowFrame || age < m_debugUsedInput.age)
+		{
+			m_debugUsedInput.name = name;
+			m_debugUsedInput.age = age;
+			m_debugUsedInput.frame = m_nowFrame;
+		}
+	}
+#endif
 	//同じ入力で2回反応しないように、最後に押されたフレーム番号をリセットする
-	m_lastTriggeredFrame.at(name) = std::nullopt;
+	lastFrame = std::nullopt;
 }

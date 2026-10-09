@@ -51,8 +51,10 @@ bool PlayerStateBase::TryGroundAction(int bufferFrame)
 	auto& input = Input::Instance();
 
 	//ジャンプボタンが押されたらJumpにする
-	if (input.IsTriggered("Jump"))
+	if (input.IsBuffered("Jump",bufferFrame))
 	{
+		//ジャンプに使ったので消費する
+		input.ConsumeBuffer("Jump");
 		ChangeState<PlayerStateJump>();
 		return true;
 	}
