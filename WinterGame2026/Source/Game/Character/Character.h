@@ -62,6 +62,8 @@ public:
 	int GetHp()const { return m_hp; }
 	int GetMaxHp()const { return m_maxhp; }
 	bool IsGround()const { return m_isGround; }
+	//ステージとの当たり判定の結果を反映する
+	void SetGround(bool isGround) { m_isGround = isGround; }
 	void SetInvincible(bool isInvincible) { m_isInvincible = isInvincible; }
 	void SetJustDodgeWindow(bool isWindow) { m_isJustDodgeWindow = isWindow; }
 	//キャラクタータイプを取得

@@ -2,6 +2,7 @@
 #include <memory>
 #include "../Game/Character/Player/Player.h"
 #include "../Game/Camera.h"
+#include "../Game/Stage.h"
 #include "../Game/Character/Enemy/Alien/Alien.h"
 #include "../System/CollisionManager.h"
 #include "../System/ProjectileManager.h"
@@ -33,6 +34,7 @@ private:
 	std::shared_ptr<Player> m_pPlayer;
 	std::shared_ptr<Alien> m_pAlien;
 	std::shared_ptr<Camera>m_pCamera;
+	std::shared_ptr<Stage> m_pStage;
 
 	//キャラクター同士の当たり判定(このシーンの中だけで使う)
 	CollisionManager m_collision;

@@ -12,6 +12,40 @@ namespace
 	const float kWalkableSlopeCos = cosf(kWalkableSlopeAngleDeg * (DX_PI_F / 180.0f));
 }
 
+//キャラクターとステージの当たり判定をまとめて解決する
+void StageCollision::Resolve(Character* character, int stagehandle)
+{
+	//先に壁から押し出して、XZの位置を確定させる
+	CheckWall(character, stagehandle);
+
+	//確定した位置の真下にある地面を探す
+	float groundY = 0.0f;
+	Vector3 groundNormal;
+	bool isHit = CheckGround(character, stagehandle, groundY, groundNormal);
+
+	Vector3 pos = character->GetPos();
+	Vector3 velocity = character->GetVelocity();
+
+	//上昇中は着地しない(ジャンプした直後に地面へ引き戻されないようにする)
+	bool isRising = velocity.y > 0.0f;
+	//地面にいたキャラクターは、レイが届く範囲なら地面に吸着する(坂や段差を下りるときに浮かないようにする)
+	//空中にいたキャラクターは、足元が地面に届いたときだけ着地する(落下中に地面へ瞬間移動しないようにする)
+	bool canLand = character->IsGround() || pos.y <= groundY;
+
+	if (isHit && !isRising && canLand)
+	{
+		pos.y = groundY;
+		velocity.y = 0.0f;
+		character->SetPosition(pos);
+		character->SetVelocity(velocity);
+		character->SetGround(true);
+	}
+	else
+	{
+		character->SetGround(false);
+	}
+}
+
 //キャラクターとステージの壁との衝突を判定し、めり込んでいた場合は壁の外側へ押し出す
 bool StageCollision::CheckWall(Character* character, int stagehandle)
 {

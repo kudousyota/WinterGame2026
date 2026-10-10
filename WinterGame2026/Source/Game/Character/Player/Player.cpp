@@ -11,8 +11,6 @@ namespace
 
 	//重力
 	constexpr float kGravity = 0.5f;
-	//地面の高さ
-	constexpr float kGroundY = 0.0f;
 
 	//回転の補完
 	constexpr float kRotateRate = 0.2f;
@@ -87,19 +85,8 @@ void Player::Update()
 	//重力
 	m_velocity.y -= m_gravity;
 	//移動
+	//地面との判定は、全員が動き終わった後にGameSceneがステージとまとめて行う
 	m_pos += m_velocity;
-
-	//地面との判定
-	if (m_pos.y <= kGroundY)
-	{
-		m_pos.y = kGroundY;
-		m_velocity.y = 0.0f;
-		m_isGround = true;
-	}
-	else
-	{
-		m_isGround = false;
-	}
 
 	//移動している方向に体を向ける
 	Vector3 moveXZ(m_velocity.x, 0.0f, m_velocity.z);

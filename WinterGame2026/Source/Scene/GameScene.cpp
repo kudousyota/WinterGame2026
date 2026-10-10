@@ -4,6 +4,7 @@
 #include "../Game/Character/Enemy/Alien/Alien.h"
 #include "../Game/Damage.h"
 #include "../System/Timer.h"
+#include "../System/StageCollision.h"
 #include "../Game.h"
 
 namespace
@@ -16,6 +17,8 @@ namespace
 	constexpr int kShakeFrame = 12;
 	//ウィッチタイム中に画面に重ねる色の濃さ(0～255)
 	constexpr int kWitchTimeOverlayAlpha = 128;
+	//カメラに映る一番遠い距離(ステージの端から端まで映るようにする)
+	constexpr float kCameraFar = 7000.0f;
 }
 
 GameScene::GameScene():
@@ -36,7 +39,11 @@ void GameScene::Init()
 	//カメラの設定
 	SetCameraPositionAndTarget_UpVecY(VGet(0.0f, 300.0f, -700.0f), VGet(0.0f, 0.0f, 0.0f));
 	SetupCamera_Perspective(DX_PI_F / 3.0f);
-	SetCameraNearFar(200.0f, 1500.0f);
+	SetCameraNearFar(200.0f, kCameraFar);
+
+	//ステージの生成
+	m_pStage = std::make_shared<Stage>();
+	m_pStage->Init();
 
 	//先にプレイヤーを生成
 	m_pPlayer = std::make_shared<Player>();
@@ -86,6 +93,10 @@ void GameScene::Update()
 	//全員が動き終わってから、キャラクター同士の重なりをまとめて解消する
 	m_collision.ResolveAll();
 
+	//キャラクター同士の押し出しで壁にめり込むことがあるので、ステージとの判定は最後に行う
+	StageCollision::Resolve(m_pPlayer.get(), m_pStage->GetModelHandle());
+	StageCollision::Resolve(m_pAlien.get(), m_pStage->GetModelHandle());
+
 	//押し出しで確定した位置をモデルに反映する
 	m_pPlayer->LateUpdate();
 	m_pAlien->LateUpdate();
@@ -101,6 +112,9 @@ void GameScene::Update()
 
 void GameScene::Draw()
 {
+	//ステージは背景として扱うので、紫を重ねる前に描く
+	m_pStage->Draw();
+
 	//ウィッチタイム中は背景を紫にする(キャラクターより先に描いて、キャラクターには色を乗せない)
 	if (Timer::Instance().IsEnemySlow())
 	{

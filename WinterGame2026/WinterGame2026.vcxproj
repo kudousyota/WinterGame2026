@@ -159,6 +159,7 @@
     <ClCompile Include="Source\System\ProjectileManager.cpp" />
     <ClCompile Include="Source\System\Animation.cpp" />
     <ClCompile Include="Source\Game\Camera.cpp" />
+    <ClCompile Include="Source\Game\Stage.cpp" />
     <ClCompile Include="Source\Common\Model.cpp" />
     <ClCompile Include="Source\System\Application.cpp" />
     <ClCompile Include="Source\DataLoader\DataManager.cpp" />
@@ -194,6 +195,7 @@
     <ClInclude Include="Source\System\ProjectileManager.h" />
     <ClInclude Include="Source\System\Animation.h" />
     <ClInclude Include="Source\Game\Camera.h" />
+    <ClInclude Include="Source\Game\Stage.h" />
     <ClInclude Include="Source\Common\Model.h" />
     <ClInclude Include="Source\System\Application.h" />
     <ClInclude Include="Source\DataLoader\DataManager.h" />
