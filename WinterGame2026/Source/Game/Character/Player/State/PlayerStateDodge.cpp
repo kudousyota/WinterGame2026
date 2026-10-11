@@ -8,8 +8,8 @@ namespace
 	constexpr int kDodgeFrame = 20;
 	//回避中の移動速度の倍率
 	constexpr float kDodgeSpeedScale = 3.0f;
-	//ジャスト回避を受け付けるフレーム数(回避の出始め)
-	constexpr int kJustDodgeFrame = 8;
+	//ジャスト回避を受け付けるフレーム数
+	constexpr int kJustDodgeFrame = 13;
 }
 
 void PlayerStateDodge::Enter()

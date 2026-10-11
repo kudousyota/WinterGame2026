@@ -49,16 +49,16 @@ void PlayerStateAttack::Update()
 {
 	auto& input = Input::Instance();
 
+	if (input.IsBuffered("Dodge", kInputBufferFrame))
+	{
+		input.ConsumeBuffer("Dodge");
+		ChangeState<PlayerStateDodge>();
+		return;
+	}
+
 	//受付フレームを過ぎたら次の攻撃の入力と回避キャンセルを受け付ける
 	if (m_frame >= m_info.comboStartFrame)
 	{
-		//受付前に押した回避もここで拾う(消費しないと攻撃後に遅れて回避が出る)
-		if (input.IsBuffered("Dodge", kInputBufferFrame))
-		{
-			input.ConsumeBuffer("Dodge");
-			ChangeState<PlayerStateDodge>();
-			return;
-		}
 		//押したボタンによって次の攻撃が変わる(後から押した方を優先)
 		//次の攻撃がないボタンは押されていない扱いにする
 		std::optional<int> punchFrame;

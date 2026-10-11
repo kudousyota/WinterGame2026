@@ -24,7 +24,7 @@ namespace
 	//当たり判定のカプセルの半径
 	constexpr float kCollisionRadius = 30.0f;
 	//ジャスト回避判定の半径
-	constexpr float kJustDodgeRadius = 50.0f;
+	constexpr float kJustDodgeRadius = 100.0f;
 
 	//ウィッチタイム
 	//敵の時間の倍率
