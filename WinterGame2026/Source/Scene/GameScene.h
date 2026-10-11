@@ -21,6 +21,9 @@ private:
 	void DrawGrid();
 	//申請された攻撃をまとめて判定し、当たった相手にダメージを与える
 	void ProcessAttacks();
+	void ProcessShots();
+	//飛び道具の当たり判定を行い、当たった相手にダメージを与える
+	void ProcessProjectileHits();
 	//攻撃が当たったときの処理
 	void ApplyAttackHit(Character& attacker, const AttackRequest& request, const CollisionManager::AttackHit& hit);
 #ifdef _DEBUG

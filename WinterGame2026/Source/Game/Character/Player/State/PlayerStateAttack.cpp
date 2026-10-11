@@ -13,11 +13,17 @@ namespace
 	constexpr float kHitHeight = 100.0f;
 	//先行入力を覚えておくフレーム数
 	constexpr int kInputBufferFrame = 8;
+	//長押しで撃つ弾
+	constexpr int kShotInterval = 6;
+	constexpr float kBulletSpeed = 30.0f;
+	constexpr int kBulletDamage = 1;
+	constexpr float kBulletRadius = 10.0f;
 }
 
-PlayerStateAttack::PlayerStateAttack(Player& player, AttackType type):
+PlayerStateAttack::PlayerStateAttack(Player& player, AttackType type, const char* buttonName):
 	PlayerStateBase(player),
-	m_info(DataManager::GetInstance().GetAttackTable().GetInfo(type))
+	m_info(DataManager::GetInstance().GetAttackTable().GetInfo(type)),
+	m_buttonName(buttonName)
 {
 }
 
@@ -72,10 +78,12 @@ void PlayerStateAttack::Update()
 			if (kickFrame && (!punchFrame || *kickFrame >= *punchFrame))
 			{
 				m_reservedNext = m_info.nextKick;
+				m_reservedButton = "Kick";
 			}
 			else
 			{
 				m_reservedNext = m_info.nextPunch;
+				m_reservedButton = "Punch";
 			}
 			//負けた方も消費しないと、次のフレームで予約が上書きされてしまう
 			input.ConsumeBuffer("Punch");
@@ -86,7 +94,7 @@ void PlayerStateAttack::Update()
 	//次の攻撃が予約されていたら、構えに戻るモーションを待たずに次の攻撃にする
 	if (m_reservedNext && m_frame >= m_info.cancelFrame)
 	{
-		ChangeAttackState(*m_reservedNext);
+		ChangeAttackState(*m_reservedNext, m_reservedButton);
 		return;
 	}
 
@@ -104,6 +112,26 @@ void PlayerStateAttack::Update()
 		return;
 	}
 
+	//攻撃判定が終わってもボタンを押し続けていたら弾を出す
+	bool isHold = m_frame >= m_info.hitEndFrame && input.IsPressed(m_buttonName) && !m_reservedNext;
+	m_player.SetAnimPause(isHold);
+	if (isHold)
+	{
+		m_shotTimer--;
+		if (m_shotTimer <= 0)
+		{
+			//弾を出す
+			m_shotTimer = kShotInterval;
+			ShotRequest request{AttackData(CharacterType::Player, m_info.type, kBulletDamage,kBulletRadius)};
+			request.speed = kBulletSpeed;
+			request.forwardOffset = kHitForwardOffset;
+			request.height = kHitHeight;
+			m_player.RequestShot(request);
+		}
+		//フレームを進めないでボタンを離すと続きから進む
+		return;
+	}
+	
 	if (IsHitActive())
 	{
 		//攻撃を申請するだけ
@@ -114,6 +142,11 @@ void PlayerStateAttack::Update()
 		m_player.RequestAttack(request);
 	}
 	m_frame++;
+}
+
+void PlayerStateAttack::Exit()
+{
+	m_player.SetAnimPause(false);
 }
 
 #ifdef _DEBUG

@@ -79,9 +79,10 @@ void Player::Update()
 	//ステートの更新
 	UpdateState();
 	//アニメーションの更新
-	m_anim.Update(Timer::Instance().GetTimeScale());
-
-
+	if(!m_isAnimPause)
+	{
+		m_anim.Update(Timer::Instance().GetTimeScale());
+	}
 	//重力
 	m_velocity.y -= m_gravity;
 	//移動

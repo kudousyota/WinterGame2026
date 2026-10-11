@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Game\Bullet.cpp" />
     <ClCompile Include="Source\System\CollisionManager.cpp" />
     <ClCompile Include="Source\System\StageCollision.cpp" />
     <ClCompile Include="Source\Math\Geometry.cpp" />
@@ -179,6 +180,7 @@
     <ClCompile Include="Source\System\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Game\Bullet.h" />
     <ClInclude Include="Source\System\CollisionManager.h" />
     <ClInclude Include="Source\System\StageCollision.h" />
     <ClInclude Include="Source\Math\Geometry.h" />

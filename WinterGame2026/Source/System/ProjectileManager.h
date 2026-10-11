@@ -21,6 +21,9 @@ public:
 
 	void Update();
 	void Draw();
+
+	//管理している飛び道具の一覧(当たり判定に使う)
+	const std::vector<std::unique_ptr<Projectile>>& GetProjectiles()const { return m_pProjectiles; }
 private:
 	std::vector<std::unique_ptr<Projectile>>m_pProjectiles;
 };

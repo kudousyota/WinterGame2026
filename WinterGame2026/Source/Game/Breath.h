@@ -6,6 +6,13 @@
 class Breath : public Projectile
 {
 public:
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="pos">位置</param>
+	/// <param name="forward">前方向</param>
+	/// <param name="speed">速度</param>
+	/// <param name="attack">攻撃データ</param>
 	Breath(const Vector3& pos, const Vector3& forward, float speed, const AttackData& attack);
 
 	void Update(float timeScale)override;

@@ -23,6 +23,13 @@ struct AttackRequest
 	//足元からの高さ
 	float height = 0.0f;
 };
+struct ShotRequest
+{
+	AttackData data;
+	float speed = 0.0f;
+	float forwardOffset = 0.0f;
+	float height = 0.0f;
+};
 
 class Character
 {
@@ -108,11 +115,16 @@ public:
 	int IssueAttackId() { return ++m_attackIdCounter; }
 	//攻撃を申請する(判定はGameSceneが行う)
 	void RequestAttack(const AttackRequest& request) { m_attackRequests.push_back(request); }
+	
+	void RequestShot(const ShotRequest& request) { m_shotRequests.push_back(request); }
+
 	//このフレームに申請された攻撃を取り出す(取り出したら空になる)
 	std::vector<AttackRequest> TakeAttackRequests();
+	//このフレームに申請された飛び道具を取り出す(取り出したら空になる)
+	std::vector<ShotRequest> TakeShotRequests();
 	//申請された攻撃の判定位置
 	Vector3 GetAttackPos(const AttackRequest& request)const;
-
+	Vector3 GetShotPos(const ShotRequest& request)const;
 	//攻撃を受ける側
 	//この攻撃はもう受けたか
 	bool HasReceivedAttack(const Character* attacker, int attackId)const;
@@ -173,6 +185,8 @@ protected:
 	int m_attackIdCounter = 0;
 	//このフレームに申請された攻撃
 	std::vector<AttackRequest> m_attackRequests;
+	//このフレームに申請された飛び道具
+	std::vector<ShotRequest> m_shotRequests;
 	//攻撃してきた相手ごとに、最後に受けた攻撃番号を覚えておく(相手は所有しない)
 	std::unordered_map<const Character*, int> m_lastReceivedAttackId;
 

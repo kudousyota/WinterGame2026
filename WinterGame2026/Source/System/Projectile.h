@@ -13,6 +13,11 @@ public:
 	void SetPos(const Vector3& pos) { m_pos = pos; }
 	void SetForward(const Vector3& forwrd) { m_forward = forwrd; }
 
+	//当たり判定に使う(判定はGameSceneが行う)
+	const Vector3& GetPos()const { return m_pos; }
+	const Vector3& GetPrevPos()const { return m_prevPos; }
+	const AttackData& GetAttackData()const { return m_attackData; }
+
 	//timeScaleはウィッチタイムなどの時間倍率
 	virtual void Update(float timeScale) = 0;
 	virtual void Draw() = 0;

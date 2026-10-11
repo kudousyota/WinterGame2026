@@ -6,6 +6,7 @@
 #include "../System/Timer.h"
 #include "../System/StageCollision.h"
 #include "../Game.h"
+#include "../Game/Bullet.h"
 
 namespace
 {
@@ -103,9 +104,11 @@ void GameScene::Update()
 
 	//位置が確定してから攻撃判定を行う
 	ProcessAttacks();
-
+	ProcessShots();
 	//飛び道具の更新
 	m_projectiles.Update();
+	//飛び道具が動き終わってから当たり判定を行う
+	ProcessProjectileHits();
 
 	m_pCamera->Update(m_pPlayer->GetCameraTarget());
 }
@@ -159,6 +162,56 @@ void GameScene::ProcessAttacks()
 			{
 				ApplyAttackHit(*attacker, request, hit);
 			}
+		}
+	}
+}
+
+void GameScene::ProcessShots()
+{
+	Character* characters[] = { m_pPlayer.get(), m_pAlien.get() };
+
+	for (Character* attacker : characters)
+	{
+		for (const auto& request : attacker->TakeShotRequests())
+		{
+			//確定した位置から判定の位置を求める
+			Vector3 pos = attacker->GetShotPos(request);
+
+			Vector3 forward = attacker->GetForward();
+			m_projectiles.Add(std::make_unique<Bullet>(pos, forward, request.speed, request.data));
+		}
+	}
+}
+
+void GameScene::ProcessProjectileHits()
+{
+	for (const auto& projectile : m_projectiles.GetProjectiles())
+	{
+		//寿命などですでに消えている飛び道具は判定しない
+		if (projectile->IsDead()) continue;
+
+		const AttackData& data = projectile->GetAttackData();
+
+		//速い弾がすり抜けないよう、前の位置から今の位置までをカプセルで判定する
+		for (const auto& hit : m_collision.CheckAttackCapsule(data, projectile->GetPrevPos(), projectile->GetPos()))
+		{
+			Character& target = *hit.target;
+
+			//ジャスト回避は無敵中でも成立する
+			if (hit.isJustDodge)
+			{
+				target.OnJustDodge();
+				projectile->Kill();
+				break;
+			}
+
+			//無敵中・死亡中は受けない(弾は消さずに通り抜ける)
+			if (!target.CanBeHit()) continue;
+
+			//連射で何度も当たるので、ヒットストップとカメラシェイクは入れない
+			target.OnHit(data, data.GetDamage());
+			projectile->Kill();
+			break;
 		}
 	}
 }

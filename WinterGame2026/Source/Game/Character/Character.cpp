@@ -43,9 +43,21 @@ std::vector<AttackRequest> Character::TakeAttackRequests()
 	return requests;
 }
 
+std::vector<ShotRequest> Character::TakeShotRequests()
+{
+	std::vector<ShotRequest> requests;
+	requests.swap(m_shotRequests);
+	return requests;
+}
+
 Vector3 Character::GetAttackPos(const AttackRequest& request) const
 {
 	//足元から前方と上方向にずらした位置
+	return m_pos + m_forward * request.forwardOffset + Vector3(0.0f, request.height, 0.0f);
+}
+
+Vector3 Character::GetShotPos(const ShotRequest& request) const
+{
 	return m_pos + m_forward * request.forwardOffset + Vector3(0.0f, request.height, 0.0f);
 }
 

@@ -28,9 +28,11 @@ public:
 	//すぐ振り向く
 	void FaceTo(const Vector3& dir);
 
+	void SetAnimPause(bool isPause) { m_isAnimPause = isPause; }
+
 private:
 	int m_modelHandle = -1;
-
+	bool m_isAnimPause = false;
 	//カメラの前方向(XZ平面)
 	Vector3 m_cameraForward = Vector3(0.0f, 0.0f, 1.0f);
 	//カメラの右方向(XZ平面)

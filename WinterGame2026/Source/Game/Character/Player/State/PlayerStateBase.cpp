@@ -41,9 +41,9 @@ void PlayerStateBase::StopMove()
 	m_player.StopMove();
 }
 
-void PlayerStateBase::ChangeAttackState(AttackType type)
+void PlayerStateBase::ChangeAttackState(AttackType type, const char* buttonName)
 {
-	m_player.ChangeState(std::make_unique<PlayerStateAttack>(m_player, type));
+	m_player.ChangeState(std::make_unique<PlayerStateAttack>(m_player, type,buttonName));
 }
 
 bool PlayerStateBase::TryGroundAction(int bufferFrame)
@@ -73,7 +73,7 @@ bool PlayerStateBase::TryGroundAction(int bufferFrame)
 	{
 		//1段目に使った入力を消して、2段目が勝手に出ないようにする
 		input.ConsumeBuffer("Punch");
-		ChangeAttackState(AttackType::Punch);
+		ChangeAttackState(AttackType::Punch,"Punch");
 		return true;
 	}
 
@@ -82,7 +82,7 @@ bool PlayerStateBase::TryGroundAction(int bufferFrame)
 	{
 		//1段目に使った入力を消して、2段目が勝手に出ないようにする
 		input.ConsumeBuffer("Kick");
-		ChangeAttackState(AttackType::Kick);
+		ChangeAttackState(AttackType::Kick,"Kick");
 		return true;
 	}
 

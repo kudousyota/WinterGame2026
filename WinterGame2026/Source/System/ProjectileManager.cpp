@@ -49,6 +49,8 @@ void ProjectileManager::Draw()
 {
 	for (auto& projectile : m_pProjectiles)
 	{
+		//当たって消えた飛び道具は次のUpdateまで残っているので描かない
+		if (projectile->IsDead()) continue;
 		projectile->Draw();
 	}
 

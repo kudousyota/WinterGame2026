@@ -7,10 +7,11 @@
 class PlayerStateAttack : public PlayerStateBase
 {
 public:
-	PlayerStateAttack(Player& player, AttackType type);
+	PlayerStateAttack(Player& player, AttackType type,const char* buttonName);
 
 	void Enter() override;
 	void Update() override;
+	void Exit()override;
 	StateKind GetKind() const override { return StateKind::Attack; }
 #ifdef _DEBUG
 	std::string GetDebugInfo() const override;
@@ -25,8 +26,14 @@ private:
 	AttackTable::AttackInfo m_info;
 	//攻撃を始めてからのフレーム数
 	int m_frame = 0;
+	//次の弾を出すまでのフレーム
+	int m_shotTimer = 0;
 	//この攻撃の番号(コンボの次の攻撃は別の番号になる)
 	int m_attackId = 0;
+	//予約した攻撃を出したボタンの名前
+	const char* m_reservedButton = nullptr;
+	//この攻撃を出したボタンの名前(長押しの判定に使う)
+	const char* m_buttonName;
 	//予約されている次の攻撃(入力がなければ空)
 	std::optional<AttackType> m_reservedNext;
 };

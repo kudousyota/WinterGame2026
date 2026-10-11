@@ -2,7 +2,7 @@
 
 Projectile::Projectile(const Vector3& pos, const Vector3& forward, float speed, const AttackData& attack, float maxLifeFrame) :
 	m_pos(pos.x, pos.y, pos.z),
-	m_prevPos(0.0f, 0.0f, 0.0f),
+	m_prevPos(pos.x, pos.y, pos.z),
 	m_forward(forward.x, forward.y, forward.z),
 	m_speed(speed),
 	m_lifeFrame(0.0f),
