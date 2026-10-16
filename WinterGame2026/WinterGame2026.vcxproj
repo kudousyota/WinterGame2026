@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\System\LockOnManager.cpp" />
     <ClCompile Include="Source\Game\Bullet.cpp" />
     <ClCompile Include="Source\System\CollisionManager.cpp" />
     <ClCompile Include="Source\System\StageCollision.cpp" />
@@ -180,6 +181,7 @@
     <ClCompile Include="Source\System\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\System\LockOnManager.h" />
     <ClInclude Include="Source\Game\Bullet.h" />
     <ClInclude Include="Source\System\CollisionManager.h" />
     <ClInclude Include="Source\System\StageCollision.h" />
