@@ -30,6 +30,13 @@ public:
 
 	void SetAnimPause(bool isPause) { m_isAnimPause = isPause; }
 
+	Vector3 GetMoveInput()const;
+
+	//攻撃する時に向く相手を指定する
+	void SetAttackTarget(const Character* target) { m_pAttackTarget = target; }
+
+	const Character* GetAttackTarget()const { return m_pAttackTarget; }
+
 private:
 	int m_modelHandle = -1;
 	bool m_isAnimPause = false;
@@ -37,5 +44,7 @@ private:
 	Vector3 m_cameraForward = Vector3(0.0f, 0.0f, 1.0f);
 	//カメラの右方向(XZ平面)
 	Vector3 m_cameraRight = Vector3(1.0f, 0.0f, 0.0f);
+	//所有せず、シーンから向く相手を指定してもらう
+	const Character* m_pAttackTarget = nullptr;
 };
 

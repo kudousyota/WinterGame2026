@@ -7,6 +7,7 @@
 #include "../System/StageCollision.h"
 #include "../Game.h"
 #include "../Game/Bullet.h"
+#include "../System/Input.h"
 
 namespace
 {
@@ -86,9 +87,12 @@ void GameScene::Update()
 	m_frameCount++;
 	m_collision.BeginFrame();
 	//カメラ基準で移動させるためにカメラの向きを渡す
+	//(ロックオンの方向もカメラ基準なので、ロックオンより先に渡す)
 	m_pPlayer->SetCameraAxis(m_pCamera->GetForward(), m_pCamera->GetRight());
+	//プレイヤーが攻撃の向きに使うので、プレイヤーより先にロックオンを更新する
+	UpdateLockOn();
+	m_pPlayer->SetAttackTarget(GetAttackTarget());
 	m_pPlayer->Update();
-
 	m_pAlien->Update();
 
 	//全員が動き終わってから、キャラクター同士の重なりをまとめて解消する
@@ -136,6 +140,10 @@ void GameScene::Draw()
 	if (m_debug.IsShowCollision()) m_collision.DrawDebug();
 	//文字情報
 	m_debug.Draw(GetDebugTargets(), *m_pCamera, m_frameCount);
+	if (auto pos = m_lockOn.GetTargetPos())
+	{
+		DrawSphere3D(VGet(pos->x, pos->y, pos->z), 15.0f, 8, 0xff0000, 0xff0000, true);
+	}
 #endif //_DEBUG
 
 }
@@ -241,6 +249,46 @@ void GameScene::ApplyAttackHit(Character& attacker, const AttackRequest& request
 	//ヒットストップ・カメラシェイク
 	Timer::Instance().RequestHitStop(kHitStopFrame);
 	m_pCamera->Shake(kShakePower, kShakeFrame);
+}
+
+void GameScene::UpdateLockOn()
+{
+	auto& input = Input::Instance();
+	const Vector3& playerPos = m_pPlayer->GetPos();
+
+	if (input.IsTriggered("target"))
+	{
+		//スティックを倒している方向の敵から狙う
+		Vector3 dir = m_pPlayer->GetMoveInput();
+		if (dir.SqMagnitude() <= 0.0f)
+		{
+			dir = m_pCamera->GetForward();
+		}
+		m_lockOn.Start(playerPos, dir, GetEnemies());
+	}
+	else if(!input.IsPressed("target"))
+	{
+		//ボタンをはなしたら外す
+		m_lockOn.Release();
+	}
+	//死亡と距離のチェック
+	m_lockOn.Update(playerPos);
+}
+
+const Character* GameScene::GetAttackTarget() const
+{
+	//ロックオン中はその敵
+	if (m_lockOn.GetTargetPos())
+	{
+		return m_lockOn.GetTarget();
+	}
+	//ロックオンしていないときは、近くで一番狙いやすい敵を返す
+	return m_lockOn.SearchSoft(m_pPlayer->GetPos(), m_pPlayer->GetMoveInput(), m_pPlayer->GetForward(), GetEnemies());
+}
+
+std::vector<Character*> GameScene::GetEnemies()const
+{
+	return { m_pAlien.get() };
 }
 
 void GameScene::DrawGrid()

@@ -4,6 +4,7 @@
 #include "State/PlayerStateIdle.h"
 #include "State/PlayerStateDeath.h"
 #include <cmath>
+#include "../../../System/Input.h"
 
 namespace
 {
@@ -56,6 +57,8 @@ void Player::Init()
 	m_pos = Vector3(0.0f, 0.0f, 0.0f);
 	//最初はカメラの方を向かせる
 	m_forward = Vector3(0.0f, 0.0f, -1.0f);
+	m_angle = atan2f(m_forward.x, m_forward.z) + DX_PI_F;
+	
 	m_gravity = kGravity;
 	//体の大きさ
 	m_height = kHeight;
@@ -142,4 +145,29 @@ void Player::FaceTo(const Vector3& dir)
 	m_forward = dir;
 	//モデルの向きもすぐ合わせる
 	m_angle = atan2f(dir.x, dir.z) + DX_PI_F;
+}
+
+Vector3 Player::GetMoveInput()const
+{
+	auto& input = Input::Instance();
+
+	//左スティックの入力
+	Vector3 dir(input.GetStickLX(), 0.0f, input.GetStickLY());
+	//スティックが倒れていない時だけ十字キーを見る
+	if (dir.SqMagnitude() <= 0.0f)
+	{
+		//十字キーの入力
+		if (input.IsPressed("right")) dir.x += 1.0f;
+		if (input.IsPressed("left"))  dir.x -= 1.0f;
+		if (input.IsPressed("up"))    dir.z += 1.0f;
+		if (input.IsPressed("down"))  dir.z -= 1.0f;
+	}
+	//斜め入力で速くならないよう長さを1以下に抑える
+	if (dir.SqMagnitude() > 1.0f)
+	{
+		dir = dir.Normalize();
+	}
+
+	//入力をカメラ基準の方向に変換する
+	return m_cameraRight * dir.x + m_cameraForward * dir.z;
 }

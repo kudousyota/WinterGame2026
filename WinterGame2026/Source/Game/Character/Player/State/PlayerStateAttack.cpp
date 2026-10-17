@@ -29,15 +29,28 @@ PlayerStateAttack::PlayerStateAttack(Player& player, AttackType type, const char
 
 void PlayerStateAttack::Enter()
 {
-	//入力があればその方向に向く
-	//入力がなければ今の向きを維持する
-	auto dir = GetMoveInput();
-	if (dir.SqMagnitude() > 0.0f)
+	//狙う相手がいればそちらを向く
+	if (const Character* target = m_player.GetAttackTarget())
 	{
-		//長さが1より短いと攻撃判定がずれるので正規化する
-		m_player.FaceTo(dir.Normalize());
+		//敵への向き(上下は無視する)
+		Vector3 toTarget = target->GetPos() - m_player.GetPos();
+		toTarget.y = 0.0f;
+		//重なっていると向きが決まらないので、そのときは向きを変えない
+		if (toTarget.SqMagnitude() > 0.0f)
+		{
+			m_player.FaceTo(toTarget.Normalize());
+		}
 	}
-
+	//いなければ、入力があればその方向に向く
+	else
+	{
+		auto dir = GetMoveInput();
+		if (dir.SqMagnitude() > 0.0f)
+		{
+			//長さが1より短いと攻撃判定がずれるので正規化する
+			m_player.FaceTo(dir.Normalize());
+		}
+	}
 	//攻撃中はその場で止まる
 	StopMove();
 	m_player.GetAnim().ChangeAnim(m_info.animName, false);

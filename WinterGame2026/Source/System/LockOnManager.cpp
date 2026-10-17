@@ -1,5 +1,7 @@
 ﻿#include "LockOnManager.h"
 #include "../Game/Character/Character.h"
+#include <cfloat>
+#include <cmath>
 
 namespace
 {
@@ -15,11 +17,55 @@ namespace
 	constexpr float kDistanceWeight = 0.3f;
 	//長さがほぼ0のベクトルは正規化できないので除く
 	constexpr float kMinSqLength = 0.0001f;
+	//開始距離と同じにすると境界でついたり外れたりするので、少し長くする
+	constexpr float kLoseDistance = 1300.0f;
+	//ロックオンしていないときに攻撃で向く距離
+	//遠い敵に向いてその場で空振りしないよう、近い敵だけにする
+	constexpr float kSoftMaxDistance = 350.0f;
+	//スティックを倒していないときは、近い敵なら後ろにいても振り向く(cos180度=-1)
+	constexpr float kNoInputNearMinDot = -1.0f;
 }
 
-void LockOnManager::Update(const Vector3& playerPos, const Vector3& baseDir, const std::vector<Character*>& enemies)
+void LockOnManager::Start(const Vector3& playerPos, const Vector3& baseDir, const std::vector<Character*>& enemies)
 {
-	m_pTarget = Search(playerPos, baseDir, enemies);
+	//見つからなかったらnullptrが返る
+	m_pTarget = Search(playerPos, baseDir, enemies, kMaxDistance, kNearMinDot);
+}
+
+Character* LockOnManager::SearchSoft(const Vector3& playerPos, const Vector3& inputDir, const Vector3& forward, const std::vector<Character*>& enemies) const
+{
+	//スティックを倒していればその方向を優先する(倒した方向と逆の敵には振り向かない)
+	if (inputDir.SqMagnitude() >= kMinSqLength)
+	{
+		return Search(playerPos, inputDir, enemies, kSoftMaxDistance, kNearMinDot);
+	}
+	//倒していなければ今向いている方向を基準にして、近い敵なら後ろにいても振り向く
+	return Search(playerPos, forward, enemies, kSoftMaxDistance, kNoInputNearMinDot);
+}
+
+void LockOnManager::Release()
+{
+	m_pTarget = nullptr;
+}
+
+void LockOnManager::Update(const Vector3& playerPos)
+{
+	if (!m_pTarget)return;
+
+	//死んだら外す
+	if (m_pTarget->IsDead())
+	{
+		Release();
+		return;
+	}
+
+	//距離が遠すぎる敵は外す
+	Vector3 toTarget = m_pTarget->GetCenterPos() - playerPos;
+	toTarget.y = 0.0f;
+	if (toTarget.SqMagnitude() > kLoseDistance * kLoseDistance)
+	{
+		Release();
+	}
 }
 
 std::optional<Vector3> LockOnManager::GetTargetPos() const
@@ -31,10 +77,10 @@ std::optional<Vector3> LockOnManager::GetTargetPos() const
 	return m_pTarget->GetCenterPos();
 }
 
-Character* LockOnManager::Search(const Vector3& playerPos, const Vector3& baseDir, const std::vector<Character*>& enemies) const
+Character* LockOnManager::Search(const Vector3& playerPos, const Vector3& baseDir, const std::vector<Character*>& enemies, float maxDistance, float nearMinDot) const
 {
 	//基準の向きは正規化しておく
-	Vector3 baseDirNorm = baseDir.Normalize();
+	Vector3 baseDirNorm = baseDir;
 	baseDirNorm.y = 0.0f;
 	if (baseDirNorm.SqMagnitude() < kMinSqLength)
 	{
@@ -48,24 +94,24 @@ Character* LockOnManager::Search(const Vector3& playerPos, const Vector3& baseDi
 	for (Character* enemy : enemies)
 	{
 		//死亡中は無視
-		if (!enemy->IsDead())continue;;
+		if (enemy->IsDead())continue;
 		//敵への向き
 		Vector3 toEnemy = enemy->GetCenterPos() - playerPos; 
 		toEnemy.y = 0.0f;
 
 		//距離が遠すぎる敵は無視
 		float sqDistance = toEnemy.SqMagnitude();
-		if (sqDistance > kMaxDistance * kMaxDistance)continue;
+		if (sqDistance > maxDistance * maxDistance)continue;
 		//重なっている敵は無視
 		if (sqDistance < kMinSqLength)continue;
 		float distance = sqrtf(sqDistance);
 		//正面に近い敵ほど点数が高くなるようにする
 		float dot = baseDirNorm.Dot(toEnemy / distance);
 		//近い敵は横にいても狙えるようにする
-		float minDot = (distance < kNearDistance) ? kNearMinDot : kMinDot;
+		float minDot = (distance < kNearDistance) ? nearMinDot : kMinDot;
 		if (dot < minDot)continue;
-		//距離が近いほど点数が高くなるようにする
-		float score = dot - (distance / kMaxDistance) * kDistanceWeight;
+		//距離が近いほど点数が高くなるようにする(探す距離に対する割合で減点する)
+		float score = dot - (distance / maxDistance) * kDistanceWeight;
 		if (score > bestScore)
 		{
 			bestScore = score;

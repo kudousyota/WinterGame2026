@@ -7,6 +7,7 @@
 #include "../System/CollisionManager.h"
 #include "../System/ProjectileManager.h"
 #include "../System/DebugTool.h"
+#include "../System/LockOnManager.h"
 
 class GameScene
 {
@@ -26,6 +27,14 @@ private:
 	void ProcessProjectileHits();
 	//攻撃が当たったときの処理
 	void ApplyAttackHit(Character& attacker, const AttackRequest& request, const CollisionManager::AttackHit& hit);
+	//ロックオンの入力を処理して、狙う敵を更新する
+	void UpdateLockOn();
+	//プレイヤーが攻撃で向く相手(ロックオン中はその敵、そうでなければ入力方向で一番狙いやすい敵)
+	const Character* GetAttackTarget() const;
+	//敵の一覧
+	std::vector<Character*> GetEnemies() const;
+
+
 #ifdef _DEBUG
 	//デバッグ表示するキャラクターの一覧
 	std::vector<DebugTool::Target> GetDebugTargets()const;
@@ -33,7 +42,7 @@ private:
 
 private:
 	int m_frameCount;
-
+	
 	std::shared_ptr<Player> m_pPlayer;
 	std::shared_ptr<Alien> m_pAlien;
 	std::shared_ptr<Camera>m_pCamera;
@@ -43,6 +52,8 @@ private:
 	CollisionManager m_collision;
 	//飛び道具(シーンと一緒に消えるので、次のシーンに弾が残らない)
 	ProjectileManager m_projectiles;
+	//ロックオン(このシーンの中だけで使う)
+	LockOnManager m_lockOn;
 
 #ifdef _DEBUG
 	//デバッグ機能(一時停止・表示切り替え・CSVの読み直し)

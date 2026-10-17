@@ -4,6 +4,7 @@
 //#include "../Game/Stage.h"
 //#include "../System/Model.h"
 #include "../System/Timer.h"
+#include "../System/LockOnManager.h"
 
 namespace
 {
@@ -57,6 +58,7 @@ void Camera::Init(const Vector3& initialTarget, float initialAngle)
 void Camera::End()
 {
 }
+
 //targetpos追従する基準点
 void Camera::Update(const Vector3& targetPos)
 {

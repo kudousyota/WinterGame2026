@@ -6,15 +6,25 @@ class Character;
 class LockOnManager
 {
 public:
-	//狙う敵を取得する
-	void Update(const Vector3& playerPos, const Vector3& baseDir, const std::vector<Character*>& enemies);
+	//ロックオンを始める
+	void Start(const Vector3& playerPos,const Vector3& baseDir,const std::vector<Character*>& enemies);
+	//ロックオンを終了する
+	void Release();
+
+	//狙っている敵がまだ狙えるか調べて、狙えなければ外す
+	void Update(const Vector3& playerPos);
 	//狙っている敵いなければnullptrを返す
 	const Character* GetTarget() const { return m_pTarget; }
 	//狙っている位置
 	std::optional<Vector3> GetTargetPos() const;
+	//ロックオンしていないときに攻撃で向く敵を取得する(近い敵だけ。状態は変えない)
+	//inputDir:スティックの方向(倒していなければ長さ0) forward:今向いている方向
+	Character* SearchSoft(const Vector3& playerPos, const Vector3& inputDir, const Vector3& forward, const std::vector<Character*>& enemies)const;
+
 private:
-	//一番点数の高い敵を取得する
-	Character* Search(const Vector3& playerPos,const Vector3& baseDir,const std::vector<Character*>& enemies)const;
+	//maxDistance以内で一番点数の高い敵を取得する
+	//nearMinDot:近い敵を狙える角度(内積)
+	Character* Search(const Vector3& playerPos, const Vector3& baseDir, const std::vector<Character*>& enemies, float maxDistance, float nearMinDot)const;
 private:
 	//所有しない
 	Character* m_pTarget = nullptr;
