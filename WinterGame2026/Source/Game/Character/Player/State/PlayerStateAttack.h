@@ -20,6 +20,9 @@ public:
 private:
 	//今攻撃判定が出ているか
 	bool IsHitActive() const;
+	//攻撃中の前進(決めた距離だけ進む)
+	void UpdateMove();
+private:
 
 	//今の攻撃のデータ
 	//CSVを読み直してもこの攻撃の途中で中身が消えないようにコピーで持つ
@@ -30,6 +33,8 @@ private:
 	int m_shotTimer = 0;
 	//この攻撃の番号(コンボの次の攻撃は別の番号になる)
 	int m_attackId = 0;
+	//攻撃でどのくらい進むか
+	float m_moveDistance = 0.0f;
 	//予約した攻撃を出したボタンの名前
 	const char* m_reservedButton = nullptr;
 	//この攻撃を出したボタンの名前(長押しの判定に使う)

@@ -27,6 +27,12 @@ public:
 		int damage = 0;
 		//攻撃判定の半径
 		float radius = 0.0f;
+		//前進を始めるフレーム
+		int moveStartFrame = 0;
+		//前進を終えるフレーム
+		int moveEndFrame = 0;
+		//進む距離
+		float moveDistance = 0.0f;
 		//アニメーションの名前
 		std::string animName;
 		//コンボ中にパンチを押したとき次に出す攻撃(なければ空)

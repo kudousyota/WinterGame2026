@@ -4,6 +4,7 @@
 #include "PlayerStateDodge.h"
 #include "../../../../System/Input.h"
 #include "../../../../DataLoader/DataManager.h"
+#include <algorithm>
 
 namespace
 {
@@ -18,6 +19,16 @@ namespace
 	constexpr float kBulletSpeed = 30.0f;
 	constexpr int kBulletDamage = 1;
 	constexpr float kBulletRadius = 10.0f;
+	//敵が遠いとき、前進距離をCSVの値の何倍まで伸ばすか
+	constexpr float kMaxMoveScale = 2.0f;
+	//敵の手前で止まるときに、体同士の間に空ける隙間
+	constexpr float kStopMargin = 10.0f;
+
+	//最初が速く、だんだん遅くなる(0～1を受け取って0～1を返す)
+	float EaseOut(float t)
+	{
+		return 1.0f - (1.0f - t) * (1.0f - t);
+	}
 }
 
 PlayerStateAttack::PlayerStateAttack(Player& player, AttackType type, const char* buttonName):
@@ -29,6 +40,9 @@ PlayerStateAttack::PlayerStateAttack(Player& player, AttackType type, const char
 
 void PlayerStateAttack::Enter()
 {
+	//狙う相手がいなかったらCSVの値分進む
+	m_moveDistance = m_info.moveDistance;
+
 	//狙う相手がいればそちらを向く
 	if (const Character* target = m_player.GetAttackTarget())
 	{
@@ -39,6 +53,16 @@ void PlayerStateAttack::Enter()
 		if (toTarget.SqMagnitude() > 0.0f)
 		{
 			m_player.FaceTo(toTarget.Normalize());
+		}
+
+		//踏み込む攻撃だけ、敵との距離に合わせて進む距離を変える
+		if (m_info.moveDistance > 0.0f)
+		{
+			//体同士が触れる少し前で止まる
+			float stopDistance = m_player.GetCollisionRadius() + target->GetCollisionRadius() + kStopMargin;
+			float maxDistance = m_info.moveDistance * kMaxMoveScale;
+			//近すぎるときは進まない、遠すぎるときは最大距離まで
+			m_moveDistance = std::clamp(toTarget.Magnitude() - stopDistance, 0.0f,maxDistance);
 		}
 	}
 	//いなければ、入力があればその方向に向く
@@ -130,6 +154,8 @@ void PlayerStateAttack::Update()
 	m_player.SetAnimPause(isHold);
 	if (isHold)
 	{
+		//長押しは前進も止める
+		StopMove();
 		m_shotTimer--;
 		if (m_shotTimer <= 0)
 		{
@@ -145,6 +171,9 @@ void PlayerStateAttack::Update()
 		return;
 	}
 	
+	//前進する
+	UpdateMove();
+
 	if (IsHitActive())
 	{
 		//攻撃を申請するだけ
@@ -165,9 +194,9 @@ void PlayerStateAttack::Exit()
 #ifdef _DEBUG
 std::string PlayerStateAttack::GetDebugInfo() const
 {
-	char buf[128];
-	sprintf_s(buf, "%s  Frame:%d/%d  Hit:%s  Id:%d",
-		m_info.animName.c_str(), m_frame, m_info.totalFrame, IsHitActive() ? "ON" : "OFF", m_attackId);
+	char buf[160];
+	sprintf_s(buf, "%s  Frame:%d/%d  Hit:%s  Id:%d  Move:%.0f",
+		m_info.animName.c_str(), m_frame, m_info.totalFrame, IsHitActive() ? "ON" : "OFF", m_attackId, m_moveDistance);
 	return buf;
 }
 #endif
@@ -175,4 +204,26 @@ std::string PlayerStateAttack::GetDebugInfo() const
 bool PlayerStateAttack::IsHitActive() const
 {
 	return m_info.hitStartFrame <= m_frame && m_frame < m_info.hitEndFrame;
+}
+
+void PlayerStateAttack::UpdateMove()
+{
+	//前進するフレームの外では止まる
+	if (m_frame < m_info.moveStartFrame || m_frame >= m_info.moveEndFrame)
+	{
+		StopMove();
+		return;
+	}
+
+	//前進の何割まで進んだかを、今のフレームと次のフレームで求める
+	float moveFrame = static_cast<float>(m_info.moveEndFrame - m_info.moveStartFrame);
+	float t0 = (m_frame - m_info.moveStartFrame) / moveFrame;
+	float t1 = (m_frame + 1 - m_info.moveStartFrame) / moveFrame;
+	//その差がこのフレームで進む距離(合計するとm_moveDistanceになる)
+	float step = m_moveDistance * (EaseOut(t1) - EaseOut(t0));
+
+	//落下の速度は残して、横の移動だけ入れる
+	Vector3 move = m_player.GetForward() * step;
+	auto vel = m_player.GetVelocity();
+	m_player.SetVelocity(Vector3(move.x, vel.y, move.z));
 }

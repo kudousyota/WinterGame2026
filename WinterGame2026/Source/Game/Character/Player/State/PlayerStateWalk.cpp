@@ -23,7 +23,7 @@ void PlayerStateWalk::Update()
 		return;
 	}
 
-	Move(1.0f);
+	Move(4.0f);
 }
 void PlayerStateWalk::Enter()
 {
