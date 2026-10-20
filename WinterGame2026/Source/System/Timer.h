@@ -26,6 +26,10 @@ public:
 	void RequestHitStop(int frame);
 	//今ヒットストップ中かどうか
 	bool IsHitStop()const { return m_isHitStop; }
+
+	//スロー・ウィッチタイム・ヒットストップを解除する(シーンの切り替え時に呼ぶ)
+	//ゲーム内の時間は先行入力の記録とずれないように戻さない
+	void Reset();
 private:
 	//コンストラクタとデストラクタをプライベートにして、シングルトンパターンを実装
 	Timer() = default;

@@ -15,7 +15,7 @@ public:
 	void Update(const Vector3& playerPos);
 	//狙っている敵いなければnullptrを返す
 	const Character* GetTarget() const { return m_pTarget; }
-	//狙っている位置
+	//T型の値が入っているか、何も入っていないか//狙っている位置
 	std::optional<Vector3> GetTargetPos() const;
 	//ロックオンしていないときに攻撃で向く敵を取得する(近い敵だけ。状態は変えない)
 	//inputDir:スティックの方向(倒していなければ長さ0) forward:今向いている方向

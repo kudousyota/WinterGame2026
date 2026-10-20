@@ -9,6 +9,9 @@
 #include "../Game/Bullet.h"
 #include "../System/Input.h"
 #include "../Effect/EffectManager.h"
+#include "SceneController.h"
+#include "GameClearScene.h"
+#include "GameOverScene.h"
 
 namespace
 {
@@ -22,19 +25,28 @@ namespace
 	constexpr int kWitchTimeOverlayAlpha = 128;
 	//カメラに映る一番遠い距離(ステージの端から端まで映るようにする)
 	constexpr float kCameraFar = 7000.0f;
+	//勝ち負けが決まってから画面を切り替えるまでのフレーム数(倒れる様子を見せる)
+	constexpr int kGameEndWaitFrame = 120;
 }
 
-GameScene::GameScene():
+GameScene::GameScene(SceneController& controller):
+Scene(controller),
 m_frameCount(0)
 {
 }
 
 GameScene::~GameScene()
 {
+	//エフェクトとスロー・ヒットストップは次のシーンに持ち越さない
+	EffectManager::Instns().StopAll();
+	Timer::Instance().Reset();
 }
 
 void GameScene::Init()
 {
+	//前のゲームのスロー・ヒットストップが残らないようにする
+	Timer::Instance().Reset();
+
 	//Zバッファの設定
 	SetUseZBuffer3D(true);//Zバッファを使います
 	SetWriteZBuffer3D(true);//描画する物体はZバッファにも距離を書き込む
@@ -118,6 +130,8 @@ void GameScene::Update()
 	m_pCamera->Update(m_pPlayer->GetCameraTarget());
 	//カメラが確定してからEffekseerに同期して更新する
 	EffectManager::Instns().Update();
+
+	CheckGameEnd();
 }
 
 void GameScene::Draw()
@@ -294,6 +308,36 @@ const Character* GameScene::GetAttackTarget() const
 std::vector<Character*> GameScene::GetEnemies()const
 {
 	return { m_pAlien.get() };
+}
+
+void GameScene::CheckGameEnd()
+{
+	bool isGameOver = m_pPlayer->IsDead();
+	bool isClear = true;
+	for (auto enemy : GetEnemies())
+	{
+		if (!enemy->IsDead())
+		{
+			isClear = false;
+			break;
+		}
+	}
+	//まだ勝ち負けが決まっていない
+	if (!isGameOver && !isClear) return;
+
+	//倒れる様子を少し見せてから切り替える
+	m_gameEndFrame++;
+	if (m_gameEndFrame < kGameEndWaitFrame) return;
+
+	//相打ちのときはゲームオーバーにする
+	if (isGameOver)
+	{
+		m_controller.ChangeScene(std::make_shared<GameOverScene>(m_controller));
+	}
+	else
+	{
+		m_controller.ChangeScene(std::make_shared<GameClearScene>(m_controller));
+	}
 }
 
 void GameScene::DrawGrid()

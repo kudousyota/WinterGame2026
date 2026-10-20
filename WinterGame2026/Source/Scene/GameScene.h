@@ -8,16 +8,17 @@
 #include "../System/ProjectileManager.h"
 #include "../System/DebugTool.h"
 #include "../System/LockOnManager.h"
+#include "Scene.h"
 
-class GameScene
+class GameScene : public Scene
 {
 public:
-	GameScene();
+	GameScene(SceneController& controller);
 	~GameScene();
 
-	void Init();
-	void Update();
-	void Draw();
+	void Init() override;
+	void Update() override;
+	void Draw() override;
 private:
 	void DrawGrid();
 	//申請された攻撃をまとめて判定し、当たった相手にダメージを与える
@@ -33,6 +34,8 @@ private:
 	const Character* GetAttackTarget() const;
 	//敵の一覧
 	std::vector<Character*> GetEnemies() const;
+	//勝ち負けが決まっていたら、少し待ってからクリア・ゲームオーバーに切り替える
+	void CheckGameEnd();
 
 
 #ifdef _DEBUG
@@ -42,7 +45,9 @@ private:
 
 private:
 	int m_frameCount;
-	
+	//勝ち負けが決まってから経ったフレーム数
+	int m_gameEndFrame = 0;
+
 	std::shared_ptr<Player> m_pPlayer;
 	std::shared_ptr<Alien> m_pAlien;
 	std::shared_ptr<Camera>m_pCamera;

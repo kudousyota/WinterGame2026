@@ -1,6 +1,23 @@
 ﻿#include "Geometry.h"
 #include <algorithm>
 
+//線分上で点に一番近い点
+Vector3 Geometry::ClosestPointOnSegment(const Vector3& start, const Vector3& end, const Vector3& p)
+{
+	Vector3 ab = end - start;
+	Vector3 ap = p - start;
+	//線分の長さの2乗
+	float abLen2 = ab.SqMagnitude();
+	//線分の長さがほぼ0なら始点がそのまま最近接点
+	if (abLen2 <= 0.000001f)
+	{
+		return start;
+	}
+	//線分上の最近接点パラメータt(0:始点 1:終点)
+	float t = std::clamp(ap.Dot(ab) / abLen2, 0.0f, 1.0f);
+	return start + ab * t;
+}
+
 //2本の線分
 void Geometry::ClosestPointSegmentSegment(const Vector3& p1, const Vector3& q1, const Vector3& p2, const Vector3& q2, Vector3& outC1, Vector3& outC2)
 {
@@ -85,13 +102,13 @@ void Geometry::ClosestPointSegmentSegment(const Vector3& p1, const Vector3& q1, 
 //2つのカプセルが重なっているか判定する
 //カプセル同士の判定は、中心軸となる2本の線分の最短距離と
 //2つのカプセル半径の合計を比較して行う
-bool Geometry::CheckCapsule(const Vector3& aStart, const Vector3& aEnd, float radiusA, const Vector3& bStart, const Vector3& bEnd, float radiusB)
+bool Geometry::CheckCapsule(const Capsule& a, const Capsule& b)
 {
 	//2本の線分同士の最短距離を求める
-	float distance = Segment_Segment_MinLength(aStart, aEnd, bStart, bEnd);
+	float distance = Segment_Segment_MinLength(a.start, a.end, b.start, b.end);
 
 	//両カプセルの半径を合計
-	float combinedRadius = radiusA + radiusB;
+	float combinedRadius = a.radius + b.radius;
 
 	// 線分間の距離が半径の合計以下ならカプセル同士が接触している
 	return distance <= combinedRadius;

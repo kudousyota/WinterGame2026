@@ -66,36 +66,15 @@ std::vector<CollisionManager::AttackHit> CollisionManager::CheckAttackSphere(con
 			continue;
 		}
 
-		//キャラクターのカプセル情報を取得
-		float capsuleHeight = character->GetCollisionHeight();
+		//キャラクターのカプセル
+		Geometry::Capsule capsule = character->GetCollisionCapsule();
 
-		//カプセルの線分(a -> b)
-		Vector3 a = character->GetCollisionPosition();
-		Vector3 b = Vector3(a.x, a.y + capsuleHeight, a.z);
-
-		Vector3 ab = b - a;
-		Vector3 ap = pos - a;
-		//線分の2乗
-		float abLen2 = ab.SqMagnitude();
-		//攻撃位置からカプセル軸上の最近接点を求めるための係数
-		float t = 0.0f;
-		if (abLen2 > 0.000001f)
-		{
-			//線分上の最近接点パラメータt
-			t = ap.Dot(ab) / abLen2;
-			if (t < 0.0f) t = 0.0f;
-			if (t > 1.0f) t = 1.0f;
-		}
-		//カプセル軸上の最近接点
-		Vector3 closest = a + ab * t;
-		//攻撃位置から最近接点までのベクトル
-		Vector3 diff = closest - pos;
+		//カプセル軸上で攻撃位置に一番近い点
+		Vector3 closest = Geometry::ClosestPointOnSegment(capsule.start, capsule.end, pos);
 		//最近接点までの距離の2乗
-		float dist2 = diff.SqMagnitude();
-		//ジャスト回避
-		float justDodgeRadius = character->GetJustDodgeRadius();
+		float dist2 = (closest - pos).SqMagnitude();
 		//攻撃判定とジャスト回避判定合わせた範囲
-		float combinedJust = attackdata.GetRadius() + justDodgeRadius;
+		float combinedJust = attackdata.GetRadius() + character->GetJustDodgeRadius();
 
 		if (dist2 <= combinedJust * combinedJust)
 		{
@@ -108,8 +87,7 @@ std::vector<CollisionManager::AttackHit> CollisionManager::CheckAttackSphere(con
 		}
 
 		//ジャスト回避が不発、または受付時間外だった場合、通常の判定でチェック
-		float normalRadius = character->GetCollisionRadius();
-		float combinedNormal = attackdata.GetRadius() + normalRadius;
+		float combinedNormal = attackdata.GetRadius() + capsule.radius;
 
 		if (dist2 <= combinedNormal * combinedNormal)
 		{
@@ -134,21 +112,14 @@ std::vector<CollisionManager::AttackHit> CollisionManager::CheckAttackCapsule(co
 		{
 			continue;
 		}
-		//相手キャラクターのカプセル情報を取得
-		float capsuleRadius = character->GetCollisionRadius();
-		float capsuleHeight = character->GetCollisionHeight();
+		//相手キャラクターのカプセル
+		Geometry::Capsule capsule = character->GetCollisionCapsule();
 
-		Vector3 a = character->GetCollisionPosition();
-
-		Vector3 b = a + Vector3(0.0f, capsuleHeight, 0.0f);
 		//攻撃カプセルの軸と相手カプセルの軸との最短距離を求める
-		float distance = Segment_Segment_MinLength(start, end, a, b);
+		float distance = Segment_Segment_MinLength(start, end, capsule.start, capsule.end);
 
-		//ジャスト回避の半径を知る
-		float justDodgeRadius = character->GetJustDodgeRadius();
-
-		float justRange = attackdata.GetRadius() + justDodgeRadius;
-
+		//攻撃判定とジャスト回避判定合わせた範囲
+		float justRange = attackdata.GetRadius() + character->GetJustDodgeRadius();
 
 		if (distance <= justRange)
 		{
@@ -161,7 +132,7 @@ std::vector<CollisionManager::AttackHit> CollisionManager::CheckAttackCapsule(co
 		}
 
 		//2つのカプセルの半径を合計した値が実際の当たり判定の距離になる
-		float hitRange = attackdata.GetRadius() + capsuleRadius;
+		float hitRange = attackdata.GetRadius() + capsule.radius;
 
 		if (distance <= hitRange)
 		{
@@ -176,14 +147,14 @@ void CollisionManager::DrawDebug()const
 {
 	for (auto character : m_pCharacters)
 	{
-		Vector3 start = character->GetCollisionPosition();
-		Vector3 end = start + Vector3(0.0f, character->GetCollisionHeight(), 0.0f);
 		//当たり判定(黄色)
-		DrawCapsule3D(start, end, character->GetCollisionRadius(), 8, GetColor(255, 255, 0), GetColor(255, 255, 0), false);
+		Geometry::Capsule capsule = character->GetCollisionCapsule();
+		DrawCapsule3D(capsule.start, capsule.end, capsule.radius, 8, GetColor(255, 255, 0), GetColor(255, 255, 0), false);
 		//ジャスト回避判定(水色)
-		if (character->GetJustDodgeRadius() > 0.0f)
+		Geometry::Capsule justDodge = character->GetJustDodgeCapsule();
+		if (justDodge.radius > 0.0f)
 		{
-			DrawCapsule3D(start, end, character->GetJustDodgeRadius(), 8, GetColor(0, 255, 255), GetColor(0, 255, 255), false);
+			DrawCapsule3D(justDodge.start, justDodge.end, justDodge.radius, 8, GetColor(0, 255, 255), GetColor(0, 255, 255), false);
 		}
 	}
 
@@ -197,19 +168,12 @@ void CollisionManager::DrawDebug()const
 //重なっている2つのキャラクターを、それぞれ反対方向へ押し出して重なりを解消する
 void CollisionManager::ResolveCharacterCollision(Character* characterA, Character* characterB)
 {
-	//Aのカプセル軸
-	Vector3 aStart = characterA->GetCollisionPosition();
-	Vector3 aEnd = aStart + Vector3(0.0f, characterA->GetCollisionHeight(), 0.0f);
-	float radiusA = characterA->GetCollisionRadius();
-
-	//Bのカプセル軸
-	Vector3 bStart = characterB->GetCollisionPosition();
-	Vector3 bEnd = bStart + Vector3(0.0f, characterB->GetCollisionHeight(), 0.0f);
-	float radiusB = characterB->GetCollisionRadius();
+	Geometry::Capsule a = characterA->GetCollisionCapsule();
+	Geometry::Capsule b = characterB->GetCollisionCapsule();
 
 	//2本の軸の最近接点を求める
 	Vector3 closestA, closestB;
-	Geometry::ClosestPointSegmentSegment(aStart, aEnd, bStart, bEnd, closestA, closestB);
+	Geometry::ClosestPointSegmentSegment(a.start, a.end, b.start, b.end, closestA, closestB);
 
 	Vector3 direction = closestA - closestB;
 
@@ -229,7 +193,7 @@ void CollisionManager::ResolveCharacterCollision(Character* characterA, Characte
 	float distance = sqrtf(distanceSq);
 	direction /= distance;
 	//２つのカプセルの半径を合計
-	float combinedRadius = radiusA + radiusB;
+	float combinedRadius = a.radius + b.radius;
 	//カプセル同士が重なっている量
 	float penetration = combinedRadius - distance;
 	//重なっていなければ何もしない
@@ -253,16 +217,6 @@ void CollisionManager::ResolveCharacterCollision(Character* characterA, Characte
 //2つのキャラクターのカプセルが重なっているか判定する
 bool CollisionManager::CheckCharacterCapsule(Character* characterA, Character* characterB)
 {
-	//AのカプセルAの軸を作る
-	Vector3 aStart = characterA->GetCollisionPosition();
-	Vector3 aEnd = aStart + Vector3(0.0f, characterA->GetCollisionHeight(), 0.0f);
-	float radiusA = characterA->GetCollisionRadius();
-
-	//Bのカプセルの軸を作る
-	Vector3 bStart = characterB->GetCollisionPosition();
-	Vector3 bEnd = bStart + Vector3(0.0f, characterB->GetCollisionHeight(), 0.0f);
-	float radiusB = characterB->GetCollisionRadius();
-
 	//ここで純粋な幾何計算関数に投げる
-	return Geometry::CheckCapsule(aStart, aEnd, radiusA, bStart, bEnd, radiusB);
+	return Geometry::CheckCapsule(characterA->GetCollisionCapsule(), characterB->GetCollisionCapsule());
 }

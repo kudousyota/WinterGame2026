@@ -61,6 +61,16 @@ bool Timer::IsEnemySlow() const
 	return m_frameCountEnemy > 0;
 }
 
+void Timer::Reset()
+{
+	m_timeScale = 1.0f;
+	m_frameCount = 0;
+	m_enemyTimeScale = 1.0f;
+	m_frameCountEnemy = 0;
+	m_hitStopFrame = 0;
+	m_isHitStop = false;
+}
+
 void Timer::RequestHitStop(int frame)
 {
 	//連続で当たっても止まる時間が伸び続けないように、長い方を使う

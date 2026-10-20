@@ -1,6 +1,7 @@
 ﻿#include "Character.h"
 #include "../../DataLoader/DataManager.h"
 #include "../../DataLoader/AttackData.h"
+#include <algorithm>
 Character::Character()
 {
 }
@@ -59,6 +60,28 @@ Vector3 Character::GetAttackPos(const AttackRequest& request) const
 Vector3 Character::GetShotPos(const ShotRequest& request) const
 {
 	return m_pos + m_forward * request.forwardOffset + Vector3(0.0f, request.height, 0.0f);
+}
+
+Geometry::Capsule Character::GetCollisionCapsule() const
+{
+	Geometry::Capsule capsule;
+	//軸の下端は足元から半径分上げた位置
+	capsule.start = m_pos + Vector3(0.0f, m_collisionRadius, 0.0f);
+	capsule.end = capsule.start + Vector3(0.0f, GetCollisionHeight(), 0.0f);
+	capsule.radius = m_collisionRadius;
+	return capsule;
+}
+
+Geometry::Capsule Character::GetJustDodgeCapsule() const
+{
+	Geometry::Capsule capsule = GetCollisionCapsule();
+	capsule.radius = m_justDodgeRadius;
+	return capsule;
+}
+
+float Character::GetCollisionHeight() const
+{
+	return (std::max)(m_height - m_collisionRadius * 2.0f, 0.0f);
 }
 
 bool Character::HasReceivedAttack(const Character* attacker, int attackId) const

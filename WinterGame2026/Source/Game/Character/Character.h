@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Vector3.h"
+#include "Geometry.h"
 #include "StateBase.h"
 #include <memory>
 #include <string>
@@ -78,7 +79,7 @@ public:
 	//アニメーション
 	Animation& GetAnim() { return m_anim; }
 
-	//体の位置(足元基準)
+	//体の大きさ・部位の位置(足元基準)
 	//身長(足元から頭のてっぺんまで)
 	float GetHeight()const { return m_height; }
 	//体の中心
@@ -87,15 +88,13 @@ public:
 	Vector3 GetHeadPos()const { return Vector3(m_pos.x, m_pos.y + m_height, m_pos.z); }
 
 	//当たり判定
-	//カプセル軸の下端(足元から半径分上げた位置)
-	Vector3 GetCollisionPosition()const { return Vector3(m_pos.x, m_pos.y + m_collisionRadius, m_pos.z); }
+	//当たり判定のカプセル(足元から頭のてっぺんまでを包む)
+	Geometry::Capsule GetCollisionCapsule()const;
+	//ジャスト回避判定のカプセル(当たり判定と同じ軸で半径だけ大きい)
+	Geometry::Capsule GetJustDodgeCapsule()const;
 	//カプセル軸の長さ(身長から上下の半球分を引いた長さ)
 	//身長が直径より小さい場合は球として扱う
-	float GetCollisionHeight()const
-	{
-		float axisLength = m_height - m_collisionRadius * 2.0f;
-		return (axisLength > 0.0f) ? axisLength : 0.0f;
-	}
+	float GetCollisionHeight()const;
 	//カプセルの半径
 	float GetCollisionRadius()const { return m_collisionRadius; }
 	//ジャスト回避判定の半径(通常の当たり判定より少し大きくする)
@@ -159,13 +158,13 @@ protected:
 	std::unique_ptr<StateBase> m_pNextState;
 	Animation m_anim;
 
-	//位置
+	//位置(足元)
 	Vector3 m_pos = Vector3(0.0f,0.0f,0.0f);
-	//前
+	//向いている方向(長さ1)
 	Vector3 m_forward = Vector3(0.0f, 0.0f, 0.0f);
-	//向き
+	//速度(1フレームに動く量)
 	Vector3 m_velocity = Vector3(0.0f, 0.0f, 0.0f);
-	//今の角度
+	//モデルのY軸回転の角度(ラジアン。m_forwardへ少しずつ近づける)
 	float m_angle = 0.0f;
 	//スピード
 	float m_speed = 0.0f;

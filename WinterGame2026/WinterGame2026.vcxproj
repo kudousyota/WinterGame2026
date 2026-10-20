@@ -165,6 +165,7 @@
     <ClCompile Include="Source\Game\Camera.cpp" />
     <ClCompile Include="Source\Game\Stage.cpp" />
     <ClCompile Include="Source\Common\Model.cpp" />
+    <ClCompile Include="Source\Common\FontManager.cpp" />
     <ClCompile Include="Source\System\Application.cpp" />
     <ClCompile Include="Source\DataLoader\DataManager.cpp" />
     <ClCompile Include="Source\Game\Character\Character.cpp" />
@@ -179,6 +180,11 @@
     <ClCompile Include="Source\Game\Character\Player\State\PlayerStateJump.cpp" />
     <ClCompile Include="Source\Game\Character\Player\State\PlayerStateWalk.cpp" />
     <ClCompile Include="Source\Scene\GameScene.cpp" />
+    <ClCompile Include="Source\Scene\Scene.cpp" />
+    <ClCompile Include="Source\Scene\SceneController.cpp" />
+    <ClCompile Include="Source\Scene\TitleScene.cpp" />
+    <ClCompile Include="Source\Scene\GameClearScene.cpp" />
+    <ClCompile Include="Source\Scene\GameOverScene.cpp" />
     <ClCompile Include="Source\DataLoader\StatusData.cpp" />
     <ClCompile Include="Source\System\Timer.cpp" />
   </ItemGroup>
@@ -205,6 +211,7 @@
     <ClInclude Include="Source\Game\Camera.h" />
     <ClInclude Include="Source\Game\Stage.h" />
     <ClInclude Include="Source\Common\Model.h" />
+    <ClInclude Include="Source\Common\FontManager.h" />
     <ClInclude Include="Source\System\Application.h" />
     <ClInclude Include="Source\DataLoader\DataManager.h" />
     <ClInclude Include="Source\Game\Character\Character.h" />
@@ -224,6 +231,11 @@
     <ClInclude Include="Source\Game\Character\Player\State\PlayerStateWalk.h" />
     <ClInclude Include="Source\Game\Character\StateBase.h" />
     <ClInclude Include="Source\Scene\GameScene.h" />
+    <ClInclude Include="Source\Scene\Scene.h" />
+    <ClInclude Include="Source\Scene\SceneController.h" />
+    <ClInclude Include="Source\Scene\TitleScene.h" />
+    <ClInclude Include="Source\Scene\GameClearScene.h" />
+    <ClInclude Include="Source\Scene\GameOverScene.h" />
     <ClInclude Include="Source\DataLoader\StatusData.h" />
     <ClInclude Include="Source\System\Timer.h" />
   </ItemGroup>

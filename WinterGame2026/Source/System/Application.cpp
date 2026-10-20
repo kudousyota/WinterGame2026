@@ -3,9 +3,11 @@
 #include <cassert>
 #include "../System/Input.h"
 #include "../System/Timer.h"
-#include "../Scene/GameScene.h"
+#include "../Scene/TitleScene.h"
+#include "../Scene/SceneController.h"
 #include "../Game.h"
 #include "../Common/Model.h"
+#include "../Common/FontManager.h"
 #include "../DataLoader/DataManager.h"
 #include "../Effect/EffectManager.h"
 #include "EffekseerForDXLib.h"
@@ -72,7 +74,7 @@ bool Application::Init()
 	//サウンドのロード
 	//SoundManager::Instance().Load();
 	//フォントのロード
-	//FontManager::Instance().LoadFont();
+	FontManager::Instance().LoadFont();
 	//背景色を設定(ここでRGBを変更すれば背景色を変えれる)
 	//薄い青
 	//SetBackgroundColor(100, 150, 255);
@@ -85,12 +87,10 @@ bool Application::Init()
 void Application::Run()
 {
 	Input::Instance();
-	//SceneController controller;
-	//controller.ChangeScene(std::make_shared<TitleScene>(controller));
-
-	//一旦SceneMainを表示する
-	GameScene Gamescene;
-	Gamescene.Init();
+	SceneController controller;
+	//タイトルから始める
+	//(切り替えは予約なので、最初のUpdateでInitが呼ばれる)
+	controller.ChangeScene(std::make_shared<TitleScene>(controller));
 
 
 	while (ProcessMessage() != -1 && !m_IsRequstendExit)
@@ -104,11 +104,8 @@ void Application::Run()
 		//タイマーはゲームが進むときだけ進めたいので、シーンの中で更新する
 		Input::Instance().Update(Timer::Instance().GetGameTime());
 
-		//controller.Update(input);
-		//controller.Draw();
-
-		Gamescene.Update();
-		Gamescene.Draw();
+		controller.Update();
+		controller.Draw();
 
 		if (CheckHitKey(KEY_INPUT_ESCAPE))
 		{
@@ -127,8 +124,7 @@ void Application::Run()
 void Application::Terminate()
 {
 	//フォントの解放
-	//RemoveFontResourceEx("Constantia", FR_PRIVATE, NULL);
-	//FontManager::Instance().Destroy();
+	FontManager::Instance().Destroy();
 	//EffectManagerの終了処理を先に行う
 	EffectManager::Instns().Terminate();
 	//Effekseer 使用の終了処理
