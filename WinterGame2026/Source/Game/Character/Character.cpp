@@ -64,7 +64,9 @@ Vector3 Character::GetShotPos(const ShotRequest& request) const
 bool Character::HasReceivedAttack(const Character* attacker, int attackId) const
 {
 	auto it = m_lastReceivedAttackId.find(attacker);
-	return it != m_lastReceivedAttackId.end() && it->second == attackId;
+	//攻撃番号は新しいほど大きいので、最後に受けた番号以下なら受けた扱いにする
+	//(足技とウィケッドウィーブの判定が重なっても、交互に当たって何度もダメージが入らないようにする)
+	return it != m_lastReceivedAttackId.end() && it->second >= attackId;
 }
 
 void Character::MarkAttackReceived(const Character* attacker, int attackId)

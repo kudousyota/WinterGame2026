@@ -7,6 +7,8 @@
 #include "../Game.h"
 #include "../Common/Model.h"
 #include "../DataLoader/DataManager.h"
+#include "../Effect/EffectManager.h"
+#include "EffekseerForDXLib.h"
 
 
 Application::Application()
@@ -49,10 +51,10 @@ bool Application::Init()
 
 	//Effekseer使用の初期化
 	//引数には画面に表示する最大パーティクルを設定する
-	//if (Effekseer_Init(8000) == -1)
-	//{
-	//	return -1;			//エラーが起きたら直ちに終了
-	//}
+	if (Effekseer_Init(8000) == -1)
+	{
+		return false;			//エラーが起きたら直ちに終了
+	}
 
 	//フルスクリーンウインドウの切り替えでリソースが消えるのを防ぐ
 	SetChangeScreenModeGraphicsSystemResetFlag(false);
@@ -65,6 +67,8 @@ bool Application::Init()
 	Model::Instance().PreloadAll();
 	//ステータスのロード
 	DataManager::GetInstance().LoadData();
+	//エフェクトのロード
+	EffectManager::Instns().Init();
 	//サウンドのロード
 	//SoundManager::Instance().Load();
 	//フォントのロード
@@ -126,9 +130,9 @@ void Application::Terminate()
 	//RemoveFontResourceEx("Constantia", FR_PRIVATE, NULL);
 	//FontManager::Instance().Destroy();
 	//EffectManagerの終了処理を先に行う
-	//EffectManager::Instns().Terminate();
+	EffectManager::Instns().Terminate();
 	//Effekseer 使用の終了処理
-	//Effkseer_End();
+	Effkseer_End();
 	//プリロードしたモデルを解放
 	//Model::Instance().ReleseAll();
 	DxLib_End();

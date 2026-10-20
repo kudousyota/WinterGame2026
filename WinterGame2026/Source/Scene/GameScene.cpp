@@ -8,6 +8,7 @@
 #include "../Game.h"
 #include "../Game/Bullet.h"
 #include "../System/Input.h"
+#include "../Effect/EffectManager.h"
 
 namespace
 {
@@ -115,6 +116,8 @@ void GameScene::Update()
 	ProcessProjectileHits();
 
 	m_pCamera->Update(m_pPlayer->GetCameraTarget());
+	//カメラが確定してからEffekseerに同期して更新する
+	EffectManager::Instns().Update();
 }
 
 void GameScene::Draw()
@@ -134,6 +137,8 @@ void GameScene::Draw()
 	m_pAlien->Draw();
 	//飛び道具の描画
 	m_projectiles.Draw();
+	//エフェクトの描画
+	EffectManager::Instns().Draw();
 #ifdef _DEBUG
 	if (m_debug.IsShowGrid()) DrawGrid();
 	//当たり判定のカプセルを表示

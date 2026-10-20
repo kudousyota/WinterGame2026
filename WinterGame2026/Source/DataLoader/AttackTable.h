@@ -39,6 +39,8 @@ public:
 		std::optional<AttackType> nextPunch;
 		//コンボ中にキックを押したとき次に出す攻撃(なければ空)
 		std::optional<AttackType> nextKick;
+		//コンボの締めで攻撃判定が出たときに呼び出すウィケッドウィーブ(なければ空)
+		std::optional<AttackType> witchHand;
 	};
 
 	//CSVの行データを受け取る

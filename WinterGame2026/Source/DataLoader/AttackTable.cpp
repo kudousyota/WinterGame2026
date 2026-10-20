@@ -2,7 +2,7 @@
 #include <cassert>
 namespace
 {
-	constexpr int kAttackInfoSize = 14;
+	constexpr int kAttackInfoSize = 15;
 
 	//CSVに書いた名前をAttackTypeに変換する
 	AttackType NameToAttackType(const std::string& name)
@@ -64,6 +64,11 @@ void AttackTable::Load(const std::vector<std::vector<std::string>>& rows)
 		if (row[13] != "None")
 		{
 			info.nextKick = NameToAttackType(row[13]);
+		}
+		//Noneならコンボの締めでウィケッドウィーブを出さない
+		if (row[14] != "None")
+		{
+			info.witchHand = NameToAttackType(row[14]);
 		}
 
 		m_infoList[info.type] = info;

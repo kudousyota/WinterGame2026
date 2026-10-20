@@ -4,6 +4,7 @@
 #include "PlayerStateDodge.h"
 #include "../../../../System/Input.h"
 #include "../../../../DataLoader/DataManager.h"
+#include "../../../../Effect/EffectManager.h"
 #include <algorithm>
 
 namespace
@@ -23,6 +24,8 @@ namespace
 	constexpr float kMaxMoveScale = 2.0f;
 	//敵の手前で止まるときに、体同士の間に空ける隙間
 	constexpr float kStopMargin = 10.0f;
+	//ウィケッドウィーブを出す位置(足元から前方への距離)
+	constexpr float kWitchHandForwardOffset = 150.0f;
 
 	//最初が速く、だんだん遅くなる(0～1を受け取って0～1を返す)
 	float EaseOut(float t)
@@ -149,6 +152,14 @@ void PlayerStateAttack::Update()
 		return;
 	}
 
+	//コンボの締めは、攻撃判定が出た瞬間にウィケッドウィーブを呼び出す
+	if (m_info.witchHand && !m_witchHandInfo && m_frame == m_info.hitStartFrame)
+	{
+		SummonWitchHand();
+	}
+	//長押しで止まっている間も手の攻撃は進める
+	UpdateWitchHand();
+
 	//攻撃判定が終わってもボタンを押し続けていたら弾を出す
 	bool isHold = m_frame >= m_info.hitEndFrame && input.IsPressed(m_buttonName) && !m_reservedNext;
 	m_player.SetAnimPause(isHold);
@@ -204,6 +215,35 @@ std::string PlayerStateAttack::GetDebugInfo() const
 bool PlayerStateAttack::IsHitActive() const
 {
 	return m_info.hitStartFrame <= m_frame && m_frame < m_info.hitEndFrame;
+}
+
+void PlayerStateAttack::SummonWitchHand()
+{
+	m_witchHandInfo = DataManager::GetInstance().GetAttackTable().GetInfo(*m_info.witchHand);
+	m_witchHandFrame = 0;
+	//足技とは別の番号にして、足技が当たった相手にも当たるようにする
+	m_witchHandAttackId = m_player.IssueAttackId();
+
+	//見た目はエフェクトで出す(プレイヤーの前方の地面に、プレイヤーの向きで出す)
+	const Vector3& forward = m_player.GetForward();
+	Vector3 pos = m_player.GetPos() + forward * kWitchHandForwardOffset;
+	EffectManager::Instns().PlayEffect(EffectType::WickedWeave, pos, atan2f(forward.x, forward.z));
+}
+
+void PlayerStateAttack::UpdateWitchHand()
+{
+	if (!m_witchHandInfo) return;
+
+	//呼び出してからのフレームで攻撃判定を出す
+	if (m_witchHandInfo->hitStartFrame <= m_witchHandFrame && m_witchHandFrame < m_witchHandInfo->hitEndFrame)
+	{
+		AttackRequest request{AttackData(CharacterType::Player, m_witchHandInfo->type, m_witchHandInfo->damage, m_witchHandInfo->radius)};
+		request.attackId = m_witchHandAttackId;
+		request.forwardOffset = kWitchHandForwardOffset;
+		request.height = kHitHeight;
+		m_player.RequestAttack(request);
+	}
+	m_witchHandFrame++;
 }
 
 void PlayerStateAttack::UpdateMove()
