@@ -26,6 +26,14 @@ namespace
 	constexpr float kStopMargin = 10.0f;
 	//ウィケッドウィーブを出す位置(足元から前方への距離)
 	constexpr float kWitchHandForwardOffset = 150.0f;
+	//ウィケッドウィーブのエフェクトの拡大率(Effekseerの1単位を何cmにするか)
+	constexpr float kWitchHandScale = 40.0f;
+	//エフェクトの原点から拳(着弾点)までの距離(Effekseerの単位)
+	constexpr float kWitchHandFistDistance = 1.1f;
+	//魔法陣を出したい位置(足元から見て後ろ・上・右への距離)。右肩のあたりから前へ突き出す
+	constexpr float kWitchHandPortalBack = 50.0f;
+	constexpr float kWitchHandPortalHeight = 150.0f;
+	constexpr float kWitchHandPortalSide = 40.0f;
 
 	//最初が速く、だんだん遅くなる(0～1を受け取って0～1を返す)
 	float EaseOut(float t)
@@ -224,10 +232,27 @@ void PlayerStateAttack::SummonWitchHand()
 	//足技とは別の番号にして、足技が当たった相手にも当たるようにする
 	m_witchHandAttackId = m_player.IssueAttackId();
 
-	//見た目はエフェクトで出す(プレイヤーの前方の地面に、プレイヤーの向きで出す)
+	//見た目はエフェクトで出す
 	const Vector3& forward = m_player.GetForward();
-	Vector3 pos = m_player.GetPos() + forward * kWitchHandForwardOffset;
-	EffectManager::Instns().PlayEffect(EffectType::WickedWeave, pos, atan2f(forward.x, forward.z));
+	//プレイヤーの右方向(左手系なので前(0,0,1)の右は(1,0,0))
+	const Vector3 right(forward.z, 0.0f, -forward.x);
+	const Vector3 up(0.0f, 1.0f, 0.0f);
+
+	//拳が当たる位置(攻撃判定と同じ位置)
+	const Vector3 hitPos = m_player.GetPos() + forward * kWitchHandForwardOffset + up * kHitHeight;
+	//魔法陣を出したい位置から着弾点へ向かう方向に拳を突き出す
+	const Vector3 portalPos = m_player.GetPos() - forward * kWitchHandPortalBack + up * kWitchHandPortalHeight + right * kWitchHandPortalSide;
+	const Vector3 punchDir = (hitPos - portalPos).Normalize();
+
+	//拳が着弾点に来るように、原点を拳の分だけ手前にずらす
+	const Vector3 pos = hitPos - punchDir * (kWitchHandFistDistance * kWitchHandScale);
+
+	//Effekseerは左手系だとZが反転するので、エディタの+Z(拳の向き)はゲームでは-Zになる
+	//-Zを上下(X回転)→水平(Y回転)の順に回してpunchDirに向ける
+	Vector3 rot;
+	rot.x = asinf(punchDir.y);
+	rot.y = atan2f(-punchDir.x, -punchDir.z);
+	EffectManager::Instns().PlayEffect(EffectType::WickedWeave, pos, rot, kWitchHandScale);
 }
 
 void PlayerStateAttack::UpdateWitchHand()

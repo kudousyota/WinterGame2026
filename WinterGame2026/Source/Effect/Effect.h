@@ -3,8 +3,9 @@
 class Effect
 {
 public:
-	//rotYはY軸回転(ラジアン)。キャラクターの向きに合わせたいときに渡す
-	void Play(int resourceHandle, const Vector3& pos, float rotY = 0.0f);
+	//rotは各軸の回転(ラジアン)。キャラクターの向きに合わせたいときに渡す
+	//scaleはEffekseer側の1単位を何cmにするか
+	void Play(int resourceHandle, const Vector3& pos, const Vector3& rot, float scale);
 
 	void Stop();
 	void Update();

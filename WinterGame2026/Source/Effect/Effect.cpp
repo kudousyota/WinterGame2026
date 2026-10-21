@@ -1,19 +1,14 @@
 ﻿#include "Effect.h"
 #include "EffekseerForDXLib.h"
 
-namespace
-{
-	//エフェクトの拡大率(1単位=1cmなのでEffekseer側の大きさに合わせて拡大する)
-	constexpr float kScale = 20.0f;
-}
-void Effect::Play(int resourceHandle, const Vector3& pos, float rotY)
+void Effect::Play(int resourceHandle, const Vector3& pos, const Vector3& rot, float scale)
 {
 	m_resourceHandle = resourceHandle;
 	m_pos = pos;
 	m_playingHandle = PlayEffekseer3DEffect(resourceHandle);
 	SetPosPlayingEffekseer3DEffect(m_playingHandle, m_pos.x, m_pos.y, m_pos.z);
-	SetRotationPlayingEffekseer3DEffect(m_playingHandle, 0.0f, rotY, 0.0f);
-	SetScalePlayingEffekseer3DEffect(m_playingHandle, kScale, kScale, kScale);
+	SetRotationPlayingEffekseer3DEffect(m_playingHandle, rot.x, rot.y, rot.z);
+	SetScalePlayingEffekseer3DEffect(m_playingHandle, scale, scale, scale);
 }
 
 void Effect::Stop()

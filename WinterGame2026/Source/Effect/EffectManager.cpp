@@ -70,12 +70,12 @@ void EffectManager::Draw()
 }
 
 //指定した種類と座標でエフェクトを再生する
-int EffectManager::PlayEffect(EffectType type, const Vector3& pos, float rotY)
+int EffectManager::PlayEffect(EffectType type, const Vector3& pos, const Vector3& rot, float scale)
 {
     //指定したエフェクトのインスタンスを取得
     auto effect = std::make_unique<Effect>();
     //対応するリソースハンドルを使って指定座標で再生する
-    effect->Play(GetResourceHandle(type), pos, rotY);
+    effect->Play(GetResourceHandle(type), pos, rot, scale);
     //再生中のエフェクトのハンドルを返す
     int handle = effect->GetPlayingHandle();
 

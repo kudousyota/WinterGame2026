@@ -21,8 +21,9 @@ public:
 	//再生中のエフェクト停止とロード済みリソースの解放
 	void Terminate();
 	//指定した種類と座標でエフェクトを再生する
-	//rotYはY軸回転(ラジアン)
-	int PlayEffect(EffectType type, const Vector3& pos, float rotY = 0.0f);
+	//rotは各軸の回転(ラジアン。xが上下の傾き、yが水平の向き)
+	//scaleは拡大率(1単位=1cmなのでEffekseer側の大きさに合わせて拡大する)
+	int PlayEffect(EffectType type, const Vector3& pos, const Vector3& rot = Vector3(), float scale = 20.0f);
 	//個別でエフェクトを停止する
 	void StopEffect(int handle);
 	//エフェクトを停止する
