@@ -86,15 +86,24 @@ float Character::GetCollisionHeight() const
 
 bool Character::HasReceivedAttack(const Character* attacker, int attackId) const
 {
-	auto it = m_lastReceivedAttackId.find(attacker);
-	//攻撃番号は新しいほど大きいので、最後に受けた番号以下なら受けた扱いにする
-	//(足技とウィケッドウィーブの判定が重なっても、交互に当たって何度もダメージが入らないようにする)
-	return it != m_lastReceivedAttackId.end() && it->second >= attackId;
+	auto it = m_receivedAttackIds.find(attacker);
+	if (it == m_receivedAttackIds.end()) return false;
+	//番号ごとに覚えておくので、足技・ウィケッドウィーブ・多段ヒットの各段が
+	//同時に出ていても、それぞれ1回ずつ当たる
+	const auto& ids = it->second;
+	return std::find(ids.begin(), ids.end(), attackId) != ids.end();
 }
 
 void Character::MarkAttackReceived(const Character* attacker, int attackId)
 {
-	m_lastReceivedAttackId[attacker] = attackId;
+	//同時に出ている攻撃は数個なので、古い番号は捨てて数を抑える
+	constexpr size_t kMaxReceivedIds = 8;
+	auto& ids = m_receivedAttackIds[attacker];
+	ids.push_back(attackId);
+	if (ids.size() > kMaxReceivedIds)
+	{
+		ids.erase(ids.begin());
+	}
 }
 
 bool Character::IsDead() const

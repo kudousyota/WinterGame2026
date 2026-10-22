@@ -10,12 +10,23 @@ namespace
 	constexpr float kAirMoveSpeedScale = 1.0f;
 }
 
+PlayerStateJump::PlayerStateJump(Player& player, bool isJump):
+PlayerStateBase(player)
+{
+	m_isJump = isJump;
+}
+
 void PlayerStateJump::Enter()
 {
-	//このステートに入った瞬間に上方向の速度を与える
-	auto vel = m_player.GetVelocity();
-	vel.y = kJumpPower;
-	m_player.SetVelocity(vel);
+	//落下状態になったらアニメーションを変える
+	m_player.GetAnim().ChangeAnim("Player|Jump", false);
+	if (m_isJump)
+	{
+		//ジャンプ状態になったら上方向に速度を与える
+		auto vel = m_player.GetVelocity();
+		vel.y = kJumpPower;
+		m_player.SetVelocity(vel);
+	}
 }
 
 void PlayerStateJump::Update()

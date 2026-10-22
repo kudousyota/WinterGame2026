@@ -5,10 +5,11 @@
 class PlayerStateJump : public PlayerStateBase
 {
 public:
-
-	using PlayerStateBase::PlayerStateBase;
+	PlayerStateJump(Player& player, bool isJump);
 
 	void Enter() override;
 	void Update() override;
 	StateKind GetKind() const override { return StateKind::Jump; }
+private:
+	bool m_isJump = false;
 };

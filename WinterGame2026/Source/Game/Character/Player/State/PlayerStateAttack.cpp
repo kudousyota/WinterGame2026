@@ -193,6 +193,13 @@ void PlayerStateAttack::Update()
 	//前進する
 	UpdateMove();
 
+	//多段ヒットの攻撃は、間隔ごとに新しい番号にして同じ相手にもう一度当たるようにする
+	if (m_info.hitInterval > 0 && m_frame > m_info.hitStartFrame &&
+		(m_frame - m_info.hitStartFrame) % m_info.hitInterval == 0)
+	{
+		m_attackId = m_player.IssueAttackId();
+	}
+
 	if (IsHitActive())
 	{
 		//攻撃を申請するだけ
@@ -238,7 +245,7 @@ void PlayerStateAttack::SummonWitchHand()
 	const Vector3 right(forward.z, 0.0f, -forward.x);
 	const Vector3 up(0.0f, 1.0f, 0.0f);
 
-	//拳が当たる位置(攻撃判定と同じ位置)
+	//拳の攻撃判定
 	const Vector3 hitPos = m_player.GetPos() + forward * kWitchHandForwardOffset + up * kHitHeight;
 	//魔法陣を出したい位置から着弾点へ向かう方向に拳を突き出す
 	const Vector3 portalPos = m_player.GetPos() - forward * kWitchHandPortalBack + up * kWitchHandPortalHeight + right * kWitchHandPortalSide;
@@ -247,8 +254,7 @@ void PlayerStateAttack::SummonWitchHand()
 	//拳が着弾点に来るように、原点を拳の分だけ手前にずらす
 	const Vector3 pos = hitPos - punchDir * (kWitchHandFistDistance * kWitchHandScale);
 
-	//Effekseerは左手系だとZが反転するので、エディタの+Z(拳の向き)はゲームでは-Zになる
-	//-Zを上下(X回転)→水平(Y回転)の順に回してpunchDirに向ける
+	//エフェクトの向き
 	Vector3 rot;
 	rot.x = asinf(punchDir.y);
 	rot.y = atan2f(-punchDir.x, -punchDir.z);
@@ -284,7 +290,7 @@ void PlayerStateAttack::UpdateMove()
 	float moveFrame = static_cast<float>(m_info.moveEndFrame - m_info.moveStartFrame);
 	float t0 = (m_frame - m_info.moveStartFrame) / moveFrame;
 	float t1 = (m_frame + 1 - m_info.moveStartFrame) / moveFrame;
-	//その差がこのフレームで進む距離(合計するとm_moveDistanceになる)
+	//その差がこのフレームで進む距離
 	float step = m_moveDistance * (EaseOut(t1) - EaseOut(t0));
 
 	//落下の速度は残して、横の移動だけ入れる

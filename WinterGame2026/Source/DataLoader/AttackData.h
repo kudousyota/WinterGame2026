@@ -15,6 +15,12 @@ enum class AttackType
 	HurricaneKick,
 	LegSweep,
 	MeleeKick,
+	SkyKick,
+	//空中攻撃
+	AirPunch,
+	AirPunching,
+	AirRush,
+	AirSkyKick,
 	Attack,
 	Breath,
 	WitchHand,

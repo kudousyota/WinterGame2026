@@ -186,8 +186,8 @@ protected:
 	std::vector<AttackRequest> m_attackRequests;
 	//このフレームに申請された飛び道具
 	std::vector<ShotRequest> m_shotRequests;
-	//攻撃してきた相手ごとに、最後に受けた攻撃番号を覚えておく(相手は所有しない)
-	std::unordered_map<const Character*, int> m_lastReceivedAttackId;
+	//攻撃してきた相手ごとに、最近受けた攻撃番号を覚えておく(相手は所有しない)
+	std::unordered_map<const Character*, std::vector<int>> m_receivedAttackIds;
 
 	//状態
 	//今地面にいるか

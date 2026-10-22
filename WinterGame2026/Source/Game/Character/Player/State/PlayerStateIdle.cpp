@@ -1,5 +1,6 @@
 ﻿#include "PlayerStateIdle.h"
 #include "PlayerStateWalk.h"
+#include "PlayerStateJump.h"
 
 namespace
 {
@@ -9,6 +10,12 @@ namespace
 
 void PlayerStateIdle::Update()
 {
+	if (!m_player.IsGround())
+	{
+		m_player.ChangeState(std::make_unique<PlayerStateJump>(m_player, false));
+		return;
+	}
+
 	//ジャンプ・回避・攻撃の入力があればそちらにする
 	if (TryGroundAction(kInputBufferFrame))
 	{

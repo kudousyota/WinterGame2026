@@ -35,7 +35,7 @@ bool PlayerStateBase::TryGroundAction(int bufferFrame)
 	{
 		//ジャンプに使ったので消費する
 		input.ConsumeBuffer("Jump");
-		ChangeState<PlayerStateJump>();
+		m_player.ChangeState(std::make_unique<PlayerStateJump>(m_player, true));
 		return true;
 	}
 

@@ -27,6 +27,8 @@ public:
 		int damage = 0;
 		//攻撃判定の半径
 		float radius = 0.0f;
+		//多段ヒットの間隔(このフレームごとに別の攻撃として当たり直す。0なら1回だけ当たる)
+		int hitInterval = 0;
 		//前進を始めるフレーム
 		int moveStartFrame = 0;
 		//前進を終えるフレーム

@@ -2,7 +2,7 @@
 #include <cassert>
 namespace
 {
-	constexpr int kAttackInfoSize = 15;
+	constexpr int kAttackInfoSize = 16;
 
 	//CSVに書いた名前をAttackTypeに変換する
 	AttackType NameToAttackType(const std::string& name)
@@ -21,6 +21,11 @@ namespace
 			{ "HurricaneKick",	AttackType::HurricaneKick },
 			{ "LegSweep",	AttackType::LegSweep },
 			{ "MeleeKick",	AttackType::MeleeKick },
+			{ "SkyKick",	AttackType::SkyKick },
+			{ "AirPunch",	AttackType::AirPunch },
+			{ "AirPunching",	AttackType::AirPunching },
+			{ "AirRush",	AttackType::AirRush },
+			{ "AirSkyKick",	AttackType::AirSkyKick },
 			{ "Attack",		AttackType::Attack },
 			{ "Breath",		AttackType::Breath },
 			{ "WitchHand",	AttackType::WitchHand },
@@ -70,6 +75,7 @@ void AttackTable::Load(const std::vector<std::vector<std::string>>& rows)
 		{
 			info.witchHand = NameToAttackType(row[14]);
 		}
+		info.hitInterval = std::stoi(row[15]);
 
 		m_infoList[info.type] = info;
 	}
