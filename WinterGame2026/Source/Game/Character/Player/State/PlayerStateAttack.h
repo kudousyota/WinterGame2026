@@ -26,6 +26,8 @@ private:
 	void SummonWitchHand();
 	//呼び出したウィケッドウィーブの攻撃判定を出す
 	void UpdateWitchHand();
+	//この攻撃の攻撃判定を申請する
+	void RequestHit();
 private:
 
 	//今の攻撃のデータ
@@ -52,4 +54,8 @@ private:
 	int m_witchHandFrame = 0;
 	//ウィケッドウィーブの攻撃番号(足技とは別の攻撃として当てる)
 	int m_witchHandAttackId = 0;
+
+	bool m_isAir = false;
+	//地面まで落ちる攻撃(かかと落とし)の途中か。着地したらfalseになる
+	bool m_isFalling = false;
 };

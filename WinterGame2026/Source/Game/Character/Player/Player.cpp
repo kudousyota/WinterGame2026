@@ -79,6 +79,13 @@ void Player::Update()
 		ChangeState(std::make_unique<PlayerStateDeath>(*this));
 	}
 
+	//地面にいる間は浮ける権利を戻す
+	if (IsGround())
+	{
+		m_canAirHover = true;
+	}
+
+
 	//ステートの更新
 	UpdateState();
 	//アニメーションの更新
@@ -87,7 +94,8 @@ void Player::Update()
 		m_anim.Update(Timer::Instance().GetTimeScale());
 	}
 	//重力
-	m_velocity.y -= m_gravity;
+	m_velocity.y -= m_gravity * m_gravityScale;
+
 	//移動
 	//地面との判定は、全員が動き終わった後にGameSceneがステージとまとめて行う
 	m_pos += m_velocity;
@@ -170,4 +178,9 @@ Vector3 Player::GetMoveInput()const
 
 	//入力をカメラ基準の方向に変換する
 	return m_cameraRight * dir.x + m_cameraForward * dir.z;
+}
+
+void Player::UseAirHover()
+{
+	m_canAirHover = false;
 }

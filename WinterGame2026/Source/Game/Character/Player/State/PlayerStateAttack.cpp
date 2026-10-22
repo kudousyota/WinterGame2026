@@ -53,6 +53,27 @@ void PlayerStateAttack::Enter()
 {
 	//狙う相手がいなかったらCSVの値分進む
 	m_moveDistance = m_info.moveDistance;
+	//空中で出した攻撃か
+	m_isAir = !m_player.IsGround();
+	//地面まで落ちる攻撃は、振りかぶる間だけその場に浮いて、攻撃判定が出たら落ち始める
+	m_isFalling = m_isAir && m_info.fallSpeed > 0.0f;
+	if (m_isFalling)
+	{
+		auto vel = m_player.GetVelocity();
+		vel.y = 0.0f;
+		m_player.SetVelocity(vel);
+		//落ちる速さは自分で決めるので重力は使わない
+		m_player.SetGravityScale(0.0f);
+	}
+	else if (m_isAir && m_player.CanAirHover())
+	{
+		//空中の時は縦の速度を0にする
+		auto vel = m_player.GetVelocity();
+		vel.y = 0.0f;
+		m_player.SetVelocity(vel);
+		m_player.SetGravityScale(0.0f);
+	}
+	
 
 	//狙う相手がいればそちらを向く
 	if (const Character* target = m_player.GetAttackTarget())
@@ -160,7 +181,30 @@ void PlayerStateAttack::Update()
 		return;
 	}
 
+	//地面まで落ちる攻撃は、攻撃判定が出るフレームで止めて、着地するまで落ち続ける
+	if (m_isFalling && m_frame >= m_info.hitStartFrame)
+	{
+		if (!m_player.IsGround())
+		{
+			//振り上げた形のまま、真下に一定の速さで落ちる
+			m_player.SetAnimPause(true);
+			m_player.SetVelocity(Vector3(0.0f, -m_info.fallSpeed, 0.0f));
+			//落ちている間も当たる
+			RequestHit();
+			//フレームを進めないので、着地したらこのフレームから続きが再生される
+			return;
+		}
+
+		//着地したら続きを再生する
+		m_isFalling = false;
+		m_player.SetAnimPause(false);
+		m_player.SetGravityScale(1.0f);
+		//落ちている間に当たった相手にも、着地の一撃をもう一度当てる
+		m_attackId = m_player.IssueAttackId();
+	}
+
 	//コンボの締めは、攻撃判定が出た瞬間にウィケッドウィーブを呼び出す
+	//地面まで落ちる攻撃は、上でフレームを止めているので着地した瞬間に呼び出される
 	if (m_info.witchHand && !m_witchHandInfo && m_frame == m_info.hitStartFrame)
 	{
 		SummonWitchHand();
@@ -202,19 +246,25 @@ void PlayerStateAttack::Update()
 
 	if (IsHitActive())
 	{
-		//攻撃を申請するだけ
-		AttackRequest request{AttackData(CharacterType::Player, m_info.type, m_info.damage, m_info.radius)};
-		request.attackId = m_attackId;
-		request.forwardOffset = kHitForwardOffset;
-		request.height = kHitHeight;
-		m_player.RequestAttack(request);
+		RequestHit();
 	}
 	m_frame++;
+}
+
+void PlayerStateAttack::RequestHit()
+{
+	//攻撃を申請するだけ
+	AttackRequest request{AttackData(CharacterType::Player, m_info.type, m_info.damage, m_info.radius)};
+	request.attackId = m_attackId;
+	request.forwardOffset = kHitForwardOffset;
+	request.height = kHitHeight;
+	m_player.RequestAttack(request);
 }
 
 void PlayerStateAttack::Exit()
 {
 	m_player.SetAnimPause(false);
+	m_player.SetGravityScale(1.0f);
 }
 
 #ifdef _DEBUG

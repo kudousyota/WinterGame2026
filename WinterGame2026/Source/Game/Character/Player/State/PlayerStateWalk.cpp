@@ -32,7 +32,7 @@ void PlayerStateWalk::Update()
 		return;
 	}
 
-	Move(4.0f);
+	Move(1.0f);
 }
 void PlayerStateWalk::Enter()
 {

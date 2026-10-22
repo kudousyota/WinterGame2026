@@ -1,6 +1,7 @@
 ﻿#include "PlayerStateJump.h"
 #include "PlayerStateIdle.h"
 #include "PlayerStateWalk.h"
+#include "../../../../System/Input.h"
 
 namespace
 {
@@ -8,6 +9,8 @@ namespace
 	constexpr float kJumpPower = 12.0f;
 	//空中で動ける速さの倍率
 	constexpr float kAirMoveSpeedScale = 1.0f;
+	//先行入力を覚えておくフレーム数
+	constexpr int kBufferFrame = 8;
 }
 
 PlayerStateJump::PlayerStateJump(Player& player, bool isJump):
@@ -27,10 +30,17 @@ void PlayerStateJump::Enter()
 		vel.y = kJumpPower;
 		m_player.SetVelocity(vel);
 	}
+	else
+	{
+		//空中コンボの後、段差から落ちた時は浮ける権利を使い切る
+		m_player.UseAirHover();
+	}
 }
 
 void PlayerStateJump::Update()
 {
+	auto& input = Input::Instance();
+
 	//着地したら入力に応じてIdleかWalkにする
 	if (m_player.IsGround())
 	{
@@ -45,6 +55,22 @@ void PlayerStateJump::Update()
 		return;
 	}
 
+	//パンチボタンが押されたらパンチコンボの1段目を出す
+	if (input.IsBuffered("Punch", kBufferFrame))
+	{
+		//1段目に使った入力を消して、2段目が勝手に出ないようにする
+		input.ConsumeBuffer("Punch");
+		ChangeAttackState(AttackType::AirPunch, "Punch");
+		return;
+	}
+	//キックボタンが押されたらキックコンボの1段目を出す
+	if (input.IsBuffered("Kick", kBufferFrame))
+	{
+		//1段目に使った入力を消して、2段目が勝手に出ないようにする
+		input.ConsumeBuffer("Kick");
+		ChangeAttackState(AttackType::AirSkyKick, "Kick");
+		return;
+	}
 	//空中でも移動できる
 	Move(kAirMoveSpeedScale);
 }

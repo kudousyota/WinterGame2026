@@ -7,7 +7,7 @@ namespace
 	//回避にかかるフレーム数
 	constexpr int kDodgeFrame = 20;
 	//回避中の移動速度の倍率
-	constexpr float kDodgeSpeedScale = 3.0f;
+	constexpr float kDodgeSpeedScale = 0.75f;
 	//ジャスト回避を受け付けるフレーム数
 	constexpr int kJustDodgeFrame = 13;
 }

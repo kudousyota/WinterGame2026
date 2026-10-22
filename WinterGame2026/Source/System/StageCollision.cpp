@@ -10,6 +10,8 @@ namespace
 	//歩行可能な傾斜角度を判定するためのcos値
 	//法線のY成分と比較して、床・坂道と壁を判別する
 	const float kWalkableSlopeCos = cosf(kWalkableSlopeAngleDeg * (DX_PI_F / 180.0f));
+	//登れる段差の高さ
+	constexpr float kStepHeight = 30.0f;
 }
 
 //キャラクターとステージの当たり判定をまとめて解決する
@@ -65,7 +67,7 @@ bool StageCollision::CheckWall(Character* character, int stagehandle)
 	{
 		//カプセルの始点と終点を作成
 		//(キャラ同士・攻撃判定と同じカプセル形状にそろえる)
-		VECTOR start = Vector3(pos.x, pos.y + radius, pos.z);
+		VECTOR start = Vector3(pos.x, pos.y +kStepHeight + radius, pos.z);
 		VECTOR end = VAdd(start, Vector3(0.0f, height, 0.0f));
 		//ステージとのカプセル衝突判定
 		auto hit = MV1CollCheck_Capsule(stagehandle, -1, start, end, radius);
@@ -156,7 +158,7 @@ bool StageCollision::CheckGround(Character* character, int stagehandle, float& o
 	//レイ(下向きの線分)の開始点と終了点を決める
 	//キャラクターの基準位置は足元
 	//カプセル半径を考慮した位置から下向きにレイを飛ばす
-	VECTOR rayStart = Vector3(pos.x, pos.y + radius + kUpMargin, pos.z);
+	VECTOR rayStart = Vector3(pos.x, pos.y + kStepHeight + radius + kUpMargin, pos.z);
 	VECTOR rayEnd = Vector3(pos.x, pos.y - radius - kDownMargin, pos.z);
 
 	//ステージとのレイ判定をする

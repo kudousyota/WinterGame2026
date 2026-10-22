@@ -35,8 +35,13 @@ public:
 	//攻撃する時に向く相手を指定する
 	void SetAttackTarget(const Character* target) { m_pAttackTarget = target; }
 
-	const Character* GetAttackTarget()const { return m_pAttackTarget; }
+	void SetGravityScale(float scale) { m_gravityScale = scale; }
 
+	const Character* GetAttackTarget()const { return m_pAttackTarget; }
+	//空中で浮ける権利が残っているか
+	bool CanAirHover()const { return m_canAirHover; }
+	//空中で浮ける権利を使う
+	void UseAirHover();
 private:
 	int m_modelHandle = -1;
 	bool m_isAnimPause = false;
@@ -44,6 +49,8 @@ private:
 	Vector3 m_cameraForward = Vector3(0.0f, 0.0f, 1.0f);
 	//カメラの右方向(XZ平面)
 	Vector3 m_cameraRight = Vector3(1.0f, 0.0f, 0.0f);
+	float m_gravityScale = 1.0f;
+	bool m_canAirHover = false;
 	//所有せず、シーンから向く相手を指定してもらう
 	const Character* m_pAttackTarget = nullptr;
 };
