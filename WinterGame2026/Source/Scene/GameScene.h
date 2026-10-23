@@ -32,7 +32,9 @@ private:
 	void UpdateLockOn();
 	//プレイヤーが攻撃で向く相手(ロックオン中はその敵、そうでなければ入力方向で一番狙いやすい敵)
 	const Character* GetAttackTarget() const;
-	//敵の一覧
+	//敵の一覧(敵が増えたらここに足す)
+	std::vector<Enemy*> GetEnemyList() const;
+	//敵の一覧(ロックオンなどCharacterとして扱う処理用)
 	std::vector<Character*> GetEnemies() const;
 	//勝ち負けが決まっていたら、少し待ってからクリア・ゲームオーバーに切り替える
 	void CheckGameEnd();

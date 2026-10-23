@@ -7,10 +7,18 @@ namespace
 {
 	const char* const kIdleAnimName = "Alien|Idle";
 	const char* const kMoveAnimName = "Alien|Move";
+	//被弾のアニメーション
+	const char* const kDamageAnimName = "Alien|HitBody";
+	//死亡のアニメーション(短い倒れ方の"Alien|Dead"もモデルに入っている)
+	const char* const kDeathAnimName = "Alien|Death";
+	//叩き落とされて倒れる・起き上がるアニメーション
+	const char* const kKnockdownAnimName = "Alien|HitBackward";
+	const char* const kGetUpAnimName = "Alien|StandUp";
+	//浮いている高さ
+	constexpr float kHoverHeight = 90.0f;
 
 	//最初の位置(プレイヤーと重ならないように少し奥に置く)
-	const Vector3 kStartPos = Vector3(0.0f, 0.0f, 300.0f);
-
+	const Vector3 kStartPos = Vector3(0.0f, kHoverHeight, 300.0f);
 	//体の大きさ(デバッグ表示のカプセルを見ながら調整する)
 	//身長
 	constexpr float kHeight = 200.0f;
@@ -60,29 +68,30 @@ void Alien::Init()
 	m_attackRange = kAttackRange;
 	m_idleAnimName = kIdleAnimName;
 	m_moveAnimName = kMoveAnimName;
+	m_damageAnimName = kDamageAnimName;
+	m_deathAnimName = kDeathAnimName;
+	m_knockdownAnimName = kKnockdownAnimName;
+	m_getUpAnimName = kGetUpAnimName;
 	m_attackType = AttackType::Attack;
+	//浮いている高さ(叩き落とされたときに、この高さだけ地面へ落ちる)
+	m_hoverHeight = kHoverHeight;
 
 	ChangeState(std::make_unique<EnemyStateIdle>(*this));
 }
 
 void Alien::Update()
 {
-	//HPが0以下になったら死亡にする
-	if (m_hp <= 0 && !m_isDead)
-	{
-		m_isDead = true;
-		//TODO:死亡ステートを作る。今はその場で止まって行動しない
-		StopMove();
-	}
+	//死亡演出が終わって消えた後は何もしない
+	if (m_isVanished) return;
+
+	//HPが0以下になったら死亡ステートにする
+	CheckDeath();
 
 	//ゲーム全体の時間倍率に敵専用の倍率を掛ける(ウィッチタイム中は遅くなる)
 	float timeScale = GetTimeScale();
 
-	//ステートの更新
-	if (!m_isDead)
-	{
-		UpdateState();
-	}
+	//ステートの更新(死亡中も倒れる演出のために更新する)
+	UpdateState();
 	//アニメーションの更新
 	m_anim.Update(timeScale);
 
@@ -108,5 +117,10 @@ void Alien::LateUpdate()
 
 void Alien::Draw()
 {
+	//消えた後は描画しない
+	if (m_isVanished) return;
+
+	//死亡演出でだんだん透明にする
+	MV1SetOpacityRate(m_modelHandle, m_opacity);
 	MV1DrawModel(m_modelHandle);
 }

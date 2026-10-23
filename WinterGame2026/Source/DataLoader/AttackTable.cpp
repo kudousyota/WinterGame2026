@@ -78,6 +78,12 @@ void AttackTable::Load(const std::vector<std::vector<std::string>>& rows)
 
 		info.fallSpeed = std::stof(row[16]);
 
+		//叩き落とす強さ(後から足した列なので、書いていない行は0にする)
+		if (row.size() > static_cast<size_t>(kAttackInfoSize) && !row[kAttackInfoSize].empty())
+		{
+			info.knockback = std::stof(row[kAttackInfoSize]);
+		}
+
 		m_infoList[info.type] = info;
 	}
 }

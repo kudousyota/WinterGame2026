@@ -157,6 +157,10 @@
     <ClCompile Include="Source\Game\Character\Enemy\Enemy.cpp" />
     <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateAttack.cpp" />
     <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateChase.cpp" />
+    <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateDamage.cpp" />
+    <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateDeath.cpp" />
+    <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateGetUp.cpp" />
+    <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateKnockdown.cpp" />
     <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateIdle.cpp" />
     <ClCompile Include="Source\Game\Character\Player\State\PlayerStateAttack.cpp" />
     <ClCompile Include="Source\System\Projectile.cpp" />
@@ -222,6 +226,10 @@
     <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateBase.h" />
     <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateAttack.h" />
     <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateChase.h" />
+    <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateDamage.h" />
+    <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateDeath.h" />
+    <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateGetUp.h" />
+    <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateKnockdown.h" />
     <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateIdle.h" />
     <ClInclude Include="Source\Game\Character\Player\State\PlayerStateBase.h" />
     <ClInclude Include="Source\Game\Character\Player\State\PlayerStateDeath.h" />

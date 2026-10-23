@@ -37,6 +37,8 @@ public:
 		float moveDistance = 0.0f;
 		//落ちるスピード
 		float fallSpeed = 0.0f;
+		//叩き落とす強さ(敵が後ろへ吹っ飛ぶ距離。0なら叩き落とさない)
+		float knockback = 0.0f;
 		//アニメーションの名前
 		std::string animName;
 		//コンボ中にパンチを押したとき次に出す攻撃(なければ空)

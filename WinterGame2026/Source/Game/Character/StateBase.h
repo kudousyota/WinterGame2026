@@ -15,6 +15,9 @@ public:
 		Dodge,//回避
 		Death,//死亡
 		Attack,//攻撃
+		Damage,//被弾(のけぞり)
+		Down,//叩き落とされて倒れる
+		GetUp,//起き上がり
 	};
 
 	virtual ~StateBase() = default;
@@ -41,6 +44,9 @@ public:
 		case StateKind::Dodge:	return "Dodge";
 		case StateKind::Attack:	return "Attack";
 		case StateKind::Death:	return "Death";
+		case StateKind::Damage:	return "Damage";
+		case StateKind::Down:	return "Down";
+		case StateKind::GetUp:	return "GetUp";
 		default:				return "null";
 		}
 	}

@@ -40,6 +40,9 @@ void CollisionManager::ResolveAll()
 			Character* characterA = m_pCharacters[i];
 			Character* characterB = m_pCharacters[j];
 
+			//倒れているキャラクターは押し合わない(死体に引っかからないようにする)
+			if (characterA->IsDead() || characterB->IsDead()) continue;
+
 			//衝突していたら解決
 			if (CheckCharacterCapsule(characterA, characterB))
 			{

@@ -45,13 +45,16 @@ public:
 	//攻撃の半径
 	float GetRadius() const { return m_radius; }
 
-	
+	//叩き落とす強さ(当たった敵が後ろへ吹っ飛ぶ距離。0なら叩き落とさない)
+	void SetKnockback(float knockback) { m_knockback = knockback; }
+	float GetKnockback()const { return m_knockback; }
 
 private:
 	CharacterType m_attacker = CharacterType::Player;
 	AttackType m_attackType = AttackType::Punch;
 	int m_damage = 0;
 	float m_radius = 0;
+	float m_knockback = 0.0f;
 
 };
 

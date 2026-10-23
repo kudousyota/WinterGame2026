@@ -305,18 +305,25 @@ const Character* GameScene::GetAttackTarget() const
 	return m_lockOn.SearchSoft(m_pPlayer->GetPos(), m_pPlayer->GetMoveInput(), m_pPlayer->GetForward(), GetEnemies());
 }
 
-std::vector<Character*> GameScene::GetEnemies()const
+std::vector<Enemy*> GameScene::GetEnemyList()const
 {
 	return { m_pAlien.get() };
+}
+
+std::vector<Character*> GameScene::GetEnemies()const
+{
+	auto enemies = GetEnemyList();
+	return std::vector<Character*>(enemies.begin(), enemies.end());
 }
 
 void GameScene::CheckGameEnd()
 {
 	bool isGameOver = m_pPlayer->IsDead();
+	//敵は倒れて消えるまで見せてからクリアにする
 	bool isClear = true;
-	for (auto enemy : GetEnemies())
+	for (auto enemy : GetEnemyList())
 	{
-		if (!enemy->IsDead())
+		if (!enemy->IsVanished())
 		{
 			isClear = false;
 			break;
