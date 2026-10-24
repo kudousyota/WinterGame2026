@@ -34,11 +34,6 @@ namespace
 	//攻撃の後にこの距離まで離れる
 	constexpr float kKeepDistance = 400.0f;
 
-	//予兆中の色(赤っぽくする。1より小さい色は暗くなる)
-	const COLOR_F kWarningColor = GetColorF(1.0f, 0.3f, 0.3f, 1.0f);
-	//普段の色
-	const COLOR_F kNormalColor = GetColorF(1.0f, 1.0f, 1.0f, 1.0f);
-
 	//回転の補完
 	constexpr float kRotateRate = 0.15f;
 }
@@ -126,8 +121,6 @@ void Alien::LateUpdate()
 	//当たり判定で押し出された後の位置をモデルに反映する
 	MV1SetRotationXYZ(m_modelHandle, VGet(0.0f, m_angle, 0.0f));
 	MV1SetPosition(m_modelHandle, m_pos);
-	//攻撃の予兆中は赤く光らせる
-	MV1SetDifColorScale(m_modelHandle, IsWarning() ? kWarningColor : kNormalColor);
 }
 
 void Alien::Draw()

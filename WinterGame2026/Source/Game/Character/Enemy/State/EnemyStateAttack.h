@@ -23,6 +23,8 @@ private:
 	bool IsHitActive() const;
 	//攻撃判定の出る位置(口)からターゲットの体の中心へ向かう方向
 	Vector3 CalcAimDir() const;
+	//予兆エフェクトを止める(再生していなければ何もしない)
+	void StopTelegraph();
 
 	//今の攻撃のデータ(CSVを読み直しても攻撃の途中で中身が消えないようにコピーで持つ)
 	AttackTable::AttackInfo m_info;
@@ -34,4 +36,6 @@ private:
 	float m_nextHitFrame = 0.0f;
 	//狙う方向(予兆が始まった瞬間に決めて、吐いている間は変えない)
 	Vector3 m_aimDir = Vector3(0.0f, 0.0f, 0.0f);
+	//再生中の予兆エフェクトのハンドル(再生していないときは-1)
+	int m_telegraphHandle = -1;
 };

@@ -1,13 +1,17 @@
 ﻿#include "EnemyStateAttack.h"
 #include "EnemyStateRetreat.h"
 #include "../../../../DataLoader/DataManager.h"
+#include "../../../../Effect/EffectManager.h"
 #include <cstdio>
+#include <cmath>
 
 namespace
 {
 	//攻撃判定を出す位置(口の位置。デバッグ表示を見ながら調整する)
 	constexpr float kHitForwardOffset = 50.0f;
 	constexpr float kHitHeight = 120.0f;
+	//予兆エフェクトの拡大率(Effekseerの1単位を何cmにするか。見た目を見ながら調整する)
+	constexpr float kTelegraphScale = 20.0f;
 }
 
 EnemyStateAttack::EnemyStateAttack(Enemy& enemy) :
@@ -30,6 +34,14 @@ void EnemyStateAttack::Enter()
 	m_aimDir = CalcAimDir();
 	//予兆の始まり
 	m_enemy.SetWarning(true);
+
+	//予兆エフェクトを口の位置に出す(攻撃中は敵が止まっているので位置は最初に決めるだけでいい)
+	const Vector3& forward = m_enemy.GetForward();
+	const Vector3 mouthPos = m_enemy.GetPos() + forward * kHitForwardOffset + Vector3(0.0f, kHitHeight, 0.0f);
+	//エフェクトを敵の向きに合わせる(プレイヤーのエフェクトと同じ求め方)
+	Vector3 rot;
+	rot.y = atan2f(-forward.x, -forward.z);
+	m_telegraphHandle = EffectManager::Instns().PlayEffect(EffectType::AttackTelegraph, mouthPos, rot, kTelegraphScale);
 }
 
 void EnemyStateAttack::Update()
@@ -45,6 +57,11 @@ void EnemyStateAttack::Update()
 
 	//判定が出るまでが予兆
 	m_enemy.SetWarning(m_frame < m_info.hitStartFrame);
+	//判定が出たら予兆エフェクトは消す
+	if (!m_enemy.IsWarning())
+	{
+		StopTelegraph();
+	}
 
 	//多段ヒットの攻撃は、間隔ごとに新しい番号にして同じ相手にもう一度当たるようにする
 	if (m_info.hitInterval > 0 && m_frame >= m_nextHitFrame)
@@ -71,8 +88,17 @@ void EnemyStateAttack::Update()
 
 void EnemyStateAttack::Exit()
 {
-	//攻撃の途中でのけぞったときも光りっぱなしにならないようにする
+	//攻撃の途中でのけぞったときも予兆が出っぱなしにならないようにする
 	m_enemy.SetWarning(false);
+	StopTelegraph();
+}
+
+void EnemyStateAttack::StopTelegraph()
+{
+	if (m_telegraphHandle == -1) return;
+	//再生が終わって管理リストから消えていても、StopEffectは見つからなければ何もしない
+	EffectManager::Instns().StopEffect(m_telegraphHandle);
+	m_telegraphHandle = -1;
 }
 
 #ifdef _DEBUG

@@ -36,6 +36,8 @@ void EffectManager::Init()
     m_resourceHandles[static_cast<int>(EffectType::Hit)] = LoadEffekseerEffect("Data/Effect/Hit_Bayonetta.efk");
     //ウィケッドウィーブのエフェクト
     m_resourceHandles[static_cast<int>(EffectType::WickedWeave)] = LoadEffekseerEffect("Data/Effect/WickedWeave.efk");
+    //敵の攻撃の予兆エフェクト
+    m_resourceHandles[static_cast<int>(EffectType::AttackTelegraph)] = LoadEffekseerEffect("Data/Effect/AttackTelegraph.efk");
 }
 
 void EffectManager::Update()

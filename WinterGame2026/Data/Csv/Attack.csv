@@ -1,30 +1,33 @@
 #name,totalFrame,hitStartFrame,hitEndFrame,comboStartFrame,cancelFrame,damage,radius,moveStartFrame,moveEndFrame,moveDistance,animName,nextPunch,nextKick,witchHand,hitInterval,fallSpeed,knockback,knockdown,length
-#knockbackã¯å¹ã£é£›ã¶è·é›¢(å½“ãŸã£ãŸæ•µãŒå¾Œã‚ã¸ä¸‹ãŒã‚‹è·é›¢ã€‚å˜ä½ã¯cm)ã€‚0ãªã‚‰ãã®å ´ã§ã®ã‘ãã‚‹ã ã‘
-#knockdownã¯1ãªã‚‰æµ®ã„ã¦ã„ã‚‹æ•µã‚’å©ãè½ã¨ã™(è¸µè½ã¨ã—ãƒ»ã‚¦ã‚£ã‚±ãƒƒãƒ‰ã‚¦ã‚£ãƒ¼ãƒ–ã ã‘)ã€‚æ›¸ã„ã¦ã„ãªã„è¡Œã¯0
-#lengthã¯æ”»æ’ƒåˆ¤å®šã®é•·ã•(0ãªã‚‰çƒã€0ã‚ˆã‚Šå¤§ãã‘ã‚Œã°ç‹™ã£ãŸæ–¹å‘ã¸ä¼¸ã³ã‚‹ã‚«ãƒ—ã‚»ãƒ«)ã€‚æ›¸ã„ã¦ã„ãªã„è¡Œã¯0
+#knockback‚Í‚Á”ò‚Ô‹——£(“–‚½‚Á‚½“G‚ªŒã‚ë‚Ö‰º‚ª‚é‹——£B’PˆÊ‚Ícm)B0‚È‚ç‚»‚Ìê‚Å‚Ì‚¯‚¼‚é‚¾‚¯
+#knockdown‚Í1‚È‚ç•‚‚¢‚Ä‚¢‚é“G‚ğ’@‚«—‚Æ‚·(æù—‚Æ‚µEƒEƒBƒPƒbƒhƒEƒB[ƒu‚¾‚¯)B‘‚¢‚Ä‚¢‚È‚¢s‚Í0
+#length‚ÍUŒ‚”»’è‚Ì’·‚³(0‚È‚ç‹…A0‚æ‚è‘å‚«‚¯‚ê‚Î‘_‚Á‚½•ûŒü‚ÖL‚Ñ‚éƒJƒvƒZƒ‹)B‘‚¢‚Ä‚¢‚È‚¢s‚Í0
 Punch,62,30,40,30,44,10,50,18,30,60,Player|Punch,Punching,MeleeKick,None,0,0,0
 Punching,62,30,40,30,44,10,50,18,30,60,Player|Punching,Rush,SideKick,None,0,0,0
 Kick,86,24,36,24,40,15,60,12,24,80,Player|Kick,Punching,MmaKick,None,0,0,0
 MmaKick,122,50,62,50,68,20,60,36,50,100,Player|MmaKick,Kicking,SideKick,None,0,0,0
 SideKick,120,38,58,38,64,20,70,24,38,120,Player|SideKick,Kicking,RotateKick,None,0,0,0
 RotateKick,122,50,62,50,68,25,80,36,50,80,Player|RotateKick,LegSweep,HurricaneKick,None,0,0,0
-HurricaneKick,110,30,70,80,110,35,100,20,60,150,Player|HurricaneKick,None,None,WitchHand,0,0,250
+#HurricaneKick‚Í‰ñ‚è‚È‚ª‚ç14ƒtƒŒ[ƒ€‚²‚Æ‚É“–‚½‚è’¼‚·(damage‚Í1”­•ª)B“r’†‚Å‚Í”ò‚Î‚³‚¸AƒLƒbƒN‚ÅKickDown‚É‚Â‚È‚®
+HurricaneKick,110,10,104,60,104,6,100,20,60,150,Player|HurricaneKick,None,KickDown,None,14,0,0
+#KickDown‚Í‹ó’†‚©‚çR‚è—‚Æ‚·’÷‚ßBhitStartFrame(‘«‚ğU‚è‰º‚ë‚µ‚½Œ`)‚Å~‚Ü‚Á‚Ä—‚¿A’…’n‚ÅƒEƒBƒPƒbƒhƒEƒB[ƒu‚ğŒÄ‚Ô
+KickDown,88,44,56,88,88,40,90,0,0,0,Player|KickDown,None,None,WitchHand,0,20,150,1,0
 JumpKick,90,18,40,50,90,30,60,0,0,0,Player|FlyingKick,None,None,None,0,0,0
 Kicking,136,58,94,100,136,20,60,46,90,100,Player|Kicking,None,None,WitchHand,0,0,200
 LegSweep,124,60,100,104,124,25,90,48,60,40,Player|LegSweep,None,None,WitchHand,0,0,180
 MeleeKick,86,30,50,30,52,15,60,18,30,70,Player|StandingMeleeKick,Punching,None,None,0,0,0
-#Rushã¯4ç™ºã®ãƒ‘ãƒ³ãƒã«åˆã‚ã›ã¦14ãƒ•ãƒ¬ãƒ¼ãƒ ã”ã¨ã«å½“ãŸã‚Šç›´ã™(damageã¯1ç™ºåˆ†)
+#Rush‚Í4”­‚Ìƒpƒ“ƒ`‚É‡‚í‚¹‚Ä14ƒtƒŒ[ƒ€‚²‚Æ‚É“–‚½‚è’¼‚·(damage‚Í1”­•ª)
 Rush,66,8,58,58,66,7,60,0,12,60,Player|Punchrush,None,None,WitchHand,14,0,0
-#ç©ºä¸­æ”»æ’ƒã€‚ãƒ‘ãƒ³ãƒã¯Xâ†’Xâ†’Xã§ãƒ©ãƒƒã‚·ãƒ¥ã€é€”ä¸­ã§Yã‚’æŠ¼ã™ã¨ã‹ã‹ã¨è½ã¨ã—ã§ç· ã‚ã‚‹
-#ç©ºä¸­ã¯è¸ã¿è¾¼ã¿ã‚’çŸ­ãã™ã‚‹(ãƒ•ãƒ¬ãƒ¼ãƒ ã¯åœ°ä¸Šã¨åŒã˜ã‚¢ãƒ‹ãƒ¡ã®é•·ã•ã«åˆã‚ã›ã¦ã„ã‚‹)
+#‹ó’†UŒ‚Bƒpƒ“ƒ`‚ÍX¨X¨X‚Åƒ‰ƒbƒVƒ…A“r’†‚ÅY‚ğ‰Ÿ‚·‚Æ‚©‚©‚Æ—‚Æ‚µ‚Å’÷‚ß‚é
+#‹ó’†‚Í“¥‚İ‚İ‚ğ’Z‚­‚·‚é(ƒtƒŒ[ƒ€‚Í’nã‚Æ“¯‚¶ƒAƒjƒ‚Ì’·‚³‚É‡‚í‚¹‚Ä‚¢‚é)
 AirPunch,62,30,40,30,44,10,50,18,30,30,Player|AirPunch,AirPunching,AirSkyKick,None,0,0,0
 AirPunching,62,30,40,30,44,10,50,18,30,30,Player|AirPunching,AirRush,AirSkyKick,None,0,0,0
 AirRush,66,8,58,58,66,7,60,0,12,30,Player|AirPunchrush,None,None,WitchHand,14,0,0
 AirSkyKick,64,36,52,56,64,30,80,0,0,0,Player|SkyKick,None,None,WitchHand,0,20,150,1,0
-#Attackã¯ã‚¨ã‚¤ãƒªã‚¢ãƒ³ã®è¿‘æ¥æ”»æ’ƒ(ä»Šã¯ä½¿ã‚ãªã„ã€‚Alienã®attackTypeã‚’Breathã«ã—ãŸã‚‰æ¶ˆã—ã¦ã‚ˆã„)
+#Attack‚ÍƒGƒCƒŠƒAƒ“‚Ì‹ßÚUŒ‚(¡‚Íg‚í‚È‚¢BAlien‚ÌattackType‚ğBreath‚É‚µ‚½‚çÁ‚µ‚Ä‚æ‚¢)
 Attack,100,50,60,100,100,0,70,0,0,0,Alien|Attack,None,None,None,0,0,0
-#Breathã¯ã‚¨ã‚¤ãƒªã‚¢ãƒ³ã®åãç¶šã‘ã‚‹ãƒ–ãƒ¬ã‚¹ã€‚0ï½30ãƒ•ãƒ¬ãƒ¼ãƒ ãŒäºˆå…†ã€30ï½120ãƒ•ãƒ¬ãƒ¼ãƒ ã§åãç¶šã‘ã‚‹ã€æ®‹ã‚Šã¯å¾Œéš™
-#hitIntervalã”ã¨ã«å½“ãŸã‚Šç›´ã™(damageã¯1å›åˆ†)ã€‚lengthãŒãƒ–ãƒ¬ã‚¹ã®é•·ã•
+#Breath‚ÍƒGƒCƒŠƒAƒ“‚Ì“f‚«‘±‚¯‚éƒuƒŒƒXB0`30ƒtƒŒ[ƒ€‚ª—\’›A30`120ƒtƒŒ[ƒ€‚Å“f‚«‘±‚¯‚éAc‚è‚ÍŒãŒ„
+#hitInterval‚²‚Æ‚É“–‚½‚è’¼‚·(damage‚Í1‰ñ•ª)Blength‚ªƒuƒŒƒX‚Ì’·‚³
 Breath,150,30,120,150,150,5,40,0,0,0,Alien|Attack,None,None,None,15,0,0,0,500
-#WitchHandã®hitStartFrame/hitEndFrameã¯ã€ç· ã‚æŠ€ã®æ”»æ’ƒåˆ¤å®šãŒå‡ºãŸãƒ•ãƒ¬ãƒ¼ãƒ (å‘¼ã³å‡ºã—ãŸç¬é–“)ã‹ã‚‰ã®çµŒéãƒ•ãƒ¬ãƒ¼ãƒ 
+#WitchHand‚ÌhitStartFrame/hitEndFrame‚ÍA’÷‚ß‹Z‚ÌUŒ‚”»’è‚ªo‚½ƒtƒŒ[ƒ€(ŒÄ‚Ño‚µ‚½uŠÔ)‚©‚ç‚ÌŒo‰ßƒtƒŒ[ƒ€
 WitchHand,0,15,35,0,0,50,150,0,0,0,None,None,None,None,0,0,300,1,0
