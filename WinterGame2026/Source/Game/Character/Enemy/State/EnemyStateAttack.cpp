@@ -1,12 +1,13 @@
 ﻿#include "EnemyStateAttack.h"
-#include "EnemyStateIdle.h"
+#include "EnemyStateRetreat.h"
 #include "../../../../DataLoader/DataManager.h"
+#include <cstdio>
 
 namespace
 {
-	//攻撃判定を出す位置
-	constexpr float kHitForwardOffset = 100.0f;
-	constexpr float kHitHeight = 100.0f;
+	//攻撃判定を出す位置(口の位置。デバッグ表示を見ながら調整する)
+	constexpr float kHitForwardOffset = 50.0f;
+	constexpr float kHitHeight = 120.0f;
 }
 
 EnemyStateAttack::EnemyStateAttack(Enemy& enemy) :
@@ -23,17 +24,33 @@ void EnemyStateAttack::Enter()
 	m_enemy.FaceTarget();
 	m_enemy.GetAnim().ChangeAnim(m_info.animName, false);
 	m_attackId = m_enemy.IssueAttackId();
+	m_nextHitFrame = static_cast<float>(m_info.hitStartFrame + m_info.hitInterval);
+
+	//予兆が始まった瞬間に狙いを決める(この後プレイヤーが動けば避けられる)
+	m_aimDir = CalcAimDir();
+	//予兆の始まり
+	m_enemy.SetWarning(true);
 }
 
 void EnemyStateAttack::Update()
 {
 	m_enemy.StopMove();
 
-	//攻撃が終わったら攻撃の後隙にする
+	//攻撃が終わったらプレイヤーから離れる
 	if (m_frame >= m_info.totalFrame)
 	{
-		ChangeState<EnemyStateIdle>();
+		ChangeState<EnemyStateRetreat>();
 		return;
+	}
+
+	//判定が出るまでが予兆
+	m_enemy.SetWarning(m_frame < m_info.hitStartFrame);
+
+	//多段ヒットの攻撃は、間隔ごとに新しい番号にして同じ相手にもう一度当たるようにする
+	if (m_info.hitInterval > 0 && m_frame >= m_nextHitFrame)
+	{
+		m_attackId = m_enemy.IssueAttackId();
+		m_nextHitFrame += static_cast<float>(m_info.hitInterval);
 	}
 
 	if (IsHitActive())
@@ -43,10 +60,19 @@ void EnemyStateAttack::Update()
 		request.attackId = m_attackId;
 		request.forwardOffset = kHitForwardOffset;
 		request.height = kHitHeight;
+		//lengthが0なら今まで通りの球、0より大きければ狙った方向へ伸びるカプセルになる
+		request.dir = m_aimDir;
+		request.length = m_info.length;
 		m_enemy.RequestAttack(request);
 	}
 
 	m_frame += m_enemy.GetTimeScale();
+}
+
+void EnemyStateAttack::Exit()
+{
+	//攻撃の途中でのけぞったときも光りっぱなしにならないようにする
+	m_enemy.SetWarning(false);
 }
 
 #ifdef _DEBUG
@@ -62,4 +88,18 @@ std::string EnemyStateAttack::GetDebugInfo() const
 bool EnemyStateAttack::IsHitActive() const
 {
 	return m_info.hitStartFrame <= m_frame && m_frame < m_info.hitEndFrame;
+}
+
+Vector3 EnemyStateAttack::CalcAimDir() const
+{
+	const Vector3& forward = m_enemy.GetForward();
+	const Character* target = m_enemy.GetTarget();
+	if (!target) return forward;
+
+	//Character::GetAttackPosと同じ求め方で口の位置を出す
+	Vector3 mouthPos = m_enemy.GetPos() + forward * kHitForwardOffset + Vector3(0.0f, kHitHeight, 0.0f);
+	//浮いているので水平に吐くと頭の上を通り過ぎる。体の中心を狙って斜め下に吐く
+	Vector3 toTarget = target->GetCenterPos() - mouthPos;
+	if (toTarget.SqMagnitude() <= 0.0f) return forward;
+	return toTarget.Normalize();
 }

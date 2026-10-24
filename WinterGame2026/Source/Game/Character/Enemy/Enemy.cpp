@@ -48,16 +48,17 @@ void Enemy::OnHit(const AttackData& attackData, int damage)
 		if (kind == StateBase::StateKind::Down || kind == StateBase::StateKind::GetUp) return;
 	}
 
-	//強い攻撃は叩き落とす
-	if (attackData.GetKnockback() > 0.0f && !m_knockdownAnimName.empty())
+	//叩き落とせる攻撃は、浮いている敵を地面に落とす
+	if (attackData.CanKnockdown() && !m_knockdownAnimName.empty())
 	{
 		ChangeState(std::make_unique<EnemyStateKnockdown>(*this, attackData.GetKnockback()));
 		return;
 	}
 
 	//攻撃中でも割り込んでのけぞる。のけぞり中に当たったら最初からのけぞり直す
+	//吹っ飛ぶ攻撃(knockbackが0より大きい)なら、のけぞりながら後ろへ下がる
 	if (m_damageAnimName.empty()) return;
-	ChangeState(std::make_unique<EnemyStateDamage>(*this));
+	ChangeState(std::make_unique<EnemyStateDamage>(*this, attackData.GetKnockback()));
 }
 
 void Enemy::CheckDeath()
@@ -110,4 +111,39 @@ void Enemy::FaceTarget()
 float Enemy::GetTimeScale() const
 {
 	return Timer::Instance().GetTimeScale() * Timer::Instance().GetEnemyTimeScale();
+}
+
+void Enemy::MoveAwayFromTarget(float speedScale)
+{
+	if (!m_pTarget)return;
+
+	Vector3 away = m_pos - m_pTarget->GetPos();
+	away.y = 0.0f;
+	//重なった時は離れる向きは後ろにする
+	if (away.SqMagnitude() <= 0.0f)
+	{
+		away = m_forward * -1.0f;
+	}
+
+	Vector3 move = away.Normalize() * (m_speed * speedScale);
+	m_velocity = Vector3(move.x, m_velocity.y, move.z);
+
+}
+
+void Enemy::StrafeAroundTarget(float speedScale, float side)
+{
+	if (!m_pTarget) return;
+
+	Vector3 toTarget = m_pTarget->GetPos() - m_pos;
+	toTarget.y = 0.0f;
+	if (toTarget.SqMagnitude() <= 0.0f)
+	{
+		StopMove();
+		return;
+	}
+
+	//ターゲットへの方向と上方向の外積で横の方向を求める
+	Vector3 sideDir = toTarget.Normalize().Cross(Vector3(0.0f, 1.0f, 0.0f)) * side;
+	Vector3 move = sideDir * (m_speed * speedScale);
+	m_velocity = Vector3(move.x, m_velocity.y, move.z);
 }

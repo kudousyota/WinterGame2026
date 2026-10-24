@@ -18,6 +18,8 @@ public:
 		Damage,//被弾(のけぞり)
 		Down,//叩き落とされて倒れる
 		GetUp,//起き上がり
+		Retreat,//離れる
+		Observe,//様子見
 	};
 
 	virtual ~StateBase() = default;
@@ -47,6 +49,8 @@ public:
 		case StateKind::Damage:	return "Damage";
 		case StateKind::Down:	return "Down";
 		case StateKind::GetUp:	return "GetUp";
+		case StateKind::Retreat:	return "Retreat";
+		case StateKind::Observe:	return "Observe";
 		default:				return "null";
 		}
 	}

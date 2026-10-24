@@ -256,6 +256,7 @@ void PlayerStateAttack::RequestHit()
 	//攻撃を申請するだけ
 	AttackRequest request{AttackData(CharacterType::Player, m_info.type, m_info.damage, m_info.radius)};
 	request.data.SetKnockback(m_info.knockback);
+	request.data.SetCanKnockdown(m_info.canKnockDown);
 	request.attackId = m_attackId;
 	request.forwardOffset = kHitForwardOffset;
 	request.height = kHitHeight;
@@ -321,6 +322,7 @@ void PlayerStateAttack::UpdateWitchHand()
 	{
 		AttackRequest request{AttackData(CharacterType::Player, m_witchHandInfo->type, m_witchHandInfo->damage, m_witchHandInfo->radius)};
 		request.data.SetKnockback(m_witchHandInfo->knockback);
+		request.data.SetCanKnockdown(m_witchHandInfo->canKnockDown);
 		request.attackId = m_witchHandAttackId;
 		request.forwardOffset = kWitchHandForwardOffset;
 		request.height = kHitHeight;

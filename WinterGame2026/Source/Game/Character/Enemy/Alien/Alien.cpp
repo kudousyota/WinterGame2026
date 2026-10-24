@@ -27,8 +27,17 @@ namespace
 
 	//索敵範囲(この距離までプレイヤーを追いかける)
 	constexpr float kSearchRange = 1000.0f;
-	//攻撃範囲(この距離まで近づいたら攻撃する)
-	constexpr float kAttackRange = 150.0f;
+	//攻撃範囲
+	constexpr float kAttackRange = 450.0f;
+	//これより近づかれたら離れる
+	constexpr float kTooCloseDistance = 250.0f;
+	//攻撃の後にこの距離まで離れる
+	constexpr float kKeepDistance = 400.0f;
+
+	//予兆中の色(赤っぽくする。1より小さい色は暗くなる)
+	const COLOR_F kWarningColor = GetColorF(1.0f, 0.3f, 0.3f, 1.0f);
+	//普段の色
+	const COLOR_F kNormalColor = GetColorF(1.0f, 1.0f, 1.0f, 1.0f);
 
 	//回転の補完
 	constexpr float kRotateRate = 0.15f;
@@ -66,13 +75,15 @@ void Alien::Init()
 	//行動
 	m_searchRange = kSearchRange;
 	m_attackRange = kAttackRange;
+	m_tooCloseDistance = kTooCloseDistance;
+	m_keepDistance = kKeepDistance;
 	m_idleAnimName = kIdleAnimName;
 	m_moveAnimName = kMoveAnimName;
 	m_damageAnimName = kDamageAnimName;
 	m_deathAnimName = kDeathAnimName;
 	m_knockdownAnimName = kKnockdownAnimName;
 	m_getUpAnimName = kGetUpAnimName;
-	m_attackType = AttackType::Attack;
+	m_attackType = AttackType::Breath;
 	//浮いている高さ(叩き落とされたときに、この高さだけ地面へ落ちる)
 	m_hoverHeight = kHoverHeight;
 
@@ -92,9 +103,11 @@ void Alien::Update()
 
 	//ステートの更新(死亡中も倒れる演出のために更新する)
 	UpdateState();
-	//アニメーションの更新
-	m_anim.Update(timeScale);
-
+	//アニメーションの更新倒れたまま待つ時は止める
+	if (!m_isAnimPause)
+	{
+		m_anim.Update(timeScale);
+	}	
 	//移動(ウィッチタイム中は移動もゆっくりになる)
 	m_pos += m_velocity * timeScale;
 
@@ -113,6 +126,8 @@ void Alien::LateUpdate()
 	//当たり判定で押し出された後の位置をモデルに反映する
 	MV1SetRotationXYZ(m_modelHandle, VGet(0.0f, m_angle, 0.0f));
 	MV1SetPosition(m_modelHandle, m_pos);
+	//攻撃の予兆中は赤く光らせる
+	MV1SetDifColorScale(m_modelHandle, IsWarning() ? kWarningColor : kNormalColor);
 }
 
 void Alien::Draw()

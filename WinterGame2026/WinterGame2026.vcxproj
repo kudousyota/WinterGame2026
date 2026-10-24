@@ -141,6 +141,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateObserve.cpp" />
+    <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateRetreat.cpp" />
     <ClCompile Include="Source\Effect\Effect.cpp" />
     <ClCompile Include="Source\Effect\EffectManager.cpp" />
     <ClCompile Include="Source\System\LockOnManager.cpp" />
@@ -193,6 +195,8 @@
     <ClCompile Include="Source\System\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateObserve.h" />
+    <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateRetreat.h" />
     <ClInclude Include="Source\Effect\Effect.h" />
     <ClInclude Include="Source\Effect\EffectManager.h" />
     <ClInclude Include="Source\System\LockOnManager.h" />

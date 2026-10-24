@@ -1,5 +1,7 @@
-#name,totalFrame,hitStartFrame,hitEndFrame,comboStartFrame,cancelFrame,damage,radius,moveStartFrame,moveEndFrame,moveDistance,animName,nextPunch,nextKick,witchHand,hitInterval,fallSpeed,knockback
-#knockbackは叩き落とす強さ(当たった敵が後ろへ吹っ飛ぶ距離。単位はcm)。0なら叩き落とさず、のけぞるだけ
+#name,totalFrame,hitStartFrame,hitEndFrame,comboStartFrame,cancelFrame,damage,radius,moveStartFrame,moveEndFrame,moveDistance,animName,nextPunch,nextKick,witchHand,hitInterval,fallSpeed,knockback,knockdown,length
+#knockbackは吹っ飛ぶ距離(当たった敵が後ろへ下がる距離。単位はcm)。0ならその場でのけぞるだけ
+#knockdownは1なら浮いている敵を叩き落とす(踵落とし・ウィケッドウィーブだけ)。書いていない行は0
+#lengthは攻撃判定の長さ(0なら球、0より大きければ狙った方向へ伸びるカプセル)。書いていない行は0
 Punch,62,30,40,30,44,10,50,18,30,60,Player|Punch,Punching,MeleeKick,None,0,0,0
 Punching,62,30,40,30,44,10,50,18,30,60,Player|Punching,Rush,SideKick,None,0,0,0
 Kick,86,24,36,24,40,15,60,12,24,80,Player|Kick,Punching,MmaKick,None,0,0,0
@@ -18,7 +20,11 @@ Rush,66,8,58,58,66,7,60,0,12,60,Player|Punchrush,None,None,WitchHand,14,0,0
 AirPunch,62,30,40,30,44,10,50,18,30,30,Player|AirPunch,AirPunching,AirSkyKick,None,0,0,0
 AirPunching,62,30,40,30,44,10,50,18,30,30,Player|AirPunching,AirRush,AirSkyKick,None,0,0,0
 AirRush,66,8,58,58,66,7,60,0,12,30,Player|AirPunchrush,None,None,WitchHand,14,0,0
-AirSkyKick,64,36,52,56,64,30,80,0,0,0,Player|SkyKick,None,None,WitchHand,0,20,150
+AirSkyKick,64,36,52,56,64,30,80,0,0,0,Player|SkyKick,None,None,WitchHand,0,20,150,1,0
+#Attackはエイリアンの近接攻撃(今は使わない。AlienのattackTypeをBreathにしたら消してよい)
 Attack,100,50,60,100,100,0,70,0,0,0,Alien|Attack,None,None,None,0,0,0
+#Breathはエイリアンの吐き続けるブレス。0～30フレームが予兆、30～120フレームで吐き続ける、残りは後隙
+#hitIntervalごとに当たり直す(damageは1回分)。lengthがブレスの長さ
+Breath,150,30,120,150,150,5,40,0,0,0,Alien|Attack,None,None,None,15,0,0,0,500
 #WitchHandのhitStartFrame/hitEndFrameは、締め技の攻撃判定が出たフレーム(呼び出した瞬間)からの経過フレーム
-WitchHand,0,15,35,0,0,50,150,0,0,0,None,None,None,None,0,0,300
+WitchHand,0,15,35,0,0,50,150,0,0,0,None,None,None,None,0,0,300,1,0

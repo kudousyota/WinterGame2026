@@ -3,6 +3,10 @@
 namespace
 {
 	constexpr int kAttackInfoSize = 17;
+	//後から足した列の場所(書いていない行もある)
+	constexpr int kKnockbackColumn = 17;
+	constexpr int kKnockdownColumn = 18;
+	constexpr int kLengthColumn = 19;
 
 	//CSVに書いた名前をAttackTypeに変換する
 	AttackType NameToAttackType(const std::string& name)
@@ -78,10 +82,25 @@ void AttackTable::Load(const std::vector<std::vector<std::string>>& rows)
 
 		info.fallSpeed = std::stof(row[16]);
 
-		//叩き落とす強さ(後から足した列なので、書いていない行は0にする)
-		if (row.size() > static_cast<size_t>(kAttackInfoSize) && !row[kAttackInfoSize].empty())
+		// 後から足した列は、書いていない行もあるので空なら初期値のままにする
+		auto hasColumn = [&row](int index)
 		{
-			info.knockback = std::stof(row[kAttackInfoSize]);
+			return row.size() > static_cast<size_t>(index) && !row[index].empty();
+		};
+		//吹っ飛ぶ距離
+		if (hasColumn(kKnockbackColumn))
+		{
+			info.knockback = std::stof(row[kKnockbackColumn]);
+		}
+		//叩き落とせるか(1なら叩き落とす)
+		if (hasColumn(kKnockdownColumn))
+		{
+			info.canKnockDown = std::stoi(row[kKnockdownColumn]) != 0;
+		}
+		//攻撃判定の長さ
+		if (hasColumn(kLengthColumn))
+		{
+			info.length = std::stof(row[kLengthColumn]);
 		}
 
 		m_infoList[info.type] = info;

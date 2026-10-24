@@ -1,15 +1,25 @@
 ﻿#pragma once
 #include "EnemyStateBase.h"
 
-//敵の被弾状態(のけぞり)
+//敵の被弾状態(のけぞり・吹っ飛び)
 //被弾アニメーションが終わるまで動かず、終わったら待機に戻る
+//吹っ飛ぶ攻撃のときは、のけぞりながら後ろへ下がる
 //のけぞり中にもう一度当たると、最初からのけぞり直す
 class EnemyStateDamage : public EnemyStateBase
 {
 public:
-	using EnemyStateBase::EnemyStateBase;
+	//distance:後ろへ下がる距離(Attack.csvのknockback。0ならその場でのけぞる)
+	explicit EnemyStateDamage(Enemy& enemy, float distance = 0.0f);
 
 	void Enter() override;
 	void Update() override;
 	StateKind GetKind() const override { return StateKind::Damage; }
+
+private:
+	//下がる方向
+	Vector3 m_flyDir = Vector3(0.0f, 0.0f, 0.0f);
+	//下がる距離
+	float m_distance = 0.0f;
+	//前のフレームまでに進んだ割合
+	float m_prevT = 0.0f;
 };

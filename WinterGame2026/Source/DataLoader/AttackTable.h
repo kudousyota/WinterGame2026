@@ -37,8 +37,12 @@ public:
 		float moveDistance = 0.0f;
 		//落ちるスピード
 		float fallSpeed = 0.0f;
-		//叩き落とす強さ(敵が後ろへ吹っ飛ぶ距離。0なら叩き落とさない)
+		//吹っ飛ぶ距離(敵が後ろへ下がる距離。0ならその場でのけぞる)
 		float knockback = 0.0f;
+		//浮いている敵を叩き落とせるか
+		bool canKnockDown = false;
+		//攻撃判定の長さ(0なら球で0より大きかったらカプセル状に延びていく)
+		float length = 0.0f;
 		//アニメーションの名前
 		std::string animName;
 		//コンボ中にパンチを押したとき次に出す攻撃(なければ空)

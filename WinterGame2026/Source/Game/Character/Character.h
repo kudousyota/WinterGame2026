@@ -23,6 +23,9 @@ struct AttackRequest
 	float forwardOffset = 0.0f;
 	//足元からの高さ
 	float height = 0.0f;
+	//カプセル判定の向きと長さ
+	Vector3 dir = Vector3(0.0f, 0.0f, 0.0f);
+	float length = 0.0f;
 };
 struct ShotRequest
 {
@@ -141,9 +144,6 @@ public:
 protected:
 	
 	void LoadStatus(const std::string& name);
-
-	
-
 	//ステートの更新と切り替えを行う
 	void UpdateState();
 

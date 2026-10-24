@@ -56,6 +56,24 @@ public:
 	AttackType GetAttackType()const { return m_attackType; }
 	//浮いている高さ(地面から足元まで)
 	float GetHoverHeight()const { return m_hoverHeight; }
+	//ターゲットから離れる(Y方向の速度は維持)
+	void MoveAwayFromTarget(float speedScale);
+	//ターゲットの方を向いたまま横に回る(sideは1か-1で回る向き)
+	void StrafeAroundTarget(float speedScale, float side);
+	//狙う相手
+	const Character* GetTarget()const { return m_pTarget; }
+
+	//これより近づかれたら離れる距離
+	float GetTooCloseDistance()const { return m_tooCloseDistance; }
+	//攻撃の後に離れる距離
+	float GetKeepDistance()const { return m_keepDistance; }
+
+	//攻撃の予兆中か(予兆中は光らせる)
+	void SetWarning(bool isWarning) { m_isWarning = isWarning; }
+	bool IsWarning()const { return m_isWarning; }
+	//アニメーションを止める(倒れた姿のまま待つときに使う)
+	void SetAnimPause(bool isPause) { m_isAnimPause = isPause; }
+	bool IsAnimPause()const { return m_isAnimPause; }
 
 protected:
 	//HPが0以下になったら死亡ステートにする(派生クラスのUpdateの最初に呼ぶ)
@@ -88,6 +106,14 @@ protected:
 	bool m_isVanished = false;
 	//浮いている高さ
 	float m_hoverHeight = 0.0f;
+	//これより近づかれたら離れる距離
+	float m_tooCloseDistance = 0.0f;
+	//攻撃の後に離れる距離
+	float m_keepDistance = 0.0f;
+	//攻撃の予兆中か
+	bool m_isWarning = false;
+	//アニメーションを止めているか
+	bool m_isAnimPause = false;
 	//攻撃の種類(フレームやダメージはcsvに書く)
 	AttackType m_attackType = AttackType::Attack;
 };

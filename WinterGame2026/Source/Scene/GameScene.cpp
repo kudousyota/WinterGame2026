@@ -182,10 +182,20 @@ void GameScene::ProcessAttacks()
 	{
 		for (const auto& request : attacker->TakeAttackRequests())
 		{
-			//確定した位置から判定の位置を求める
 			Vector3 pos = attacker->GetAttackPos(request);
 
-			for (const auto& hit : m_collision.CheckAttackSphere(request.data, pos))
+			//lengthがあれば狙った方向へ伸びるカプセル、なければ球で判定する
+			std::vector<CollisionManager::AttackHit> hits;
+			if (request.length > 0.0f)
+			{
+				hits = m_collision.CheckAttackCapsule(request.data, pos, pos + request.dir * request.length);
+			}
+			else
+			{
+				hits = m_collision.CheckAttackSphere(request.data, pos);
+			}
+
+			for (const auto& hit : hits)
 			{
 				ApplyAttackHit(*attacker, request, hit);
 			}
@@ -259,7 +269,7 @@ void GameScene::ApplyAttackHit(Character& attacker, const AttackRequest& request
 	}
 
 	//無敵中・死亡中は受けない
-	//(記録もしないので、無敵が切れた後にまだ判定が出ていれば当たる)
+	//記録しないから無敵が切れた後にまだ判定が出ていれば当たる
 	if (!target.CanBeHit()) return;
 
 	target.MarkAttackReceived(&attacker, request.attackId);

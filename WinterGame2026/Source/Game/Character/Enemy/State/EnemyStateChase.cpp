@@ -11,6 +11,14 @@ void EnemyStateChase::Update()
 {
 	float distance = m_enemy.GetTargetDistance();
 
+	//倒れたプレイヤーは追いかけない
+	const Character* target = m_enemy.GetTarget();
+	if (!target || target->IsDead())
+	{
+		ChangeState<EnemyStateIdle>();
+		return;
+	}
+
 	//攻撃範囲に入ったら攻撃する
 	if (distance <= m_enemy.GetAttackRange())
 	{

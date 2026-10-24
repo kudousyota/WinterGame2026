@@ -2,8 +2,8 @@
 #include "EnemyStateBase.h"
 
 //敵が叩き落とされた状態
-//攻撃してきた相手から離れる方向へ吹っ飛び、地面に倒れたら起き上がりに移る
-//(浮遊はアニメーションで表現しているので、位置は地面のまま横に動かすだけ)
+//攻撃してきた相手から離れる方向へ吹っ飛びながら、浮いている高さの分だけ地面へ落ちる
+//地面に倒れたらしばらくそのまま(追い打ちの時間)、その後起き上がりに移る
 //アニメーションは移動を消してあるので、宙に浮いている間だけコードで後ろへ動かす
 class EnemyStateKnockdown : public EnemyStateBase
 {
@@ -13,6 +13,7 @@ public:
 
 	void Enter() override;
 	void Update() override;
+	void Exit() override;
 	StateKind GetKind() const override { return StateKind::Down; }
 #ifdef _DEBUG
 	std::string GetDebugInfo() const override;
@@ -25,4 +26,6 @@ private:
 	float m_distance = 0.0f;
 	//前のフレームまでに進んだ割合
 	float m_prevT = 0.0f;
+	//倒れきってからのフレーム数
+	float m_lieFrame = 0.0f;
 };

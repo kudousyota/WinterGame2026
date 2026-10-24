@@ -9,8 +9,10 @@ namespace
 	//この区間の外(殴られて立っている間・倒れた後)は動かさないので、足が滑って見えない
 	constexpr float kFlyStartRate = 0.21f;
 	constexpr float kFlyEndRate = 0.55f;
-	//地面に倒れきったら起き上がりに移る(HitBackwardはこの後、自分で起き上がりかけるので、そこで切り替える)
+	//地面に倒れきった割合(HitBackwardはこの後、自分で起き上がりかけるので、ここでアニメーションを止める)
 	constexpr float kLieDownRate = 0.55f;
+	//倒れたままでいるフレーム数(この間に地上のコンボを入れられる)
+	constexpr float kLieFrame = 90.0f;
 }
 
 EnemyStateKnockdown::EnemyStateKnockdown(Enemy& enemy, float distance) :
@@ -31,6 +33,17 @@ void EnemyStateKnockdown::Enter()
 
 void EnemyStateKnockdown::Update()
 {
+	//倒れきったあとは倒れたまま
+	if (m_enemy.IsAnimPause())
+	{
+		m_lieFrame += m_enemy.GetTimeScale();
+		if (m_lieFrame >= kLieFrame)
+		{
+			ChangeState<EnemyStateGetUp>();
+		}
+		return;
+	}
+
 	m_enemy.StopMove();
 	float animRate = m_enemy.GetAnim().GetAnimRate();
 	//宙に浮いている区間でのラープ
@@ -48,18 +61,24 @@ void EnemyStateKnockdown::Update()
 	//次のフレーム用に覚えておく
 	m_prevT = t;
 
-	//地面に倒れきったら起き上がりへ
+	//地面に倒れきったらアニメーションを止める
 	if (animRate >= kLieDownRate)
 	{
-		ChangeState<EnemyStateGetUp>();
+		m_enemy.SetAnimPause(true);
 	}
+}
+
+void EnemyStateKnockdown::Exit()
+{
+	//倒れている途中で死亡したときも、アニメーションが止まったままにならないようにする
+	m_enemy.SetAnimPause(false);
 }
 
 #ifdef _DEBUG
 std::string EnemyStateKnockdown::GetDebugInfo() const
 {
 	char buf[96];
-	sprintf_s(buf, "Distance:%.0f  Anim:%.2f", m_distance, m_enemy.GetAnim().GetAnimRate());
+	sprintf_s(buf, "Distance:%.0f  Anim:%.2f  Lie:%.0f", m_distance, m_enemy.GetAnim().GetAnimRate(), m_lieFrame);
 	return buf;
 }
 #endif
