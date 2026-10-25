@@ -166,6 +166,12 @@ void PlayerStateAttack::Update()
 		ChangeAttackState(*m_reservedNext, m_reservedButton);
 		return;
 	}
+	//自動でつながる攻撃はボタンを押さなくても次の攻撃になる
+	if (m_info.autoNext && m_frame >= m_info.cancelFrame)
+	{
+		ChangeAttackState(*m_info.autoNext, m_buttonName);
+		return;
+	}
 
 	//攻撃が終わったらIdleかWalkにする
 	if (m_frame >= m_info.totalFrame)

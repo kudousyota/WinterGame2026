@@ -13,6 +13,7 @@ enum class AttackType
 	SideKick,
 	RotateKick,
 	HurricaneKick,
+	KickDown,
 	LegSweep,
 	MeleeKick,
 	//空中攻撃

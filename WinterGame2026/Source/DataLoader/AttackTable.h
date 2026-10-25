@@ -51,6 +51,8 @@ public:
 		std::optional<AttackType> nextKick;
 		//コンボの締めで攻撃判定が出たときに呼び出すウィケッドウィーブ(なければ空)
 		std::optional<AttackType> witchHand;
+		//この攻撃が終わったら、ボタンを押さなくても自動で出す攻撃(なければ空)
+		std::optional<AttackType> autoNext;
 	};
 
 	//CSVの行データを受け取る

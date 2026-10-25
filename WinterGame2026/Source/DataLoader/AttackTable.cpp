@@ -7,6 +7,7 @@ namespace
 	constexpr int kKnockbackColumn = 17;
 	constexpr int kKnockdownColumn = 18;
 	constexpr int kLengthColumn = 19;
+	constexpr int kAutoNextColumn = 20;
 
 	//CSVに書いた名前をAttackTypeに変換する
 	AttackType NameToAttackType(const std::string& name)
@@ -23,6 +24,7 @@ namespace
 			{ "SideKick",	AttackType::SideKick },
 			{ "RotateKick",	AttackType::RotateKick },
 			{ "HurricaneKick",	AttackType::HurricaneKick },
+			{ "KickDown",	AttackType::KickDown },
 			{ "LegSweep",	AttackType::LegSweep },
 			{ "MeleeKick",	AttackType::MeleeKick },
 			{ "AirPunch",	AttackType::AirPunch },
@@ -102,7 +104,11 @@ void AttackTable::Load(const std::vector<std::vector<std::string>>& rows)
 		{
 			info.length = std::stof(row[kLengthColumn]);
 		}
-
+		//終わったら自動で出す攻撃
+		if (hasColumn(kAutoNextColumn) && row[kAutoNextColumn] != "None")
+		{
+			info.autoNext = NameToAttackType(row[kAutoNextColumn]);
+		}
 		m_infoList[info.type] = info;
 	}
 }
