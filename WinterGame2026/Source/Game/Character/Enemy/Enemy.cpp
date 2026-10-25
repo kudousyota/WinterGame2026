@@ -58,7 +58,8 @@ void Enemy::OnHit(const AttackData& attackData, int damage)
 	//攻撃中でも割り込んでのけぞる。のけぞり中に当たったら最初からのけぞり直す
 	//吹っ飛ぶ攻撃(knockbackが0より大きい)なら、のけぞりながら後ろへ下がる
 	if (m_damageAnimName.empty()) return;
-	ChangeState(std::make_unique<EnemyStateDamage>(*this, attackData.GetKnockback()));
+	//運ぶ攻撃なら、のけぞっている間は攻撃してきた相手の目の前についていく
+	ChangeState(std::make_unique<EnemyStateDamage>(*this, attackData.GetKnockback(), attackData.IsCarry()));
 }
 
 void Enemy::CheckDeath()

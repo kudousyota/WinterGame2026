@@ -5,11 +5,13 @@
 //被弾アニメーションが終わるまで動かず、終わったら待機に戻る
 //吹っ飛ぶ攻撃のときは、のけぞりながら後ろへ下がる
 //のけぞり中にもう一度当たると、最初からのけぞり直す
+//運ぶ攻撃(竜巻旋風脚など)のときは、のけぞっている間ずっと攻撃してきた相手の目の前についていく
 class EnemyStateDamage : public EnemyStateBase
 {
 public:
 	//distance:後ろへ下がる距離(Attack.csvのknockback。0ならその場でのけぞる)
-	explicit EnemyStateDamage(Enemy& enemy, float distance = 0.0f);
+	//isCarry:攻撃してきた相手の目の前に引き寄せられて一緒に運ばれるか(Attack.csvのcarry)
+	explicit EnemyStateDamage(Enemy& enemy, float distance = 0.0f, bool isCarry = false);
 
 	void Enter() override;
 	void Update() override;
@@ -22,4 +24,9 @@ private:
 	float m_distance = 0.0f;
 	//前のフレームまでに進んだ割合
 	float m_prevT = 0.0f;
+	//攻撃してきた相手に運ばれているか
+	bool m_isCarry = false;
+
+	//攻撃してきた相手の目の前へ少しずつ寄せる
+	void UpdateCarry();
 };

@@ -53,6 +53,10 @@ public:
 	//浮いている敵を叩き落とせるか
 	void SetCanKnockdown(bool canKnockdown) { m_canKnockdown = canKnockdown; }
 	bool CanKnockdown()const { return m_canKnockdown; }
+
+	//当たった敵を攻撃した相手の目の前に引き寄せて一緒に運ぶか
+	void SetCarry(bool isCarry) { m_isCarry = isCarry; }
+	bool IsCarry()const { return m_isCarry; }
 private:
 	CharacterType m_attacker = CharacterType::Player;
 	AttackType m_attackType = AttackType::Punch;
@@ -60,6 +64,7 @@ private:
 	float m_radius = 0;
 	float m_knockback = 0.0f;
 	bool m_canKnockdown = false;
+	bool m_isCarry = false;
 
 };
 

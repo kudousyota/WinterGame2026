@@ -75,6 +75,16 @@ void PlayerStateAttack::Enter()
 	}
 	
 
+	//上がる攻撃は、縦の速度を自分で決めるので重力を使わない
+	//地上でたまっていた下向きの速度が残ると沈むので、縦の速度も0にしておく
+	if (m_info.riseSpeed > 0.0f)
+	{
+		auto vel = m_player.GetVelocity();
+		vel.y = 0.0f;
+		m_player.SetVelocity(vel);
+		m_player.SetGravityScale(0.0f);
+	}
+
 	//狙う相手がいればそちらを向く
 	if (const Character* target = m_player.GetAttackTarget())
 	{
@@ -94,7 +104,9 @@ void PlayerStateAttack::Enter()
 			float stopDistance = m_player.GetCollisionRadius() + target->GetCollisionRadius() + kStopMargin;
 			float maxDistance = m_info.moveDistance * kMaxMoveScale;
 			//近すぎるときは進まない、遠すぎるときは最大距離まで
-			m_moveDistance = std::clamp(toTarget.Magnitude() - stopDistance, 0.0f,maxDistance);
+			float reach = std::clamp(toTarget.Magnitude() - stopDistance, 0.0f,maxDistance);
+			//敵を運ぶ攻撃は敵を押していくので、敵が近くても止まらずにCSVの距離は進む
+			m_moveDistance = m_info.carry ? (std::max)(reach, m_info.moveDistance) : reach;
 		}
 	}
 	//いなければ、入力があればその方向に向く
@@ -263,6 +275,7 @@ void PlayerStateAttack::RequestHit()
 	AttackRequest request{AttackData(CharacterType::Player, m_info.type, m_info.damage, m_info.radius)};
 	request.data.SetKnockback(m_info.knockback);
 	request.data.SetCanKnockdown(m_info.canKnockDown);
+	request.data.SetCarry(m_info.carry);
 	request.attackId = m_attackId;
 	request.forwardOffset = kHitForwardOffset;
 	request.height = kHitHeight;
@@ -343,6 +356,13 @@ void PlayerStateAttack::UpdateMove()
 	if (m_frame < m_info.moveStartFrame || m_frame >= m_info.moveEndFrame)
 	{
 		StopMove();
+		//上がる攻撃は、前進していない間はその高さで止まる(前進が終わっても上がり続けないようにする)
+		if (m_info.riseSpeed > 0.0f)
+		{
+			auto vel = m_player.GetVelocity();
+			vel.y = 0.0f;
+			m_player.SetVelocity(vel);
+		}
 		return;
 	}
 
@@ -354,7 +374,9 @@ void PlayerStateAttack::UpdateMove()
 	float step = m_moveDistance * (EaseOut(t1) - EaseOut(t0));
 
 	//落下の速度は残して、横の移動だけ入れる
+	//上がる攻撃は、前進している間だけ上向きの速度にする(前へ進みながら上がるので斜め上に動く)
 	Vector3 move = m_player.GetForward() * step;
 	auto vel = m_player.GetVelocity();
-	m_player.SetVelocity(Vector3(move.x, vel.y, move.z));
+	float velY = (m_info.riseSpeed > 0.0f) ? m_info.riseSpeed : vel.y;
+	m_player.SetVelocity(Vector3(move.x, velY, move.z));
 }

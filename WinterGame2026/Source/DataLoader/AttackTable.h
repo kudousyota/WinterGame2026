@@ -53,6 +53,10 @@ public:
 		std::optional<AttackType> witchHand;
 		//この攻撃が終わったら、ボタンを押さなくても自動で出す攻撃(なければ空)
 		std::optional<AttackType> autoNext;
+		//前進している間、1フレームに上がる高さ(cm)。0なら上がらない
+		float riseSpeed = 0.0f;
+		//当たった敵を自分の目の前に引き寄せて一緒に運ぶか
+		bool carry = false;
 	};
 
 	//CSVの行データを受け取る

@@ -28,6 +28,9 @@ void EnemyStateKnockdown::Enter()
 	m_enemy.FaceTarget();
 	m_flyDir = m_enemy.GetForward() * -1.0f;
 	m_enemy.GetAnim().ChangeAnim(m_enemy.GetKnockdownAnimName(), false);
+	//地面(y=0)まで落ちる高さを覚えておく
+	//地上で浮いている敵なら浮いている高さ(90cm)、運ばれて高い所にいればその分だけ多く落ちる
+	m_fallHeight = (std::max)(m_enemy.GetPos().y, 0.0f);
 
 }
 
@@ -54,7 +57,7 @@ void EnemyStateKnockdown::Update()
 	//このフレームで進む距離
 	float move = (t - m_prevT) * m_distance;
 	//このフレームで下がる高さ
-	float fall = (t - m_prevT) * m_enemy.GetHoverHeight();
+	float fall = (t - m_prevT) * m_fallHeight;
 	//後ろへずらして下にも下げる
 	Vector3 delta = m_flyDir * move + Vector3(0.0f, -fall, 0.0f);
 	m_enemy.SetPosition(m_enemy.GetPos() + delta);
@@ -78,7 +81,7 @@ void EnemyStateKnockdown::Exit()
 std::string EnemyStateKnockdown::GetDebugInfo() const
 {
 	char buf[96];
-	sprintf_s(buf, "Distance:%.0f  Anim:%.2f  Lie:%.0f", m_distance, m_enemy.GetAnim().GetAnimRate(), m_lieFrame);
+	sprintf_s(buf, "Distance:%.0f  Fall:%.0f  Anim:%.2f  Lie:%.0f", m_distance, m_fallHeight, m_enemy.GetAnim().GetAnimRate(), m_lieFrame);
 	return buf;
 }
 #endif

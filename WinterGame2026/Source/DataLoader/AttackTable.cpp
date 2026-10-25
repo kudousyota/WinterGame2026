@@ -8,6 +8,8 @@ namespace
 	constexpr int kKnockdownColumn = 18;
 	constexpr int kLengthColumn = 19;
 	constexpr int kAutoNextColumn = 20;
+	constexpr int kRiseSpeedColumn = 21;
+	constexpr int kCarryColumn = 22;
 
 	//CSVに書いた名前をAttackTypeに変換する
 	AttackType NameToAttackType(const std::string& name)
@@ -108,6 +110,16 @@ void AttackTable::Load(const std::vector<std::vector<std::string>>& rows)
 		if (hasColumn(kAutoNextColumn) && row[kAutoNextColumn] != "None")
 		{
 			info.autoNext = NameToAttackType(row[kAutoNextColumn]);
+		}
+		//前進中に上がる速さ
+		if (hasColumn(kRiseSpeedColumn))
+		{
+			info.riseSpeed = std::stof(row[kRiseSpeedColumn]);
+		}
+		//当たった敵を運ぶか(1なら運ぶ)
+		if (hasColumn(kCarryColumn))
+		{
+			info.carry = std::stoi(row[kCarryColumn]) != 0;
 		}
 		m_infoList[info.type] = info;
 	}
