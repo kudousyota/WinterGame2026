@@ -3,6 +3,7 @@
 #include "../../../System/Timer.h"
 #include "State/PlayerStateIdle.h"
 #include "State/PlayerStateDeath.h"
+#include "State/PlayerStateDamage.h"
 #include <cmath>
 #include "../../../System/Input.h"
 
@@ -32,6 +33,12 @@ namespace
 	constexpr float kWitchTimeScale = 0.2f;
 	//続くフレーム数
 	constexpr int kWitchTimeFrame = 300;
+
+	//被弾
+	//被弾後の無敵フレーム数
+	constexpr int kHitInvincibleFrame = 60;
+	//被弾後の無敵中に点滅する間隔
+	constexpr int kBlinkInterval = 4;
 }
 
 Player::Player()
@@ -77,6 +84,12 @@ void Player::Update()
 	{
 		m_isDead = true;
 		ChangeState(std::make_unique<PlayerStateDeath>(*this));
+	}
+
+	//被弾後の無敵の残りを減らす
+	if (m_hitInvincibleFrame > 0)
+	{
+		m_hitInvincibleFrame--;
 	}
 
 	//地面にいる間は浮ける権利を戻す
@@ -128,6 +141,21 @@ void Player::LateUpdate()
 void Player::Draw()
 {
 	MV1DrawModel(m_modelHandle);
+}
+
+void Player::OnHit(const AttackData& attackData, int damage)
+{
+	//無敵中と死亡中は当たっていないのでのけぞらない
+	if (!CanBeHit()) return;
+
+	Character::OnHit(attackData, damage);
+
+	//このダメージで倒れた時はのけぞらない
+	if (m_hp <= 0) return;
+
+	//しばらく無敵にして、多段攻撃で動けなくならないようにする
+	m_hitInvincibleFrame = kHitInvincibleFrame;
+	ChangeState(std::make_unique<PlayerStateDamage>(*this));
 }
 
 void Player::OnJustDodge()

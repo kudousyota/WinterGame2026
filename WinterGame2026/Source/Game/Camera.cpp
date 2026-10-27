@@ -1,7 +1,7 @@
 ﻿#include "Camera.h"
 #include "DxLib.h"
-//#include "../System/StageCollision.h"
-//#include "../Game/Stage.h"
+#include "../System/StageCollision.h"
+#include "../Game/Stage.h"
 //#include "../System/Model.h"
 #include "../System/Timer.h"
 #include "../System/LockOnManager.h"
@@ -136,16 +136,17 @@ void Camera::Update(const Vector3& targetPos)
 
 	Vector3 hitpos;
 
-	////ステージとのレイ判定を行い、カメラがステージにめり込まないようにする
-	//if (StageCollision::CheckCameraRay(
-	//	m_pStage->GetModelHandle(),
-	//	m_cameraTarget,
-	//	m_cameraPos,
-	//	hitpos))
-	//{
-	//	Vector3 dir = (m_cameraTarget - hitpos).Normalize();
-	//	m_cameraPos = hitpos + dir * 10.0f;
-	//}
+	//ステージとのレイ判定を行い、カメラがステージにめり込まないようにする
+	//ステージを渡されていないときは判定しない
+	if (m_pStage && StageCollision::CheckCameraRay(
+		m_pStage->GetModelHandle(),
+		m_cameraTarget,
+		m_cameraPos,
+		hitpos))
+	{
+		Vector3 dir = (m_cameraTarget - hitpos).Normalize();
+		m_cameraPos = hitpos + dir * 10.0f;
+	}
 
 	//追従
 	m_cameraPos = m_cameraPos + (idealCameraPos - m_cameraPos) * kCameraFollow;

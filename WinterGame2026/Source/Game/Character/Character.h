@@ -105,8 +105,8 @@ public:
 	//ジャスト回避の受付中か
 	bool IsJustDodgeWindow()const { return m_isJustDodgeWindow; }
 
-	//攻撃を受けられる状態か(無敵中・死亡中は受けない)
-	bool CanBeHit()const { return !m_isInvincible && !m_isDead; }
+	//攻撃を受けられる状態か(無敵中・被弾後の無敵中・死亡中は受けない)
+	bool CanBeHit()const { return !m_isInvincible && m_hitInvincibleFrame <= 0 && !m_isDead; }
 	//攻撃を受けたときに呼ばれる(damageは補正を計算した後の最終ダメージ)
 	virtual void OnHit(const AttackData& attackData, int damage);
 	//ジャスト回避に成功したときに呼ばれる
@@ -208,6 +208,7 @@ protected:
 	float m_collisionRadius = 0.0f;
 	//ジャスト回避判定の半径
 	float m_justDodgeRadius = 0.0f;
-
+	//被弾後の無敵の残りフレーム数(回避の無敵とは別に数える)
+	int m_hitInvincibleFrame = 0;
 };
 

@@ -76,6 +76,8 @@ void GameScene::Init()
 
 	m_pCamera = std::make_shared<Camera>();
 	m_pCamera->Init(m_pPlayer->GetCameraTarget(),m_pPlayer->GetAngle());
+	//地形とのめり込み判定に使うステージを渡す
+	m_pCamera->SetStage(m_pStage);
 
 }
 void GameScene::Update()

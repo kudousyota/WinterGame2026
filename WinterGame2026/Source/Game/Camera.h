@@ -11,7 +11,7 @@ public:
 	void End();
 	void Update(const Vector3& targetPos);
 	void Draw();
-	//void SetStage(std::shared_ptr<Stage> stage) { m_pStage = stage; }
+	void SetStage(std::shared_ptr<Stage> stage) { m_pStage = stage; }
 	Vector3 GetForward() const;
 	Vector3 GetRight() const;
 

@@ -66,6 +66,9 @@
     <ClCompile Include="Source\Game\Character\Player\State\PlayerStateBase.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Game\Character\Player\State\PlayerStateDamage.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Game\Character\Player\State\PlayerStateDeath.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -249,6 +252,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateIdle.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\Character\Player\State\PlayerStateDamage.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Source\Game\Character\Player\State\PlayerStateDeath.h">

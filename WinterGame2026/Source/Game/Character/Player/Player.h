@@ -42,6 +42,9 @@ public:
 	bool CanAirHover()const { return m_canAirHover; }
 	//空中で浮ける権利を使う
 	void UseAirHover();
+
+	//攻撃を受けたらのけぞる
+	void OnHit(const AttackData& attackData, int damage)override;
 private:
 	int m_modelHandle = -1;
 	bool m_isAnimPause = false;
