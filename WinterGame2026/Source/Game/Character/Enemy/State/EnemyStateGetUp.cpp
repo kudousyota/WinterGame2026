@@ -32,7 +32,7 @@ void EnemyStateGetUp::Update()
 	}
 
 	float diff = m_tagetY - m_enemy.GetPos().y;
-	//着いたら高さをぴったり合わせて待機
+	//着いたら高さを合わせて待機
 	if (diff <= kArriveDistance)
 	{
 		Vector3 pos = m_enemy.GetPos();
