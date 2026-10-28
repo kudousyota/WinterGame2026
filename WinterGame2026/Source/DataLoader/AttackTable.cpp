@@ -36,6 +36,7 @@ namespace
 			{ "Attack",		AttackType::Attack },
 			{ "Breath",		AttackType::Breath },
 			{ "WitchHand",	AttackType::WitchHand },
+			{ "WitchLeg",	AttackType::WitchLeg },
 		};
 		auto it = kNameTable.find(name);
 		assert(it != kNameTable.end() && "知らない攻撃の名前がCSVに書かれている");
@@ -96,7 +97,7 @@ void AttackTable::Load(const std::vector<std::vector<std::string>>& rows)
 		{
 			info.knockback = std::stof(row[kKnockbackColumn]);
 		}
-		//叩き落とせるか(1なら叩き落とす)
+		//叩き落とせるか
 		if (hasColumn(kKnockdownColumn))
 		{
 			info.canKnockDown = std::stoi(row[kKnockdownColumn]) != 0;
@@ -116,7 +117,7 @@ void AttackTable::Load(const std::vector<std::vector<std::string>>& rows)
 		{
 			info.riseSpeed = std::stof(row[kRiseSpeedColumn]);
 		}
-		//当たった敵を運ぶか(1なら運ぶ)
+		//当たった敵を運ぶか
 		if (hasColumn(kCarryColumn))
 		{
 			info.carry = std::stoi(row[kCarryColumn]) != 0;

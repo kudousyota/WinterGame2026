@@ -8,6 +8,7 @@ enum class EffectType
 {
 	Hit,
 	WickedWeave,
+	WickedWeaveLeg,
 	AttackTelegraph,
 	Max
 };

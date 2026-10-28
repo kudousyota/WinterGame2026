@@ -20,7 +20,7 @@ namespace
 	//アニメション
 	const char* const kIdleAnimName = "Player|Idle";
 
-	//体の大きさ(デバッグ表示のカプセルを見ながら調整する)
+	//体の大きさ
 	//身長
 	constexpr float kHeight = 180.0f;
 	//当たり判定のカプセルの半径

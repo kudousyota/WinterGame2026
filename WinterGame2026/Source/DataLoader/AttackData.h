@@ -24,6 +24,13 @@ enum class AttackType
 	Attack,
 	Breath,
 	WitchHand,
+	WitchLeg,
+};
+
+enum class SummonStyle
+{
+	Norml,//通常
+	Stomp,//真上からの攻撃
 };
 
 class AttackData

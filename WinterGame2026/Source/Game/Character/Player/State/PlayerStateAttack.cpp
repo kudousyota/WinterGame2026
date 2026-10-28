@@ -33,6 +33,8 @@ namespace
 	//魔法陣を出したい位置(足元から見て後ろ・上・右への距離)。右肩のあたりから前へ突き出す
 	constexpr float kWitchHandPortalBack = 50.0f;
 	constexpr float kWitchHandPortalHeight = 150.0f;
+	//足のウィケッドウィーブは腰のあたりから蹴り出す
+	constexpr float kWitchLegPortalHeight = 110.0f;
 	constexpr float kWitchHandPortalSide = 40.0f;
 
 	//最初が速く、だんだん遅くなる(0～1を受け取って0～1を返す)
@@ -199,7 +201,7 @@ void PlayerStateAttack::Update()
 		return;
 	}
 
-	//地面まで落ちる攻撃は、攻撃判定が出るフレームで止めて、着地するまで落ち続ける
+	//地面まで落ちる攻撃は、攻撃判定が出るフレームで止めて着地するまで落ち続ける
 	if (m_isFalling && m_frame >= m_info.hitStartFrame)
 	{
 		if (!m_player.IsGround())
@@ -310,16 +312,20 @@ void PlayerStateAttack::SummonWitchHand()
 	//足技とは別の番号にして、足技が当たった相手にも当たるようにする
 	m_witchHandAttackId = m_player.IssueAttackId();
 
-	//見た目はエフェクトで出す
+	//見た目はエフェクトで出す(足技の締めは足、それ以外は腕)
+	const bool isLeg = (*m_info.witchHand == AttackType::WitchLeg);
+	const EffectType effectType = isLeg ? EffectType::WickedWeaveLeg : EffectType::WickedWeave;
+	const float portalHeight = isLeg ? kWitchLegPortalHeight : kWitchHandPortalHeight;
+
 	const Vector3& forward = m_player.GetForward();
-	//プレイヤーの右方向(左手系なので前(0,0,1)の右は(1,0,0))
+	//プレイヤーの右方向
 	const Vector3 right(forward.z, 0.0f, -forward.x);
 	const Vector3 up(0.0f, 1.0f, 0.0f);
 
 	//拳の攻撃判定
 	const Vector3 hitPos = m_player.GetPos() + forward * kWitchHandForwardOffset + up * kHitHeight;
 	//魔法陣を出したい位置から着弾点へ向かう方向に拳を突き出す
-	const Vector3 portalPos = m_player.GetPos() - forward * kWitchHandPortalBack + up * kWitchHandPortalHeight + right * kWitchHandPortalSide;
+	const Vector3 portalPos = m_player.GetPos() - forward * kWitchHandPortalBack + up * portalHeight + right * kWitchHandPortalSide;
 	const Vector3 punchDir = (hitPos - portalPos).Normalize();
 
 	//拳が着弾点に来るように、原点を拳の分だけ手前にずらす
@@ -329,7 +335,7 @@ void PlayerStateAttack::SummonWitchHand()
 	Vector3 rot;
 	rot.x = asinf(punchDir.y);
 	rot.y = atan2f(-punchDir.x, -punchDir.z);
-	EffectManager::Instns().PlayEffect(EffectType::WickedWeave, pos, rot, kWitchHandScale);
+	EffectManager::Instns().PlayEffect(effectType, pos, rot, kWitchHandScale);
 }
 
 void PlayerStateAttack::UpdateWitchHand()
@@ -356,7 +362,7 @@ void PlayerStateAttack::UpdateMove()
 	if (m_frame < m_info.moveStartFrame || m_frame >= m_info.moveEndFrame)
 	{
 		StopMove();
-		//上がる攻撃は、前進していない間はその高さで止まる(前進が終わっても上がり続けないようにする)
+		//上がる攻撃は、前進していない間はその高さで止まる
 		if (m_info.riseSpeed > 0.0f)
 		{
 			auto vel = m_player.GetVelocity();
