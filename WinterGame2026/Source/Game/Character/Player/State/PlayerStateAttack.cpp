@@ -36,6 +36,8 @@ namespace
 	//足のウィケッドウィーブは腰のあたりから蹴り出す
 	constexpr float kWitchLegPortalHeight = 110.0f;
 	constexpr float kWitchHandPortalSide = 40.0f;
+	//踏みつけエフェクトで衝撃が出る位置
+	constexpr float kStompImpactOffset = 0.9f;
 
 	//最初が速く、だんだん遅くなる(0～1を受け取って0～1を返す)
 	float EaseOut(float t)
@@ -90,7 +92,7 @@ void PlayerStateAttack::Enter()
 	//狙う相手がいればそちらを向く
 	if (const Character* target = m_player.GetAttackTarget())
 	{
-		//敵への向き(上下は無視する)
+		//敵への向き
 		Vector3 toTarget = target->GetPos() - m_player.GetPos();
 		toTarget.y = 0.0f;
 		//重なっていると向きが決まらないので、そのときは向きを変えない
@@ -284,6 +286,22 @@ void PlayerStateAttack::RequestHit()
 	m_player.RequestAttack(request);
 }
 
+void PlayerStateAttack::SummonStomp()
+{
+	const Vector3& forward = m_player.GetForward();
+	const Vector3 up(0.0f, 1.0f, 0.0f);
+
+	//踏みつける場所
+	const Vector3 hitPos = m_player.GetPos() + forward * kWitchHandForwardOffset + up * kHitHeight;
+	//衝撃は原点より下に出るので、その分持ち上げて攻撃判定の位置で衝撃が出るようにする
+	const Vector3 pos = hitPos + up * (kStompImpactOffset * kWitchHandScale);
+
+	//向きは水平だけ渡す
+	Vector3 rot;
+	rot.y = atan2f(-forward.x, -forward.z);
+	EffectManager::Instns().PlayEffect(EffectType::WickedWeaveStomp, pos, rot, kWitchHandScale);
+}
+
 void PlayerStateAttack::Exit()
 {
 	m_player.SetAnimPause(false);
@@ -311,6 +329,13 @@ void PlayerStateAttack::SummonWitchHand()
 	m_witchHandFrame = 0;
 	//足技とは別の番号にして、足技が当たった相手にも当たるようにする
 	m_witchHandAttackId = m_player.IssueAttackId();
+
+	//踏みつけは違う出し方する
+	if (*m_info.witchHand == AttackType::WitchStomp)
+	{
+		SummonStomp();
+		return;
+	}
 
 	//見た目はエフェクトで出す(足技の締めは足、それ以外は腕)
 	const bool isLeg = (*m_info.witchHand == AttackType::WitchLeg);
@@ -358,17 +383,18 @@ void PlayerStateAttack::UpdateWitchHand()
 
 void PlayerStateAttack::UpdateMove()
 {
+	//上がる攻撃は、攻撃判定が出ている間は上昇する
+	if (m_info.riseSpeed > 0.0f)
+	{
+		auto vel = m_player.GetVelocity();
+		vel.y = IsHitActive() ? m_info.riseSpeed : 0.0f;
+		m_player.SetVelocity(vel);
+	}
+
 	//前進するフレームの外では止まる
 	if (m_frame < m_info.moveStartFrame || m_frame >= m_info.moveEndFrame)
 	{
 		StopMove();
-		//上がる攻撃は、前進していない間はその高さで止まる
-		if (m_info.riseSpeed > 0.0f)
-		{
-			auto vel = m_player.GetVelocity();
-			vel.y = 0.0f;
-			m_player.SetVelocity(vel);
-		}
 		return;
 	}
 

@@ -9,6 +9,7 @@ enum class EffectType
 	Hit,
 	WickedWeave,
 	WickedWeaveLeg,
+	WickedWeaveStomp,
 	AttackTelegraph,
 	Max
 };

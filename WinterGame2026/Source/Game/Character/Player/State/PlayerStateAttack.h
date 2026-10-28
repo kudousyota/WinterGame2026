@@ -28,6 +28,8 @@ private:
 	void UpdateWitchHand();
 	//この攻撃の攻撃判定を申請する
 	void RequestHit();
+
+	void SummonStomp();
 private:
 
 	//今の攻撃のデータ

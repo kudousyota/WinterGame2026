@@ -13,14 +13,17 @@ void DataManager::LoadData()
 
 bool DataManager::ReloadData()
 {
-	//一旦別の変数に読み込んで、全部成功したときだけ差し替える
-	//(編集途中のCSVで数字が読めなくても、今のデータが壊れないようにする)
+	
 	StatusData statusData;
 	AttackTable attackTable;
+	//一旦別の変数に読み込んで、全部成功したときだけ差し替える
+	//(編集途中のCSVで数字が読めなくても、今のデータが壊れないようにする)
 	try
 	{
 		statusData.Load(LoadCsv("Data/Csv/State.csv"));
-		attackTable.Load(LoadCsv("Data/Csv/Attack.csv"));
+		attackTable.Load(LoadCsv("Data/Csv/AttackHit.csv"),
+		                 LoadCsv("Data/Csv/AttackMotion.csv"),
+		                 LoadCsv("Data/Csv/AttackCombo.csv"));
 	}
 	catch (const std::exception&)
 	{
@@ -79,5 +82,7 @@ void DataManager::LoadStatusData()
 
 void DataManager::LoadAttackTable()
 {
-	m_attackTable.Load(LoadCsv("Data/Csv/Attack.csv"));
+	m_attackTable.Load(LoadCsv("Data/Csv/AttackHit.csv"),
+	                   LoadCsv("Data/Csv/AttackMotion.csv"),
+	                   LoadCsv("Data/Csv/AttackCombo.csv"));
 }

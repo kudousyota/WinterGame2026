@@ -9,8 +9,8 @@
 class EnemyStateDamage : public EnemyStateBase
 {
 public:
-	//distance:後ろへ下がる距離(Attack.csvのknockback。0ならその場でのけぞる)
-	//isCarry:攻撃してきた相手の目の前に引き寄せられて一緒に運ばれるか(Attack.csvのcarry)
+	//distance:後ろへ下がる距離(AttackHit.csvのknockback。0ならその場でのけぞる)
+	//isCarry:攻撃してきた相手の目の前に引き寄せられて一緒に運ばれるか(AttackHit.csvのcarry)
 	explicit EnemyStateDamage(Enemy& enemy, float distance = 0.0f, bool isCarry = false);
 
 	void Enter() override;

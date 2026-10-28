@@ -59,8 +59,14 @@ public:
 		bool carry = false;
 	};
 
+	//CSVの行データ
+	using Rows = std::vector<std::vector<std::string>>;
+
 	//CSVの行データを受け取る
-	void Load(const std::vector<std::vector<std::string>>& rows);
+	//hitRows:攻撃判定(AttackHit.csv。全部の攻撃を書く)
+	//motionRows:動き(AttackMotion.csv)
+	//comboRows:コンボのつながり(AttackCombo.csv。プレイヤーだけ)
+	void Load(const Rows& hitRows, const Rows& motionRows, const Rows& comboRows);
 
 	//攻撃の種類からパラメータを取得
 	const AttackInfo& GetInfo(AttackType type)const;

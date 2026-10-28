@@ -3,7 +3,7 @@
 #include "../../../../DataLoader/AttackTable.h"
 
 //敵の攻撃状態
-//攻撃の中身はプレイヤーと同じくAttack.csvのデータで表す
+//攻撃の中身はプレイヤーと同じくAttackHit.csvとAttackMotion.csvのデータで表す
 //判定が出るまで(0～hitStartFrame)が予兆で、プレイヤーにとっての回避のタイミングになる
 class EnemyStateAttack : public EnemyStateBase
 {

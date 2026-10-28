@@ -8,7 +8,7 @@
 class EnemyStateKnockdown : public EnemyStateBase
 {
 public:
-	//distance:吹っ飛ぶ距離(Attack.csvのknockback)
+	//distance:吹っ飛ぶ距離(AttackHit.csvのknockback)
 	EnemyStateKnockdown(Enemy& enemy, float distance);
 
 	void Enter() override;

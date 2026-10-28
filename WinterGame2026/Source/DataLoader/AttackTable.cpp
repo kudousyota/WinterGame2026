@@ -2,14 +2,10 @@
 #include <cassert>
 namespace
 {
-	constexpr int kAttackInfoSize = 17;
-	//後から足した列の場所(書いていない行もある)
-	constexpr int kKnockbackColumn = 17;
-	constexpr int kKnockdownColumn = 18;
-	constexpr int kLengthColumn = 19;
-	constexpr int kAutoNextColumn = 20;
-	constexpr int kRiseSpeedColumn = 21;
-	constexpr int kCarryColumn = 22;
+	//各CSVの列の数(足りない行は読まない)
+	constexpr int kHitColumnNum = 10;
+	constexpr int kMotionColumnNum = 10;
+	constexpr int kComboColumnNum = 5;
 
 	//CSVに書いた名前をAttackTypeに変換する
 	AttackType NameToAttackType(const std::string& name)
@@ -37,92 +33,85 @@ namespace
 			{ "Breath",		AttackType::Breath },
 			{ "WitchHand",	AttackType::WitchHand },
 			{ "WitchLeg",	AttackType::WitchLeg },
+			{ "WitchStomp",	AttackType::WitchStomp },
 		};
 		auto it = kNameTable.find(name);
 		assert(it != kNameTable.end() && "知らない攻撃の名前がCSVに書かれている");
 		return it->second;
 	}
+
+	//Noneなら空のまま、それ以外なら攻撃の種類にする
+	std::optional<AttackType> NameToOptionalAttackType(const std::string& name)
+	{
+		if (name == "None")
+		{
+			return std::nullopt;
+		}
+		return NameToAttackType(name);
+	}
 }
 
-void AttackTable::Load(const std::vector<std::vector<std::string>>& rows)
+void AttackTable::Load(const Rows& hitRows, const Rows& motionRows, const Rows& comboRows)
 {
 	//先にクリアしとく
 	m_infoList.clear();
-	for (const auto& row : rows)
+
+	//攻撃判定(全部の攻撃にあるので、ここで攻撃を登録する)
+	for (const auto& row : hitRows)
 	{
-		if (row.size() < kAttackInfoSize)
+		if (row.size() < kHitColumnNum)
 		{
 			//その行だけスキップ
 			continue;
 		}
+		const AttackType type = NameToAttackType(row[0]);
+		AttackInfo& info = m_infoList[type];
+		info.type = type;
+		info.hitStartFrame = std::stoi(row[1]);
+		info.hitEndFrame = std::stoi(row[2]);
+		info.damage = std::stoi(row[3]);
+		info.radius = std::stof(row[4]);
+		info.hitInterval = std::stoi(row[5]);
+		info.knockback = std::stof(row[6]);
+		info.canKnockDown = std::stoi(row[7]) != 0;
+		info.length = std::stof(row[8]);
+		info.carry = std::stoi(row[9]) != 0;
+	}
 
-		AttackInfo info;
-		info.type = NameToAttackType(row[0]);
+	//動き(AttackHitにない名前ならat()が例外を投げるので書き忘れに気づける)
+	for (const auto& row : motionRows)
+	{
+		if (row.size() < kMotionColumnNum)
+		{
+			continue;
+		}
+		AttackInfo& info = m_infoList.at(NameToAttackType(row[0]));
 		info.totalFrame = std::stoi(row[1]);
-		info.hitStartFrame = std::stoi(row[2]);
-		info.hitEndFrame = std::stoi(row[3]);
-		info.comboStartFrame = std::stoi(row[4]);
-		info.cancelFrame = std::stoi(row[5]);
-		info.damage = std::stoi(row[6]);
-		info.radius = std::stof(row[7]);
-		info.moveStartFrame = std::stoi(row[8]);
-		info.moveEndFrame = std::stoi(row[9]);
-		info.moveDistance = std::stof(row[10]);
-		info.animName = row[11];
+		info.comboStartFrame = std::stoi(row[2]);
+		info.cancelFrame = std::stoi(row[3]);
+		info.animName = row[4];
+		info.moveStartFrame = std::stoi(row[5]);
+		info.moveEndFrame = std::stoi(row[6]);
+		info.moveDistance = std::stof(row[7]);
+		info.fallSpeed = std::stof(row[8]);
+		info.riseSpeed = std::stof(row[9]);
+	}
+
+	//コンボのつながり(プレイヤーだけ)
+	for (const auto& row : comboRows)
+	{
+		if (row.size() < kComboColumnNum)
+		{
+			continue;
+		}
+		AttackInfo& info = m_infoList.at(NameToAttackType(row[0]));
 		//Noneならそのボタンではコンボがつながらない
-		if (row[12] != "None")
-		{
-			info.nextPunch = NameToAttackType(row[12]);
-		}
-		if (row[13] != "None")
-		{
-			info.nextKick = NameToAttackType(row[13]);
-		}
+		info.nextPunch = NameToOptionalAttackType(row[1]);
+		info.nextKick = NameToOptionalAttackType(row[2]);
 		//Noneならコンボの締めでウィケッドウィーブを出さない
-		if (row[14] != "None")
-		{
-			info.witchHand = NameToAttackType(row[14]);
-		}
-		info.hitInterval = std::stoi(row[15]);
-
-		info.fallSpeed = std::stof(row[16]);
-
-		// 後から足した列は、書いていない行もあるので空なら初期値のままにする
-		auto hasColumn = [&row](int index)
-		{
-			return row.size() > static_cast<size_t>(index) && !row[index].empty();
-		};
-		//吹っ飛ぶ距離
-		if (hasColumn(kKnockbackColumn))
-		{
-			info.knockback = std::stof(row[kKnockbackColumn]);
-		}
-		//叩き落とせるか
-		if (hasColumn(kKnockdownColumn))
-		{
-			info.canKnockDown = std::stoi(row[kKnockdownColumn]) != 0;
-		}
-		//攻撃判定の長さ
-		if (hasColumn(kLengthColumn))
-		{
-			info.length = std::stof(row[kLengthColumn]);
-		}
+		info.witchHand = NameToOptionalAttackType(row[3]);
 		//終わったら自動で出す攻撃
-		if (hasColumn(kAutoNextColumn) && row[kAutoNextColumn] != "None")
-		{
-			info.autoNext = NameToAttackType(row[kAutoNextColumn]);
-		}
-		//前進中に上がる速さ
-		if (hasColumn(kRiseSpeedColumn))
-		{
-			info.riseSpeed = std::stof(row[kRiseSpeedColumn]);
-		}
-		//当たった敵を運ぶか
-		if (hasColumn(kCarryColumn))
-		{
-			info.carry = std::stoi(row[kCarryColumn]) != 0;
-		}
-		m_infoList[info.type] = info;
+		info.autoNext = NameToOptionalAttackType(row[4]);
 	}
 }
 

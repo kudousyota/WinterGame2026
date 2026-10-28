@@ -25,12 +25,7 @@ enum class AttackType
 	Breath,
 	WitchHand,
 	WitchLeg,
-};
-
-enum class SummonStyle
-{
-	Norml,//通常
-	Stomp,//真上からの攻撃
+	WitchStomp,//真上から踏みつける足
 };
 
 class AttackData
