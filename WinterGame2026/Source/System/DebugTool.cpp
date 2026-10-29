@@ -45,6 +45,8 @@ void DebugTool::Update(const std::vector<Target>& targets)
 	if (IsKeyTriggered(KEY_INPUT_F1)) m_isShowCollision = !m_isShowCollision;
 	if (IsKeyTriggered(KEY_INPUT_F2)) m_isShowText = !m_isShowText;
 	if (IsKeyTriggered(KEY_INPUT_F3)) m_isShowGrid = !m_isShowGrid;
+	if (IsKeyTriggered(KEY_INPUT_F4)) m_isShowLockOn = !m_isShowLockOn;
+	if (IsKeyTriggered(KEY_INPUT_F9)) m_isShowEnemyRange = !m_isShowEnemyRange;
 
 	//CSVの読み直し
 	if (IsKeyTriggered(KEY_INPUT_F5)) Reload(targets);
@@ -111,10 +113,11 @@ void DebugTool::Draw(const std::vector<Target>& targets, const Camera& camera, i
 	DrawFormatString(0, y, white, "LStick  Raw:(%5d, %5d)  Input:(%.2f, %.2f)",
 		m_leftStickX, m_leftStickY, input.GetStickLX(), input.GetStickLY());
 	y += kLineHeight;
-	DrawFormatString(0, y, white, "RStick  Raw:(%5d, %5d)", m_rightStickX, m_rightStickY);
+	DrawFormatString(0, y, white, "RStick  Raw:(%5d, %5d)  Value:(%.2f, %.2f)",
+		m_rightStickX, m_rightStickY, input.GetStickRX(), input.GetStickRY());
 	y += kLineHeight;
 	//カメラ
-	DrawFormatString(0, y, white, "Camera  AngleX:%.3f  AngleY:%.3f", camera.GetAngleX(), camera.GetAngleY());
+	DrawFormatString(0, y, white, "Camera  Yaw:%.3f  Pitch:%.3f", camera.GetYaw(), camera.GetPitch());
 	y += kLineHeight;
 	//最後に使われた入力が何フレーム前に押されたか(黄色はバッファのおかげで出た入力)
 	const auto& used = input.GetDebugUsedInput();

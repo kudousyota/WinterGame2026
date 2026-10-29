@@ -8,9 +8,10 @@ class Camera;
 //デバッグ機能(Debugビルドでだけ使う)
 //GameSceneが所有する
 //
-//F1:当たり判定の表示  F2:文字情報の表示  F3:グリッドの表示
+//F1:当たり判定の表示  F2:文字情報の表示  F3:グリッドの表示  F4:ロックオン範囲の表示
 //F5:CSVの読み直し
 //F6:一時停止  F7:コマ送り(一時停止中)  F8:スロー
+//F9:敵の索敵・攻撃範囲の表示
 class DebugTool
 {
 public:
@@ -31,6 +32,8 @@ public:
 
 	bool IsShowCollision()const { return m_isShowCollision; }
 	bool IsShowGrid()const { return m_isShowGrid; }
+	bool IsShowLockOn()const { return m_isShowLockOn; }
+	bool IsShowEnemyRange()const { return m_isShowEnemyRange; }
 
 	//文字情報を描画する
 	void Draw(const std::vector<Target>& targets, const Camera& camera, int frameCount)const;
@@ -56,6 +59,8 @@ private:
 	bool m_isShowCollision = true;
 	bool m_isShowText = true;
 	bool m_isShowGrid = true;
+	bool m_isShowLockOn = true;
+	bool m_isShowEnemyRange = true;
 
 	//一時停止中か
 	bool m_isPaused = false;

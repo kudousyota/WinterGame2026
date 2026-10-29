@@ -30,6 +30,8 @@ private:
 	void ApplyAttackHit(Character& attacker, const AttackRequest& request, const CollisionManager::AttackHit& hit);
 	//ロックオンの入力を処理して、狙う敵を更新する
 	void UpdateLockOn();
+	//ロックオンで敵を探す基準の向き(スティックの方向、倒していなければカメラの正面)
+	Vector3 GetLockOnBaseDir() const;
 	//プレイヤーが攻撃で向く相手(ロックオン中はその敵、そうでなければ入力方向で一番狙いやすい敵)
 	const Character* GetAttackTarget() const;
 	//敵の一覧(敵が増えたらここに足す)

@@ -4,6 +4,10 @@
 #include "State/EnemyStateDeath.h"
 #include "State/EnemyStateKnockdown.h"
 #include <cfloat>
+#ifdef _DEBUG
+#include "DxLib.h"
+#include "../../../System/DebugDraw.h"
+#endif
 
 Enemy::Enemy()
 {
@@ -148,3 +152,26 @@ void Enemy::StrafeAroundTarget(float speedScale, float side)
 	Vector3 move = sideDir * (m_speed * speedScale);
 	m_velocity = Vector3(move.x, m_velocity.y, move.z);
 }
+
+#ifdef _DEBUG
+void Enemy::DrawDebugRange() const
+{
+	//距離はXZ平面で測っているので、ターゲット(プレイヤー)の足元の高さに描く
+	//(敵は浮いているので、敵の高さに描くと地面から離れて見づらい)
+	Vector3 center = m_pos;
+	if (m_pTarget) center.y = m_pTarget->GetPos().y;
+	center.y += 2.0f;
+
+	//索敵範囲(水色):この中にプレイヤーが入ると追いかける
+	DebugDraw::DrawCircle(center, m_searchRange, 0x00ffff);
+	//攻撃範囲(オレンジ):この中なら攻撃する
+	DebugDraw::DrawCircle(center, m_attackRange, 0xff8000);
+	//攻撃の後に離れる距離(白)
+	DebugDraw::DrawCircle(center, m_keepDistance, 0xffffff);
+	//近すぎる距離(ピンク):この中に入られると離れる
+	DebugDraw::DrawCircle(center, m_tooCloseDistance, 0xff00ff);
+
+	//向いている方向
+	DrawLine3D(center, center + m_forward * m_tooCloseDistance, 0xff00ff);
+}
+#endif

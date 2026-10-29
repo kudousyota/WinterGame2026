@@ -97,7 +97,7 @@ void AttackTable::Load(const Rows& hitRows, const Rows& motionRows, const Rows& 
 		info.riseSpeed = std::stof(row[9]);
 	}
 
-	//コンボのつながり(プレイヤーだけ)
+	//コンボのつながり
 	for (const auto& row : comboRows)
 	{
 		if (row.size() < kComboColumnNum)

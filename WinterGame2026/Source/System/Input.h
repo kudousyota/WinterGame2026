@@ -39,6 +39,9 @@ public:
 
 	float GetStickLX()const;
 	float GetStickLY()const;
+	//右スティック(-1～1、上と右がプラス)
+	float GetStickRX()const;
+	float GetStickRY()const;
 
 	//フレーム以内に押されたかどうか
 	bool IsBuffered(const char* name, int frame)const;
@@ -74,6 +77,9 @@ private:
 
 	//コントローラーの入力情報
 	DINPUT_JOYSTATE m_padState;
+	//右スティックの生の値(-1000～1000)
+	int m_rightStickX = 0;
+	int m_rightStickY = 0;
 
 	//今のフレーム番号(ゲーム内の時計)
 	int m_nowFrame = 0;

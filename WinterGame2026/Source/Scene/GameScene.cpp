@@ -23,8 +23,6 @@ namespace
 	constexpr int kShakeFrame = 12;
 	//ウィッチタイム中に画面に重ねる色の濃さ(0～255)
 	constexpr int kWitchTimeOverlayAlpha = 128;
-	//カメラに映る一番遠い距離(ステージの端から端まで映るようにする)
-	constexpr float kCameraFar = 7000.0f;
 	//勝ち負けが決まってから画面を切り替えるまでのフレーム数(倒れる様子を見せる)
 	constexpr int kGameEndWaitFrame = 120;
 }
@@ -51,11 +49,6 @@ void GameScene::Init()
 	SetUseZBuffer3D(true);//Zバッファを使います
 	SetWriteZBuffer3D(true);//描画する物体はZバッファにも距離を書き込む
 
-	//カメラの設定
-	SetCameraPositionAndTarget_UpVecY(VGet(0.0f, 300.0f, -700.0f), VGet(0.0f, 0.0f, 0.0f));
-	SetupCamera_Perspective(DX_PI_F / 3.0f);
-	SetCameraNearFar(200.0f, kCameraFar);
-
 	//ステージの生成
 	m_pStage = std::make_shared<Stage>();
 	m_pStage->Init();
@@ -74,10 +67,11 @@ void GameScene::Init()
 	m_collision.Register(m_pPlayer.get());
 	m_collision.Register(m_pAlien.get());
 
+	//射影(視野角・映る距離)の設定もカメラが行う
 	m_pCamera = std::make_shared<Camera>();
 	m_pCamera->Init(m_pPlayer->GetCameraTarget(),m_pPlayer->GetAngle());
 	//地形とのめり込み判定に使うステージを渡す
-	m_pCamera->SetStage(m_pStage);
+	m_pCamera->SetStageHandle(m_pStage->GetModelHandle());
 
 }
 void GameScene::Update()
@@ -91,11 +85,13 @@ void GameScene::Update()
 	//タイマーの更新(時間スケールやウィッチタイムの残りフレームを減らす)
 	//一時停止・スロー中に進めると、先行入力やヒットストップの時間がずれるので、ゲームが進むときだけ更新する
 	Timer::Instance().Update();
+	//ウィッチタイム中はカメラを引く
+	m_pCamera->SetPull(Timer::Instance().IsEnemySlow());
 
 	//ヒットストップ中はキャラクターを止めて、カメラ(シェイク)だけ動かす
 	if (Timer::Instance().IsHitStop())
 	{
-		m_pCamera->Update(m_pPlayer->GetCameraTarget());
+		m_pCamera->Update(m_pPlayer->GetCameraTarget(),m_lockOn.GetTargetPos());
 		return;
 	}
 
@@ -129,7 +125,7 @@ void GameScene::Update()
 	//飛び道具が動き終わってから当たり判定を行う
 	ProcessProjectileHits();
 
-	m_pCamera->Update(m_pPlayer->GetCameraTarget());
+	m_pCamera->Update(m_pPlayer->GetCameraTarget(),m_lockOn.GetTargetPos());
 	//カメラが確定してからEffekseerに同期して更新する
 	EffectManager::Instns().Update();
 
@@ -159,6 +155,16 @@ void GameScene::Draw()
 	if (m_debug.IsShowGrid()) DrawGrid();
 	//当たり判定のカプセルを表示
 	if (m_debug.IsShowCollision()) m_collision.DrawDebug();
+	//ロックオンできる範囲を表示
+	if (m_debug.IsShowLockOn()) m_lockOn.DrawDebug(m_pPlayer->GetPos(), GetLockOnBaseDir());
+	//敵の索敵・攻撃の範囲を表示
+	if (m_debug.IsShowEnemyRange())
+	{
+		for (const Enemy* enemy : GetEnemyList())
+		{
+			if (!enemy->IsVanished()) enemy->DrawDebugRange();
+		}
+	}
 	//文字情報
 	m_debug.Draw(GetDebugTargets(), *m_pCamera, m_frameCount);
 	if (auto pos = m_lockOn.GetTargetPos())
@@ -282,6 +288,16 @@ void GameScene::ApplyAttackHit(Character& attacker, const AttackRequest& request
 	m_pCamera->Shake(kShakePower, kShakeFrame);
 }
 
+Vector3 GameScene::GetLockOnBaseDir() const
+{
+	Vector3 dir = m_pPlayer->GetMoveInput();
+	if (dir.SqMagnitude() <= 0.0f)
+	{
+		dir = m_pCamera->GetForward();
+	}
+	return dir;
+}
+
 void GameScene::UpdateLockOn()
 {
 	auto& input = Input::Instance();
@@ -290,12 +306,7 @@ void GameScene::UpdateLockOn()
 	if (input.IsTriggered("target"))
 	{
 		//スティックを倒している方向の敵から狙う
-		Vector3 dir = m_pPlayer->GetMoveInput();
-		if (dir.SqMagnitude() <= 0.0f)
-		{
-			dir = m_pCamera->GetForward();
-		}
-		m_lockOn.Start(playerPos, dir, GetEnemies());
+		m_lockOn.Start(playerPos, GetLockOnBaseDir(), GetEnemies());
 	}
 	else if(!input.IsPressed("target"))
 	{

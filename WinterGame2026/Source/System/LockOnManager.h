@@ -21,6 +21,11 @@ public:
 	//inputDir:スティックの方向(倒していなければ長さ0) forward:今向いている方向
 	Character* SearchSoft(const Vector3& playerPos, const Vector3& inputDir, const Vector3& forward, const std::vector<Character*>& enemies)const;
 
+#ifdef _DEBUG
+	//ロックオンできる範囲を足元に描く(baseDir:探すときの基準の向き)
+	void DrawDebug(const Vector3& playerPos, const Vector3& baseDir) const;
+#endif
+
 private:
 	//maxDistance以内で一番点数の高い敵を取得する
 	//nearMinDot:近い敵を狙える角度(内積)

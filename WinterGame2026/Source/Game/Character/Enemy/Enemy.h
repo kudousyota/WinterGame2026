@@ -75,6 +75,11 @@ public:
 	void SetAnimPause(bool isPause) { m_isAnimPause = isPause; }
 	bool IsAnimPause()const { return m_isAnimPause; }
 
+#ifdef _DEBUG
+	//索敵・攻撃などの範囲と向いている方向を描く
+	void DrawDebugRange()const;
+#endif
+
 protected:
 	//HPが0以下になったら死亡ステートにする(派生クラスのUpdateの最初に呼ぶ)
 	void CheckDeath();

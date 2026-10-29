@@ -48,7 +48,7 @@ void Input::InitializeInputTable()
 	m_inputTable["right"] = { { PeripheralType::keyboard,KEY_INPUT_RIGHT},
 						  { PeripheralType::pad1,PAD_INPUT_RIGHT } };
 	m_inputTable["target"] = { { PeripheralType::keyboard,KEY_INPUT_SPACE},
-							{ PeripheralType::pad1,PAD_INPUT_12 } };	// PADの右スティック押し込み
+							{ PeripheralType::pad1,PAD_INPUT_5 } };	// PADの右スティック押し込み
 }
 
 Input::Input() : m_inputData{}, m_lastInputData{}, m_inputTable{}
@@ -69,6 +69,7 @@ void Input::Update(int nowFrame)
 {
 	m_nowFrame = nowFrame;
 	GetJoypadDirectInputState(DX_INPUT_PAD1, &m_padState);
+	GetJoypadAnalogInputRight(&m_rightStickX, &m_rightStickY, DX_INPUT_PAD1);
 
 	//まず現在の入力情報を取得
 	char keyState[256];
@@ -151,6 +152,31 @@ float Input::GetStickLY()const
 {
 	//判定
 	float value = -m_padState.Y / 1000.0f;
+
+	if (fabs(value) < 0.2f)
+	{
+		value = 0.0f;
+	}
+
+	return value;
+}
+
+float Input::GetStickRX()const
+{
+	float value = m_rightStickX / 1000.0f;
+
+	if (fabs(value) < 0.2f)
+	{
+		value = 0.0f;
+	}
+
+	return value;
+}
+
+float Input::GetStickRY()const
+{
+	//DxLibは下がプラスなので、左スティックと同じく上をプラスにする
+	float value = -m_rightStickY / 1000.0f;
 
 	if (fabs(value) < 0.2f)
 	{

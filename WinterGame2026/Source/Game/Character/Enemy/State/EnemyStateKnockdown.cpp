@@ -5,12 +5,19 @@
 
 namespace
 {
-	//吹っ飛びのアニメーション(HitBackward)で、体が宙に浮いて後ろへ飛んでいる区間(アニメーション全体に対する割合)
-	//この区間の外(殴られて立っている間・倒れた後)は動かさないので、足が滑って見えない
-	constexpr float kFlyStartRate = 0.21f;
-	constexpr float kFlyEndRate = 0.55f;
-	//地面に倒れきった割合(HitBackwardはこの後、自分で起き上がりかけるので、ここでアニメーションを止める)
-	constexpr float kLieDownRate = 0.55f;
+	//吹っ飛びのアニメーション(FlyingBack・全92フレーム)で、体が宙に浮いて後ろへ飛んでいる区間(アニメーション全体に対する割合)
+	//当たった瞬間から飛び始めて、27フレーム目で背中から地面に着く
+	//この区間の外(倒れた後)は動かさないので、体が滑って見えない
+	constexpr float kFlyStartRate = 0.0f;
+	constexpr float kFlyEndRate = 0.29f;
+	//地面に倒れきった割合(着地した後の揺れが収まるまで流してから止める)
+	constexpr float kLieDownRate = 0.9f;
+
+	//飛び始めが一番速く、着地に向けてゆっくりになる(アニメーションの腰の動きに合わせる)
+	float EaseOut(float t)
+	{
+		return 1.0f - (1.0f - t) * (1.0f - t);
+	}
 	//倒れたままでいるフレーム数(この間に地上のコンボを入れられる)
 	constexpr float kLieFrame = 90.0f;
 }
@@ -55,7 +62,7 @@ void EnemyStateKnockdown::Update()
 	t = std::clamp(t, 0.0f, 1.0f);
 
 	//このフレームで進む距離
-	float move = (t - m_prevT) * m_distance;
+	float move = (EaseOut(t) - EaseOut(m_prevT)) * m_distance;
 	//このフレームで下がる高さ
 	float fall = (t - m_prevT) * m_fallHeight;
 	//後ろへずらして下にも下げる

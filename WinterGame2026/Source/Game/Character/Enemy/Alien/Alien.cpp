@@ -12,7 +12,7 @@ namespace
 	//死亡のアニメーション(短い倒れ方の"Alien|Dead"もモデルに入っている)
 	const char* const kDeathAnimName = "Alien|Death";
 	//叩き落とされて倒れる・起き上がるアニメーション
-	const char* const kKnockdownAnimName = "Alien|HitBackward";
+	const char* const kKnockdownAnimName = "Alien|FlyingBack";
 	const char* const kGetUpAnimName = "Alien|StandUp";
 	//浮いている高さ
 	constexpr float kHoverHeight = 90.0f;

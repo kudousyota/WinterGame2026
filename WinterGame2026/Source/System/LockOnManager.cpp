@@ -2,6 +2,7 @@
 #include "../Game/Character/Character.h"
 #include <cfloat>
 #include <cmath>
+#include "DebugDraw.h"
 
 namespace
 {
@@ -13,6 +14,9 @@ namespace
 	constexpr float kMinDot = 0.7f;
 	//近い敵は真横まで(cos90度=0)
 	constexpr float kNearMinDot = 0.0f;
+	//ロックオンは、近い敵なら後ろにいても狙える(cos180度=-1)
+	//前の敵の方が点数が高いので、後ろの敵は前に狙える敵がいないときだけ選ばれる
+	constexpr float kLockOnNearMinDot = -1.0f;
 	//近い敵をどれくらい優先するか
 	constexpr float kDistanceWeight = 0.3f;
 	//長さがほぼ0のベクトルは正規化できないので除く
@@ -29,7 +33,7 @@ namespace
 void LockOnManager::Start(const Vector3& playerPos, const Vector3& baseDir, const std::vector<Character*>& enemies)
 {
 	//見つからなかったらnullptrが返る
-	m_pTarget = Search(playerPos, baseDir, enemies, kMaxDistance, kNearMinDot);
+	m_pTarget = Search(playerPos, baseDir, enemies, kMaxDistance, kLockOnNearMinDot);
 }
 
 Character* LockOnManager::SearchSoft(const Vector3& playerPos, const Vector3& inputDir, const Vector3& forward, const std::vector<Character*>& enemies) const
@@ -120,3 +124,23 @@ Character* LockOnManager::Search(const Vector3& playerPos, const Vector3& baseDi
 	}
 	return bestTarget;
 }
+
+#ifdef _DEBUG
+void LockOnManager::DrawDebug(const Vector3& playerPos, const Vector3& baseDir) const
+{
+	Vector3 dir = baseDir;
+	dir.y = 0.0f;
+	if (dir.SqMagnitude() < kMinSqLength) return;
+	dir = dir.Normalize();
+
+	//地面と重なってちらつかないよう少し浮かせる
+	Vector3 center = playerPos + Vector3(0.0f, 2.0f, 0.0f);
+
+	//遠い敵を狙える範囲(緑)
+	DebugDraw::DrawFan(center, dir, kNearDistance, kMaxDistance, acosf(kMinDot), 0x00ff00);
+	//近い敵を狙える範囲(黄)
+	DebugDraw::DrawFan(center, dir, 0.0f, kNearDistance, acosf(kLockOnNearMinDot), 0xffff00);
+	//ロックオンが外れる距離(赤)
+	DebugDraw::DrawCircle(center, kLoseDistance, 0xff0000);
+}
+#endif

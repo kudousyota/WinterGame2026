@@ -28,7 +28,7 @@ namespace
 	constexpr float kWitchHandForwardOffset = 150.0f;
 	//ウィケッドウィーブのエフェクトの拡大率(Effekseerの1単位を何cmにするか)
 	constexpr float kWitchHandScale = 40.0f;
-	//エフェクトの原点から拳(着弾点)までの距離(Effekseerの単位)
+	//エフェクトの原点から拳までの距離
 	constexpr float kWitchHandFistDistance = 1.1f;
 	//魔法陣を出したい位置(足元から見て後ろ・上・右への距離)。右肩のあたりから前へ突き出す
 	constexpr float kWitchHandPortalBack = 50.0f;

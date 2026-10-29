@@ -160,7 +160,7 @@ void Player::OnHit(const AttackData& attackData, int damage)
 
 void Player::OnJustDodge()
 {
-	//敵だけ時間を遅くする(敵・飛び道具は敵専用の倍率を掛けて動いている)
+	//敵だけ時間を遅くする
 	Timer::Instance().SetEnemyTimeScaleForFrames(kWitchTimeScale, kWitchTimeFrame);
 }
 

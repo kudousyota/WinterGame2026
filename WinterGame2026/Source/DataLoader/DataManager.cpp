@@ -17,7 +17,7 @@ bool DataManager::ReloadData()
 	StatusData statusData;
 	AttackTable attackTable;
 	//一旦別の変数に読み込んで、全部成功したときだけ差し替える
-	//(編集途中のCSVで数字が読めなくても、今のデータが壊れないようにする)
+	//編集途中のCSVで数字が読めなくても、今のデータが壊れないようにする
 	try
 	{
 		statusData.Load(LoadCsv("Data/Csv/State.csv"));
