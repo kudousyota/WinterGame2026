@@ -114,7 +114,9 @@ public:
 
 	//攻撃する側
 	//攻撃を始めるたびに新しい番号を発行する
-	int IssueAttackId() { return ++m_attackIdCounter; }
+	//番号は全キャラクターで共通にして、同じ番号が二度と出ないようにする
+	//(消えた敵と同じアドレスに新しい敵が作られても、前の敵の記録と番号がかぶらない)
+	int IssueAttackId() { return ++s_attackIdCounter; }
 	//攻撃を申請する(判定はGameSceneが行う)
 	void RequestAttack(const AttackRequest& request) { m_attackRequests.push_back(request); }
 	
@@ -180,8 +182,8 @@ protected:
 	std::string m_statusName;
 
 	//攻撃
-	//発行した攻撃番号
-	int m_attackIdCounter = 0;
+	//発行した攻撃番号(全キャラクターで1つ)
+	inline static int s_attackIdCounter = 0;
 	//このフレームに申請された攻撃
 	std::vector<AttackRequest> m_attackRequests;
 	//このフレームに申請された飛び道具

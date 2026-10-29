@@ -90,7 +90,7 @@ void PlayerStateAttack::Enter()
 	}
 
 	//狙う相手がいればそちらを向く
-	if (const Character* target = m_player.GetAttackTarget())
+	if (auto target = m_player.GetAttackTarget())
 	{
 		//敵への向き
 		Vector3 toTarget = target->GetPos() - m_player.GetPos();

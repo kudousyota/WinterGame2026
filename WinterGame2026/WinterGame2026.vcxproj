@@ -158,6 +158,7 @@
     <ClCompile Include="Source\Game\Breath.cpp" />
     <ClCompile Include="Source\Game\Character\Enemy\Alien\Alien.cpp" />
     <ClCompile Include="Source\Game\Character\Enemy\Enemy.cpp" />
+    <ClCompile Include="Source\Game\Character\Enemy\EnemyManager.cpp" />
     <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateAttack.cpp" />
     <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateChase.cpp" />
     <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateDamage.cpp" />
@@ -215,6 +216,7 @@
     <ClInclude Include="Source\Game\Breath.h" />
     <ClInclude Include="Source\Game\Character\Enemy\Alien\Alien.h" />
     <ClInclude Include="Source\Game\Character\Enemy\Enemy.h" />
+    <ClInclude Include="Source\Game\Character\Enemy\EnemyManager.h" />
     <ClInclude Include="Source\Game\Character\Player\State\PlayerStateAttack.h" />
     <ClInclude Include="Source\System\Projectile.h" />
     <ClInclude Include="Source\System\ProjectileManager.h" />

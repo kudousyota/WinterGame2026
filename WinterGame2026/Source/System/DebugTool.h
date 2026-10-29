@@ -18,7 +18,8 @@ public:
 	//表示するキャラクター
 	struct Target
 	{
-		const char* name;
+		//敵は"Alien0"のように番号を付けて作るので、文字列で持つ
+		std::string name;
 		Character* character;
 	};
 

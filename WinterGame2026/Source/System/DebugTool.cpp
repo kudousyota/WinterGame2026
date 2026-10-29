@@ -99,7 +99,7 @@ void DebugTool::Draw(const std::vector<Target>& targets, const Camera& camera, i
 	for (const auto& target : targets)
 	{
 		const Character& c = *target.character;
-		DrawFormatString(0, y, white, "%-7s %s", target.name, c.GetDebugStateText().c_str());
+		DrawFormatString(0, y, white, "%-7s %s", target.name.c_str(), c.GetDebugStateText().c_str());
 		y += kLineHeight;
 		const Vector3& pos = c.GetPos();
 		DrawFormatString(0, y, white, "        HP:%d/%d%s  Pos:(%.0f, %.0f, %.0f)  Ground:%s",

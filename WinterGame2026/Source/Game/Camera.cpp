@@ -87,9 +87,6 @@ void Camera::Update(const Vector3& focusPos, const std::optional<Vector3>& lockO
 	}
 	m_focus += (focusGoal - m_focus) * kFocusFollow;
 
-
-	m_focus += (focusPos - m_focus) * kFocusFollow;
-
 	//角度と距離から位置を出し、ステージにめり込まないようにする
 	Vector3 idealPos = m_focus - CalcDir() * (kDistance + m_pullOffset);
 	m_pos = AvoidStage(idealPos);

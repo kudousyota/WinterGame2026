@@ -25,6 +25,13 @@ namespace
 	constexpr int kWitchTimeOverlayAlpha = 128;
 	//勝ち負けが決まってから画面を切り替えるまでのフレーム数(倒れる様子を見せる)
 	constexpr int kGameEndWaitFrame = 120;
+	//最初に出す敵の位置(地面の位置。スポーンの仕組みができたらCSVに移す)
+	const Vector3 kEnemyStartPos[] =
+	{
+		Vector3(0.0f, 0.0f, 300.0f),
+		Vector3(-400.0f, 0.0f, 600.0f),
+		Vector3(400.0f, 0.0f, 600.0f),
+	};
 }
 
 GameScene::GameScene(SceneController& controller):
@@ -57,15 +64,14 @@ void GameScene::Init()
 	m_pPlayer = std::make_shared<Player>();
 	m_pPlayer->Init();
 
-	//エイリアンの生成
-	m_pAlien = std::make_shared<Alien>();
-	m_pAlien->Init();
-	//エイリアンはプレイヤーを狙う
-	m_pAlien->SetTarget(m_pPlayer.get());
-
 	//当たり判定に登録(登録・解除はシーンだけが行う)
 	m_collision.Register(m_pPlayer.get());
-	m_collision.Register(m_pAlien.get());
+
+	//エイリアンの生成(敵はプレイヤーを狙うので、プレイヤーの後に出す)
+	for (const Vector3& pos : kEnemyStartPos)
+	{
+		SpawnEnemy(std::make_shared<Alien>(), pos);
+	}
 
 	//射影(視野角・映る距離)の設定もカメラが行う
 	m_pCamera = std::make_shared<Camera>();
@@ -104,18 +110,20 @@ void GameScene::Update()
 	UpdateLockOn();
 	m_pPlayer->SetAttackTarget(GetAttackTarget());
 	m_pPlayer->Update();
-	m_pAlien->Update();
+	m_enemyManager.Update();
 
 	//全員が動き終わってから、キャラクター同士の重なりをまとめて解消する
 	m_collision.ResolveAll();
 
 	//キャラクター同士の押し出しで壁にめり込むことがあるので、ステージとの判定は最後に行う
-	StageCollision::Resolve(m_pPlayer.get(), m_pStage->GetModelHandle());
-	StageCollision::Resolve(m_pAlien.get(), m_pStage->GetModelHandle());
+	for (Character* character : GetAllCharacters())
+	{
+		StageCollision::Resolve(character, m_pStage->GetModelHandle());
+	}
 
 	//押し出しで確定した位置をモデルに反映する
 	m_pPlayer->LateUpdate();
-	m_pAlien->LateUpdate();
+	m_enemyManager.LateUpdate();
 
 	//位置が確定してから攻撃判定を行う
 	ProcessAttacks();
@@ -129,6 +137,8 @@ void GameScene::Update()
 	//カメラが確定してからEffekseerに同期して更新する
 	EffectManager::Instns().Update();
 
+	//このフレームの処理が全部終わってから消す(途中で消すと、後の処理で一覧がずれる)
+	RemoveVanishedEnemies();
 	CheckGameEnd();
 }
 
@@ -146,7 +156,7 @@ void GameScene::Draw()
 	}
 
 	m_pPlayer->Draw();
-	m_pAlien->Draw();
+	m_enemyManager.Draw();
 	//飛び道具の描画
 	m_projectiles.Draw();
 	//エフェクトの描画
@@ -178,15 +188,20 @@ void GameScene::Draw()
 #ifdef _DEBUG
 std::vector<DebugTool::Target> GameScene::GetDebugTargets() const
 {
-	return { { "Player", m_pPlayer.get() }, { "Alien", m_pAlien.get() } };
+	std::vector<DebugTool::Target> targets = { { "Player", m_pPlayer.get() } };
+	//敵は何番目かを名前に付けて見分ける
+	const auto& enemies = m_enemyManager.GetEnemies();
+	for (size_t i = 0; i < enemies.size(); i++)
+	{
+		targets.push_back({ "Alien" + std::to_string(i), enemies[i].get() });
+	}
+	return targets;
 }
 #endif // _DEBUG
 
 void GameScene::ProcessAttacks()
 {
-	Character* characters[] = { m_pPlayer.get(), m_pAlien.get() };
-
-	for (Character* attacker : characters)
+	for (Character* attacker : GetAllCharacters())
 	{
 		for (const auto& request : attacker->TakeAttackRequests())
 		{
@@ -213,9 +228,7 @@ void GameScene::ProcessAttacks()
 
 void GameScene::ProcessShots()
 {
-	Character* characters[] = { m_pPlayer.get(), m_pAlien.get() };
-
-	for (Character* attacker : characters)
+	for (Character* attacker : GetAllCharacters())
 	{
 		for (const auto& request : attacker->TakeShotRequests())
 		{
@@ -290,25 +303,23 @@ void GameScene::ApplyAttackHit(Character& attacker, const AttackRequest& request
 
 Vector3 GameScene::GetLockOnBaseDir() const
 {
-	Vector3 dir = m_pPlayer->GetMoveInput();
-	if (dir.SqMagnitude() <= 0.0f)
-	{
-		dir = m_pCamera->GetForward();
-	}
-	return dir;
+	return m_pCamera->GetForward();
 }
 
 void GameScene::UpdateLockOn()
 {
 	auto& input = Input::Instance();
 	const Vector3& playerPos = m_pPlayer->GetPos();
-
-	if (input.IsTriggered("target"))
+	//押している間
+	if (input.IsPressed("target"))
 	{
-		//スティックを倒している方向の敵から狙う
-		m_lockOn.Start(playerPos, GetLockOnBaseDir(), GetEnemies());
+		if (!m_lockOn.GetTarget())
+		{
+			//カメラの正面を基準にする
+			m_lockOn.Start(playerPos, GetLockOnBaseDir(), GetEnemies());
+		}
 	}
-	else if(!input.IsPressed("target"))
+	else
 	{
 		//ボタンをはなしたら外す
 		m_lockOn.Release();
@@ -317,12 +328,12 @@ void GameScene::UpdateLockOn()
 	m_lockOn.Update(playerPos);
 }
 
-const Character* GameScene::GetAttackTarget() const
+std::shared_ptr<const Character> GameScene::GetAttackTarget() const
 {
 	//ロックオン中はその敵
-	if (m_lockOn.GetTargetPos())
+	if (auto target = m_lockOn.GetTarget())
 	{
-		return m_lockOn.GetTarget();
+		return target;
 	}
 	//ロックオンしていないときは、近くで一番狙いやすい敵を返す
 	return m_lockOn.SearchSoft(m_pPlayer->GetPos(), m_pPlayer->GetMoveInput(), m_pPlayer->GetForward(), GetEnemies());
@@ -330,13 +341,57 @@ const Character* GameScene::GetAttackTarget() const
 
 std::vector<Enemy*> GameScene::GetEnemyList()const
 {
-	return { m_pAlien.get() };
+	std::vector<Enemy*> result;
+	for (const auto& enemy : m_enemyManager.GetEnemies())
+	{
+		result.push_back(enemy.get());
+	}
+	return result;
 }
 
-std::vector<Character*> GameScene::GetEnemies()const
+std::vector<std::shared_ptr<Character>> GameScene::GetEnemies()const
 {
-	auto enemies = GetEnemyList();
-	return std::vector<Character*>(enemies.begin(), enemies.end());
+	//shared_ptr<Enemy>からshared_ptr<Character>へは自動で変換される
+	const auto& enemies = m_enemyManager.GetEnemies();
+	return std::vector<std::shared_ptr<Character>>(enemies.begin(), enemies.end());
+}
+
+std::vector<Character*> GameScene::GetAllCharacters()const
+{
+	std::vector<Character*> result = { m_pPlayer.get() };
+	for (Enemy* enemy : GetEnemyList())
+	{
+		result.push_back(enemy);
+	}
+	return result;
+}
+
+void GameScene::SpawnEnemy(const std::shared_ptr<Enemy>& enemy, const Vector3& groundPos)
+{
+	//Initで最初の位置が入るので、位置はInitの後に決める
+	enemy->Init();
+	enemy->SetPosition(groundPos + Vector3(0.0f, enemy->GetHoverHeight(), 0.0f));
+	//最初のフレームから正しい位置に描かれるよう、モデルにも反映しておく
+	enemy->LateUpdate();
+	//敵はプレイヤーを狙う
+	enemy->SetTarget(m_pPlayer.get());
+
+	m_collision.Register(enemy.get());
+	m_enemyManager.Add(enemy);
+}
+
+void GameScene::RemoveVanishedEnemies()
+{
+	//当たり判定は生ポインタで持っているので、消す前に必ず外す
+	//(ロックオンとプレイヤーの攻撃対象はweak_ptrなので、消えたら自動で空になる)
+	for (Enemy* enemy : GetEnemyList())
+	{
+		if (enemy->IsVanished())
+		{
+			m_collision.Unregister(enemy);
+		}
+	}
+	m_enemyManager.RemoveVanished();
 }
 
 void GameScene::CheckGameEnd()

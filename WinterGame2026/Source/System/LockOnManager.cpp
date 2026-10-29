@@ -11,14 +11,14 @@ namespace
 	//この距離より近い敵は狙える
 	constexpr float kNearDistance = 200.0f;
 	//狙える角度
-	constexpr float kMinDot = 0.7f;
+	constexpr float kMinDot = 0.5f;
 	//近い敵は真横まで(cos90度=0)
 	constexpr float kNearMinDot = 0.0f;
 	//ロックオンは、近い敵なら後ろにいても狙える(cos180度=-1)
 	//前の敵の方が点数が高いので、後ろの敵は前に狙える敵がいないときだけ選ばれる
 	constexpr float kLockOnNearMinDot = -1.0f;
 	//近い敵をどれくらい優先するか
-	constexpr float kDistanceWeight = 0.3f;
+	constexpr float kDistanceWeight = 0.7f;
 	//長さがほぼ0のベクトルは正規化できないので除く
 	constexpr float kMinSqLength = 0.0001f;
 	//開始距離と同じにすると境界でついたり外れたりするので、少し長くする
@@ -30,13 +30,13 @@ namespace
 	constexpr float kNoInputNearMinDot = -1.0f;
 }
 
-void LockOnManager::Start(const Vector3& playerPos, const Vector3& baseDir, const std::vector<Character*>& enemies)
+void LockOnManager::Start(const Vector3& playerPos, const Vector3& baseDir, const std::vector<std::shared_ptr<Character>>& enemies)
 {
-	//見つからなかったらnullptrが返る
-	m_pTarget = Search(playerPos, baseDir, enemies, kMaxDistance, kLockOnNearMinDot);
+	//見つからなかったら空のまま
+	m_target = Search(playerPos, baseDir, enemies, kMaxDistance, kLockOnNearMinDot);
 }
 
-Character* LockOnManager::SearchSoft(const Vector3& playerPos, const Vector3& inputDir, const Vector3& forward, const std::vector<Character*>& enemies) const
+std::shared_ptr<Character> LockOnManager::SearchSoft(const Vector3& playerPos, const Vector3& inputDir, const Vector3& forward, const std::vector<std::shared_ptr<Character>>& enemies) const
 {
 	//スティックを倒していればその方向を優先する(倒した方向と逆の敵には振り向かない)
 	if (inputDir.SqMagnitude() >= kMinSqLength)
@@ -49,22 +49,28 @@ Character* LockOnManager::SearchSoft(const Vector3& playerPos, const Vector3& in
 
 void LockOnManager::Release()
 {
-	m_pTarget = nullptr;
+	m_target.reset();
 }
 
 void LockOnManager::Update(const Vector3& playerPos)
 {
-	if (!m_pTarget)return;
+	//敵が消えていたら空になる
+	auto target = m_target.lock();
+	if (!target)
+	{
+		Release();
+		return;
+	}
 
 	//死んだら外す
-	if (m_pTarget->IsDead())
+	if (target->IsDead())
 	{
 		Release();
 		return;
 	}
 
 	//距離が遠すぎる敵は外す
-	Vector3 toTarget = m_pTarget->GetCenterPos() - playerPos;
+	Vector3 toTarget = target->GetCenterPos() - playerPos;
 	toTarget.y = 0.0f;
 	if (toTarget.SqMagnitude() > kLoseDistance * kLoseDistance)
 	{
@@ -74,14 +80,15 @@ void LockOnManager::Update(const Vector3& playerPos)
 
 std::optional<Vector3> LockOnManager::GetTargetPos() const
 {
-	if (!m_pTarget)
+	auto target = m_target.lock();
+	if (!target)
 	{
 		return std::nullopt;
 	}
-	return m_pTarget->GetCenterPos();
+	return target->GetCenterPos();
 }
 
-Character* LockOnManager::Search(const Vector3& playerPos, const Vector3& baseDir, const std::vector<Character*>& enemies, float maxDistance, float nearMinDot) const
+std::shared_ptr<Character> LockOnManager::Search(const Vector3& playerPos, const Vector3& baseDir, const std::vector<std::shared_ptr<Character>>& enemies, float maxDistance, float nearMinDot) const
 {
 	//基準の向きは正規化しておく
 	Vector3 baseDirNorm = baseDir;
@@ -92,10 +99,10 @@ Character* LockOnManager::Search(const Vector3& playerPos, const Vector3& baseDi
 	}
 	baseDirNorm = baseDirNorm.Normalize();
 
-	Character* bestTarget = nullptr;
+	std::shared_ptr<Character> bestTarget;
 	float bestScore = -FLT_MAX;
 
-	for (Character* enemy : enemies)
+	for (const auto& enemy : enemies)
 	{
 		//死亡中は無視
 		if (enemy->IsDead())continue;

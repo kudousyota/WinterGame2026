@@ -33,11 +33,12 @@ public:
 	Vector3 GetMoveInput()const;
 
 	//攻撃する時に向く相手を指定する
-	void SetAttackTarget(const Character* target) { m_pAttackTarget = target; }
+	void SetAttackTarget(const std::shared_ptr<const Character>& target) { m_attackTarget = target; }
 
 	void SetGravityScale(float scale) { m_gravityScale = scale; }
 
-	const Character* GetAttackTarget()const { return m_pAttackTarget; }
+	//向く相手(いない、またはもう消えていれば空を返す。その場で使うだけにする)
+	std::shared_ptr<const Character> GetAttackTarget()const { return m_attackTarget.lock(); }
 	//空中で浮ける権利が残っているか
 	bool CanAirHover()const { return m_canAirHover; }
 	//空中で浮ける権利を使う
@@ -55,6 +56,7 @@ private:
 	float m_gravityScale = 1.0f;
 	bool m_canAirHover = false;
 	//所有せず、シーンから向く相手を指定してもらう
-	const Character* m_pAttackTarget = nullptr;
+	//敵が消えても触らないようにweak_ptrで持つ
+	std::weak_ptr<const Character> m_attackTarget;
 };
 

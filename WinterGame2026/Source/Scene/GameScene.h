@@ -3,7 +3,7 @@
 #include "../Game/Character/Player/Player.h"
 #include "../Game/Camera.h"
 #include "../Game/Stage.h"
-#include "../Game/Character/Enemy/Alien/Alien.h"
+#include "../Game/Character/Enemy/EnemyManager.h"
 #include "../System/CollisionManager.h"
 #include "../System/ProjectileManager.h"
 #include "../System/DebugTool.h"
@@ -33,11 +33,18 @@ private:
 	//ロックオンで敵を探す基準の向き(スティックの方向、倒していなければカメラの正面)
 	Vector3 GetLockOnBaseDir() const;
 	//プレイヤーが攻撃で向く相手(ロックオン中はその敵、そうでなければ入力方向で一番狙いやすい敵)
-	const Character* GetAttackTarget() const;
-	//敵の一覧(敵が増えたらここに足す)
+	std::shared_ptr<const Character> GetAttackTarget() const;
+	//敵の一覧(その場で使うだけの処理用。フレームをまたいで持たない)
 	std::vector<Enemy*> GetEnemyList() const;
-	//敵の一覧(ロックオンなどCharacterとして扱う処理用)
-	std::vector<Character*> GetEnemies() const;
+	//敵の一覧(ロックオンなど、weak_ptrで敵を覚えておく処理用)
+	std::vector<std::shared_ptr<Character>> GetEnemies() const;
+	//プレイヤーと全部の敵(攻撃の判定など、その場で使うだけの処理用)
+	std::vector<Character*> GetAllCharacters() const;
+
+	//敵を出す(groundPos:地面の位置。浮いている敵はその分だけ上に置く)
+	void SpawnEnemy(const std::shared_ptr<Enemy>& enemy, const Vector3& groundPos);
+	//死亡演出が終わって消えた敵を、当たり判定から外してから消す
+	void RemoveVanishedEnemies();
 	//勝ち負けが決まっていたら、少し待ってからクリア・ゲームオーバーに切り替える
 	void CheckGameEnd();
 
@@ -53,7 +60,6 @@ private:
 	int m_gameEndFrame = 0;
 
 	std::shared_ptr<Player> m_pPlayer;
-	std::shared_ptr<Alien> m_pAlien;
 	std::shared_ptr<Camera>m_pCamera;
 	std::shared_ptr<Stage> m_pStage;
 
@@ -63,6 +69,8 @@ private:
 	ProjectileManager m_projectiles;
 	//ロックオン(このシーンの中だけで使う)
 	LockOnManager m_lockOn;
+	//敵(敵の持ち主はここだけ)
+	EnemyManager m_enemyManager;
 
 #ifdef _DEBUG
 	//デバッグ機能(一時停止・表示切り替え・CSVの読み直し)
