@@ -14,7 +14,7 @@ namespace
 	constexpr float kMinDot = 0.5f;
 	//近い敵は真横まで(cos90度=0)
 	constexpr float kNearMinDot = 0.0f;
-	//ロックオンは、近い敵なら後ろにいても狙える(cos180度=-1)
+	//ロックオンは、近い敵なら後ろにいても狙える
 	//前の敵の方が点数が高いので、後ろの敵は前に狙える敵がいないときだけ選ばれる
 	constexpr float kLockOnNearMinDot = -1.0f;
 	//近い敵をどれくらい優先するか
