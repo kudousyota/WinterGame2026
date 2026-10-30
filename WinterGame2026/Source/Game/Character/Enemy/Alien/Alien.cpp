@@ -25,7 +25,7 @@ namespace
 	//当たり判定のカプセルの半径
 	constexpr float kCollisionRadius = 50.0f;
 
-	//索敵範囲(この距離までプレイヤーを追いかける)
+	//索敵範囲
 	constexpr float kSearchRange = 1000.0f;
 	//攻撃範囲
 	constexpr float kAttackRange = 450.0f;

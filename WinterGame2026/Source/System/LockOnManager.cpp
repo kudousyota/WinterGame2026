@@ -18,7 +18,7 @@ namespace
 	//前の敵の方が点数が高いので、後ろの敵は前に狙える敵がいないときだけ選ばれる
 	constexpr float kLockOnNearMinDot = -1.0f;
 	//近い敵をどれくらい優先するか
-	constexpr float kDistanceWeight = 0.7f;
+	constexpr float kDistanceWeight = 1.2f;
 	//長さがほぼ0のベクトルは正規化できないので除く
 	constexpr float kMinSqLength = 0.0001f;
 	//開始距離と同じにすると境界でついたり外れたりするので、少し長くする
@@ -121,7 +121,7 @@ std::shared_ptr<Character> LockOnManager::Search(const Vector3& playerPos, const
 		//近い敵は横にいても狙えるようにする
 		float minDot = (distance < kNearDistance) ? nearMinDot : kMinDot;
 		if (dot < minDot)continue;
-		//距離が近いほど点数が高くなるようにする(探す距離に対する割合で減点する)
+		//距離が近いほど点数が高くなるようにする,探す距離に対する割合で減点する
 		float score = dot - (distance / maxDistance) * kDistanceWeight;
 		if (score > bestScore)
 		{

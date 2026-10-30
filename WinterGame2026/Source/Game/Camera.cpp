@@ -18,7 +18,7 @@ namespace
 	//注視点が追いかける速さ(0～1) 
 	constexpr float kFocusFollow = 0.15f;
 
-	//右スティックで回る速さ(1フレームの最大の角度)
+	//右スティックで回る速さ
 	constexpr float kRotSpeedYaw = 0.037f;
 	constexpr float kRotSpeedPitch = 0.03f;
 	//縦回転の制限

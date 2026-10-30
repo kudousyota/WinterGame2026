@@ -12,14 +12,17 @@ public:
 	void Draw();
 
 	//当たり判定に使うモデルのハンドル
-	int GetModelHandle()const { return m_modelHandle; }
+	int GetCollisionHandle()const { return m_collHandle; }
 
 private:
 	//空(画面全体のグラデーション)を描く
 	void DrawSky() const;
 
-	//当たり判定と描画に使うモデル(地面・建物)
+	//描画に使うモデル(地面・神殿)
 	int m_modelHandle = -1;
+	//当たり判定に使うモデル(描画しない)
+	//神殿はポリゴンが多くて判定が重いので、箱や円柱で作った軽いモデルを別に用意している
+	int m_collHandle = -1;
 	//遠景のモデル(描画だけ・当たり判定なし)
 	int m_bgHandle = -1;
 };

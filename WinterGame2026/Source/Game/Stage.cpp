@@ -3,8 +3,10 @@
 
 namespace
 {
-	//ステージのモデル
-	const char* const kModelPath = "Data/Model/GothicStage.mv1";
+	//ステージのモデル(描画用)
+	const char* const kModelPath = "Data/Model/TempleStage.mv1";
+	//ステージの当たり判定用モデル(描画しない)
+	const char* const kCollModelPath = "Data/Model/TempleStage_Coll.mv1";
 	//遠景のモデル(浮島・雲海・空の光輪など。遠くまであるので当たり判定には入れない)
 	const char* const kBgModelPath = "Data/Model/GothicStage_BG.mv1";
 
@@ -22,9 +24,10 @@ namespace
 
 	//当たり判定用に空間を分割する数(X,Y,Z)
 	//細かくするほど判定するポリゴンを絞り込めるが、その分メモリを使う
-	constexpr int kCollDivX = 16;
+	//ステージは奥(Z)に長い(幅約50m・奥行約190m)ので、Zを細かく分ける
+	constexpr int kCollDivX = 8;
 	constexpr int kCollDivY = 4;
-	constexpr int kCollDivZ = 16;
+	constexpr int kCollDivZ = 64;
 }
 
 Stage::Stage()
@@ -35,6 +38,7 @@ Stage::~Stage()
 {
 	//モデルの解放(当たり判定の情報も一緒に解放される)
 	if (m_modelHandle != -1) MV1DeleteModel(m_modelHandle);
+	if (m_collHandle != -1) MV1DeleteModel(m_collHandle);
 	if (m_bgHandle != -1) MV1DeleteModel(m_bgHandle);
 }
 
@@ -52,10 +56,11 @@ void Stage::Init()
 		MV1SetMaterialAmbColor(m_modelHandle, i, MV1GetMaterialDifColor(m_modelHandle, i));
 	}
 
-	//当たり判定の情報を作る
+	//当たり判定の情報は、当たり判定用のモデルにだけ作る
 	//これを呼んでおかないとMV1CollCheck系の関数が当たらない
 	//ステージは動かないので、最初に1回だけ作ればいい
-	MV1SetupCollInfo(m_modelHandle, -1, kCollDivX, kCollDivY, kCollDivZ);
+	m_collHandle = MV1LoadModel(kCollModelPath);
+	MV1SetupCollInfo(m_collHandle, -1, kCollDivX, kCollDivY, kCollDivZ);
 
 	//遠景は見た目だけなので当たり判定は作らない
 	m_bgHandle = MV1LoadModel(kBgModelPath);

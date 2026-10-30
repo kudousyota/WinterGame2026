@@ -77,7 +77,7 @@ void GameScene::Init()
 	m_pCamera = std::make_shared<Camera>();
 	m_pCamera->Init(m_pPlayer->GetCameraTarget(),m_pPlayer->GetAngle());
 	//地形とのめり込み判定に使うステージを渡す
-	m_pCamera->SetStageHandle(m_pStage->GetModelHandle());
+	m_pCamera->SetStageHandle(m_pStage->GetCollisionHandle());
 
 }
 void GameScene::Update()
@@ -118,7 +118,7 @@ void GameScene::Update()
 	//キャラクター同士の押し出しで壁にめり込むことがあるので、ステージとの判定は最後に行う
 	for (Character* character : GetAllCharacters())
 	{
-		StageCollision::Resolve(character, m_pStage->GetModelHandle());
+		StageCollision::Resolve(character, m_pStage->GetCollisionHandle());
 	}
 
 	//押し出しで確定した位置をモデルに反映する
