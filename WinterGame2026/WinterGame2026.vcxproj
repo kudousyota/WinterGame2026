@@ -196,6 +196,7 @@
     <ClCompile Include="Source\Scene\GameOverScene.cpp" />
     <ClCompile Include="Source\DataLoader\StatusData.cpp" />
     <ClCompile Include="Source\System\Timer.cpp" />
+    <ClCompile Include="Source\DataLoader\SpawnTable.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateObserve.h" />
@@ -256,6 +257,7 @@
     <ClInclude Include="Source\Scene\GameOverScene.h" />
     <ClInclude Include="Source\DataLoader\StatusData.h" />
     <ClInclude Include="Source\System\Timer.h" />
+    <ClInclude Include="Source\DataLoader\SpawnTable.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

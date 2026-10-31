@@ -2,7 +2,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
-#include "Vector3.h"
+
 class StatusData
 {
 public:
