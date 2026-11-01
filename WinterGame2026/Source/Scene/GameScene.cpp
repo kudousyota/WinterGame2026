@@ -12,6 +12,8 @@
 #include "SceneController.h"
 #include "GameClearScene.h"
 #include "GameOverScene.h"
+#include <cassert>
+#include "../DataLoader/DataManager.h"
 
 namespace
 {
@@ -25,13 +27,13 @@ namespace
 	constexpr int kWitchTimeOverlayAlpha = 128;
 	//勝ち負けが決まってから画面を切り替えるまでのフレーム数(倒れる様子を見せる)
 	constexpr int kGameEndWaitFrame = 120;
-	//最初に出す敵の位置(地面の位置。スポーンの仕組みができたらCSVに移す)
-	const Vector3 kEnemyStartPos[] =
+	//CSVの名前から敵を作る(敵の種類が増えたらここに足す)
+	std::shared_ptr<Enemy> CreateEnemy(const std::string& name)
 	{
-		Vector3(0.0f, 0.0f, 300.0f),
-		Vector3(-400.0f, 0.0f, 600.0f),
-		Vector3(400.0f, 0.0f, 600.0f),
-	};
+		if (name == "Alien") return std::make_shared<Alien>();
+		assert(false && "知らない敵の名前");
+		return nullptr;
+	}
 }
 
 GameScene::GameScene(SceneController& controller):
@@ -67,12 +69,8 @@ void GameScene::Init()
 	//当たり判定に登録(登録・解除はシーンだけが行う)
 	m_collision.Register(m_pPlayer.get());
 
-	//エイリアンの生成(敵はプレイヤーを狙うので、プレイヤーの後に出す)
-	for (const Vector3& pos : kEnemyStartPos)
-	{
-		SpawnEnemy(std::make_shared<Alien>(), pos);
-	}
-
+	//敵はプレイヤーを狙うので、プレイヤーの後に準備する
+	m_spawner.Init(DataManager::GetInstance().GetSpawnTable());
 	//射影(視野角・映る距離)の設定もカメラが行う
 	m_pCamera = std::make_shared<Camera>();
 	m_pCamera->Init(m_pPlayer->GetCameraTarget(),m_pPlayer->GetAngle());
@@ -88,8 +86,8 @@ void GameScene::Update()
 	if (!m_debug.ShouldUpdateGame()) return;
 #endif // _DEBUG
 
-	//タイマーの更新(時間スケールやウィッチタイムの残りフレームを減らす)
-	//一時停止・スロー中に進めると、先行入力やヒットストップの時間がずれるので、ゲームが進むときだけ更新する
+	//タイマーの更新
+	//一時停止とスロー中に進めると、先行入力やヒットストップの時間がずれるからゲームが進むときだけ更新する
 	Timer::Instance().Update();
 	//ウィッチタイム中はカメラを引く
 	m_pCamera->SetPull(Timer::Instance().IsEnemySlow());
@@ -104,7 +102,7 @@ void GameScene::Update()
 	m_frameCount++;
 	m_collision.BeginFrame();
 	//カメラ基準で移動させるためにカメラの向きを渡す
-	//(ロックオンの方向もカメラ基準なので、ロックオンより先に渡す)
+	//ロックオンの方向もカメラ基準なので、ロックオンより先に渡す
 	m_pPlayer->SetCameraAxis(m_pCamera->GetForward(), m_pCamera->GetRight());
 	//プレイヤーが攻撃の向きに使うので、プレイヤーより先にロックオンを更新する
 	UpdateLockOn();
@@ -137,8 +135,19 @@ void GameScene::Update()
 	//カメラが確定してからEffekseerに同期して更新する
 	EffectManager::Instns().Update();
 
-	//このフレームの処理が全部終わってから消す(途中で消すと、後の処理で一覧がずれる)
+	//このフレームの処理が全部終わってから消す
 	RemoveVanishedEnemies();
+	//消えた敵を外した後だからリストの数がそのまま残っている敵になる
+	m_spawner.Update(static_cast<int>(m_enemyManager.GetEnemies().size()));
+	for (const auto& request : m_spawner.TakeSpawnRequests())
+	{
+		if (auto enemy = CreateEnemy(request.characterName))
+		{
+			SpawnEnemy(enemy, request.groundPos);
+		}
+	}
+	//最後のウェーブまで全滅させたらクリア
+	bool isClear = m_spawner.IsAllWavesFinished();
 	CheckGameEnd();
 }
 

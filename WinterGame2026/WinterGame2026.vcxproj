@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Game\Character\Enemy\EnemySpawner.cpp" />
     <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateObserve.cpp" />
     <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateRetreat.cpp" />
     <ClCompile Include="Source\Effect\Effect.cpp" />
@@ -199,6 +200,7 @@
     <ClCompile Include="Source\DataLoader\SpawnTable.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Game\Character\Enemy\EnemySpawner.h" />
     <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateObserve.h" />
     <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateRetreat.h" />
     <ClInclude Include="Source\Effect\Effect.h" />

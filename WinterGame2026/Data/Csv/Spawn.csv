@@ -1,0 +1,6 @@
+#wave,type,spawnerX,spawnerZ,offsetX,offsetZ,delay
+0,Alien,0,400,0,0,0
+0,Alien,0,400,-150,50,15
+0,Alien,0,400,150,50,30
+1,Alien,-500,600,0,0,0
+1,Alien,-500,600,0,-150,20

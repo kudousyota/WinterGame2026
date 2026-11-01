@@ -9,6 +9,7 @@
 #include "../System/DebugTool.h"
 #include "../System/LockOnManager.h"
 #include "Scene.h"
+#include "../Game/Character/Enemy/EnemySpawner.h"
 
 class GameScene : public Scene
 {
@@ -71,6 +72,8 @@ private:
 	LockOnManager m_lockOn;
 	//敵(敵の持ち主はここだけ)
 	EnemyManager m_enemyManager;
+	//敵のスポナー//敵を出すタイミングを決める
+	EnemySpawner m_spawner;
 
 #ifdef _DEBUG
 	//デバッグ機能(一時停止・表示切り替え・CSVの読み直し)

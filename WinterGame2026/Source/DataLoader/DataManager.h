@@ -3,6 +3,7 @@
 #include <string>
 #include "StatusData.h"
 #include "AttackTable.h"
+#include "SpawnTable.h"
 
 class DataManager
 {
@@ -20,7 +21,7 @@ public:
 	bool ReloadData();
 
 	//敵のスポーンデータを返す
-	//const std::vector<std::vector<std::string>>& GetSpawnData() const { return m_spawnData; }
+	const SpawnTable& GetSpawnTable() const { return m_spawnTable; }
 
 	//キャラクターのステータスデータを返す
 	const StatusData& GetStatusData() const { return m_statusData; }
@@ -39,7 +40,7 @@ private:
 	std::vector<std::vector<std::string>> LoadCsv(const std::string& path);
 
 	//敵の出現データをロードする
-	//void LoadSpawnData();
+	void LoadSpawnData();
 
 	//キャラクターのステータスデータをロードする
 	void LoadStatusData();
@@ -47,8 +48,8 @@ private:
 	//攻撃データをロードする
 	void LoadAttackTable();
 
-	//敵の出現データを格納する二次元配列
-	//std::vector<std::vector<std::string>> m_spawnData;
+	//敵の出現データ
+	SpawnTable m_spawnTable;
 
 	//キャラクターのステータスデータ
 	StatusData m_statusData;

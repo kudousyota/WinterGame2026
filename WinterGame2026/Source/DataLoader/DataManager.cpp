@@ -6,20 +6,21 @@
 
 void DataManager::LoadData()
 {
-	//LoadSpawnData();
+	LoadSpawnData();
 	LoadStatusData();
 	LoadAttackTable();
 }
 
 bool DataManager::ReloadData()
 {
-	
+	SpawnTable spawnTable;
 	StatusData statusData;
 	AttackTable attackTable;
 	//一旦別の変数に読み込んで、全部成功したときだけ差し替える
 	//編集途中のCSVで数字が読めなくても、今のデータが壊れないようにする
 	try
 	{
+		spawnTable.Load(LoadCsv("Data/Csv/Spawn.csv"));
 		statusData.Load(LoadCsv("Data/Csv/State.csv"));
 		attackTable.Load(LoadCsv("Data/Csv/AttackHit.csv"),
 		                 LoadCsv("Data/Csv/AttackMotion.csv"),
@@ -29,6 +30,7 @@ bool DataManager::ReloadData()
 	{
 		return false;
 	}
+	m_spawnTable = std::move(spawnTable);
 	m_statusData = std::move(statusData);
 	m_attackTable = std::move(attackTable);
 	return true;
@@ -70,10 +72,10 @@ std::vector<std::vector<std::string>> DataManager::LoadCsv(const std::string& pa
 	return result;
 }
 
-//void DataManager::LoadSpawnData()
-//{
-//	m_spawnData = LoadCsv("Data/Csv/Spawn.csv");
-//}
+void DataManager::LoadSpawnData()
+{
+	m_spawnTable.Load(LoadCsv("Data/Csv/Spawn.csv"));
+}
 
 void DataManager::LoadStatusData()
 {
