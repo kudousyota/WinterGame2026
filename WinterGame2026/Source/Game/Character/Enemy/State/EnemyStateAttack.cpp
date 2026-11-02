@@ -26,7 +26,9 @@ void EnemyStateAttack::Enter()
 	m_enemy.StopMove();
 	//攻撃を始めた時の方向に攻撃する
 	m_enemy.FaceTarget();
-	m_enemy.GetAnim().ChangeAnim(m_info.animName, false);
+	//予備動作(振りかぶり)がある攻撃は、最初はゆっくり再生して溜めているように見せる
+	const float animScale = (m_info.windupFrame > 0) ? m_info.windupAnimScale : 1.0f;
+	m_enemy.GetAnim().ChangeAnim(m_info.animName, false, animScale);
 	m_attackId = m_enemy.IssueAttackId();
 	m_nextHitFrame = static_cast<float>(m_info.hitStartFrame + m_info.hitInterval);
 
@@ -53,6 +55,12 @@ void EnemyStateAttack::Update()
 	{
 		ChangeState<EnemyStateRetreat>();
 		return;
+	}
+
+	//予備動作が終わったら普通の速さに戻して一気に振る
+	if (m_info.windupFrame > 0 && m_frame >= m_info.windupFrame)
+	{
+		m_enemy.GetAnim().SetAnimTimeScale(1.0f);
 	}
 
 	//判定が出るまでが予兆

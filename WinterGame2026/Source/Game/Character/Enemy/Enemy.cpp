@@ -75,6 +75,15 @@ void Enemy::CheckDeath()
 	ChangeState(std::make_unique<EnemyStateDeath>(*this));
 }
 
+AttackType Enemy::SelectAttack()
+{
+	return AttackType();
+}
+
+void Enemy::OnAttackFinished()
+{
+}
+
 float Enemy::GetTargetDistance() const
 {
 	if (!m_pTarget) return FLT_MAX;

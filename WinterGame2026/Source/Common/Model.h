@@ -22,11 +22,13 @@ public:
 	//呼び出し側は複製したモデルの破棄を行う
 	int CreatPlayerModel() const { return MV1DuplicateModel(m_playerBaseHandle); }
 	int CreatAlienModel() const { return MV1DuplicateModel(m_alienBaseHandle); }
+	int CreatWarrokModel() const { return MV1DuplicateModel(m_warrokBaseHandle); }
 	//ベースモデルをすべて解放する
 	void ReleseAll();
 
 private:
 	int m_playerBaseHandle = -1;
 	int m_alienBaseHandle = -1;
+	int m_warrokBaseHandle = -1;
 };
 

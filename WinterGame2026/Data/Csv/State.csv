@@ -1,3 +1,4 @@
 #name,hp,maxhp,speed
 Player,100,100,12
 Alien,150,150,2
+Warrok,300,300,4

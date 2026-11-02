@@ -83,7 +83,12 @@ public:
 protected:
 	//HPが0以下になったら死亡ステートにする(派生クラスのUpdateの最初に呼ぶ)
 	void CheckDeath();
-
+	//攻撃範囲に入ったときにどの攻撃を使うか
+	virtual AttackType SelectAttack();
+	//攻撃が終わったときの次のステート
+	virtual void OnAttackFinished();
+		
+protected:
 	//狙う相手(所有はしない)
 	const Character* m_pTarget = nullptr;
 
@@ -115,6 +120,9 @@ protected:
 	float m_tooCloseDistance = 0.0f;
 	//攻撃の後に離れる距離
 	float m_keepDistance = 0.0f;
+	//攻撃判定を出す位置
+	float m_hitForwardOffset = 0.0f;
+	float m_hitHeight = 0.0f;
 	//攻撃の予兆中か
 	bool m_isWarning = false;
 	//アニメーションを止めているか

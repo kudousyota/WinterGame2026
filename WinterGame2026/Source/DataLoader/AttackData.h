@@ -23,6 +23,7 @@ enum class AttackType
 	AirSkyKick,
 	Attack,
 	Breath,
+	WarrokPunch,
 	WitchHand,
 	WitchLeg,
 	WitchStomp,//真上から踏みつける足

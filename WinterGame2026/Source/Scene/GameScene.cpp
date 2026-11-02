@@ -2,6 +2,7 @@
 #include "DxLib.h"
 #include "../Game/Character/Character.h"
 #include "../Game/Character/Enemy/Alien/Alien.h"
+#include "../Game/Character/Enemy/Warrok/Warrok.h"
 #include "../Game/Damage.h"
 #include "../System/Timer.h"
 #include "../System/StageCollision.h"
@@ -31,6 +32,7 @@ namespace
 	std::shared_ptr<Enemy> CreateEnemy(const std::string& name)
 	{
 		if (name == "Alien") return std::make_shared<Alien>();
+		if (name == "Warrok") return std::make_shared<Warrok>();
 		assert(false && "知らない敵の名前");
 		return nullptr;
 	}

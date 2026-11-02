@@ -42,6 +42,8 @@ public:
 	float GetCurrentAnimTime() const { return m_currentAnimCount; }
 	//現在のアニメーションの名前
 	const std::string& GetCurrentAnimName()const { return m_currentAnimName; }
+	//再生中のアニメーションの再生速度を変える(1.0で等倍。次にChangeAnimした時はその時の指定に戻る)
+	void SetAnimTimeScale(float timeScale) { m_animTimeScale = timeScale; }
 private:
 	//モデルのハンドル
 	int m_modelHandle = -1;

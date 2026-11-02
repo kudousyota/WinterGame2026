@@ -126,6 +126,9 @@
     <ClCompile Include="Source\Game\Character\Enemy\Alien\Alien.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Game\Character\Enemy\Warrok\Warrok.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Game\Breath.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -303,6 +306,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Source\Game\Character\Enemy\Alien\Alien.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\Character\Enemy\Warrok\Warrok.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Source\Game\Breath.h">

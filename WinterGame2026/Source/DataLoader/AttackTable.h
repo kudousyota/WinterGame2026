@@ -57,6 +57,10 @@ public:
 		float riseSpeed = 0.0f;
 		//当たった敵を自分の目の前に引き寄せて一緒に運ぶか
 		bool carry = false;
+		//予備動作(振りかぶり)をゆっくり再生するフレーム数。0ならゆっくりにしない(敵の攻撃だけで使う)
+		int windupFrame = 0;
+		//予備動作の間のアニメーションの再生速度(1.0で等倍)
+		float windupAnimScale = 1.0f;
 	};
 
 	//CSVの行データ

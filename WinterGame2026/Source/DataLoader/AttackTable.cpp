@@ -4,7 +4,7 @@ namespace
 {
 	//各CSVの列の数(足りない行は読まない)
 	constexpr int kHitColumnNum = 10;
-	constexpr int kMotionColumnNum = 10;
+	constexpr int kMotionColumnNum = 12;
 	constexpr int kComboColumnNum = 5;
 
 	//CSVに書いた名前をAttackTypeに変換する
@@ -31,6 +31,7 @@ namespace
 			{ "AirSkyKick",	AttackType::AirSkyKick },
 			{ "Attack",		AttackType::Attack },
 			{ "Breath",		AttackType::Breath },
+			{ "WarrokPunch",	AttackType::WarrokPunch },
 			{ "WitchHand",	AttackType::WitchHand },
 			{ "WitchLeg",	AttackType::WitchLeg },
 			{ "WitchStomp",	AttackType::WitchStomp },
@@ -95,6 +96,8 @@ void AttackTable::Load(const Rows& hitRows, const Rows& motionRows, const Rows& 
 		info.moveDistance = std::stof(row[7]);
 		info.fallSpeed = std::stof(row[8]);
 		info.riseSpeed = std::stof(row[9]);
+		info.windupFrame = std::stoi(row[10]);
+		info.windupAnimScale = std::stof(row[11]);
 	}
 
 	//コンボのつながり
