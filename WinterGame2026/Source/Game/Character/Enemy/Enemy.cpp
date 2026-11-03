@@ -4,9 +4,18 @@
 #include "State/EnemyStateDeath.h"
 #include "State/EnemyStateKnockdown.h"
 #include <cfloat>
-#ifdef _DEBUG
 #include "DxLib.h"
+#include "EnemyManager.h"
+#ifdef _DEBUG
 #include "../../../System/DebugDraw.h"
+
+namespace
+{
+	//攻撃の枠の目印を、頭のてっぺんからどれだけ上に出すか
+	constexpr float kTokenMarkOffset = 40.0f;
+	//攻撃の枠の目印の球の半径
+	constexpr float kTokenMarkRadius = 20.0f;
+}
 #endif
 
 Enemy::Enemy()
@@ -167,8 +176,15 @@ void Enemy::DrawDebugRange() const
 {
 	//距離はXZ平面で測っているので、ターゲット(プレイヤー)の足元の高さに描く
 	//(敵は浮いているので、敵の高さに描くと地面から離れて見づらい)
+	//ジャンプ中に円がついてこないように、高さはプレイヤーが着地している時だけ更新する
+	//(最初の1回はまだ高さがないので、空中でもそのまま使う)
+	if (m_pTarget && (m_pTarget->IsGround() || !m_hasDebugGroundY))
+	{
+		m_debugGroundY = m_pTarget->GetPos().y;
+		m_hasDebugGroundY = true;
+	}
 	Vector3 center = m_pos;
-	if (m_pTarget) center.y = m_pTarget->GetPos().y;
+	if (m_hasDebugGroundY) center.y = m_debugGroundY;
 	center.y += 2.0f;
 
 	//索敵範囲(水色):この中にプレイヤーが入ると追いかける
@@ -182,5 +198,38 @@ void Enemy::DrawDebugRange() const
 
 	//向いている方向
 	DrawLine3D(center, center + m_forward * m_tooCloseDistance, 0xff00ff);
+
+	//攻撃の枠を持っているかを頭の上の球で表示する
+	//赤く塗りつぶした大きい球:枠を持っている(攻撃できる)
+	//灰色の線だけの小さい球:枠を持っていない(順番待ち)
+	const Vector3 headPos = m_pos + Vector3(0.0f, m_height + kTokenMarkOffset, 0.0f);
+	if (m_hasAttackToken)
+	{
+		DrawSphere3D(headPos, kTokenMarkRadius, 12, 0xff0000, 0xff0000, true);
+	}
+	else
+	{
+		DrawSphere3D(headPos, kTokenMarkRadius * 0.5f, 8, 0x808080, 0x808080, false);
+	}
 }
 #endif
+
+bool Enemy::TryTakeAttackToken()
+{
+	//マネージャーがいないときは、いつでも攻撃していい
+	if (!m_pManager) return true;
+	//もう持っているならそのまま攻撃していい
+	if (m_hasAttackToken) return true;
+
+	m_hasAttackToken = m_pManager->TryTakeAttackToken();
+	return m_hasAttackToken;
+}
+
+void Enemy::ReleaseAttackToken()
+{
+	//持っていないのに返すと、ほかの敵の枠を減らしてしまう
+	if (!m_hasAttackToken) return;
+
+	m_pManager->ReleaseAttackToken();
+	m_hasAttackToken = false;
+}

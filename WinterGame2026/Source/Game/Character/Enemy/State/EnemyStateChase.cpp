@@ -1,6 +1,7 @@
 ﻿#include "EnemyStateChase.h"
 #include "EnemyStateIdle.h"
 #include "EnemyStateAttack.h"
+#include "EnemyStateObserve.h"
 
 void EnemyStateChase::Enter()
 {
@@ -22,7 +23,15 @@ void EnemyStateChase::Update()
 	//攻撃範囲に入ったら攻撃する
 	if (distance <= m_enemy.GetAttackRange())
 	{
-		ChangeState<EnemyStateAttack>();
+		//ほかの敵が攻撃中なら、横に回って順番を待つ
+		if (m_enemy.TryTakeAttackToken())
+		{
+			ChangeState<EnemyStateAttack>();
+		}
+		else
+		{
+			ChangeState<EnemyStateObserve>();
+		}
 		return;
 	}
 	//見失ったら待機に戻る

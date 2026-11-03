@@ -23,6 +23,8 @@ private:
 	bool IsHitActive() const;
 	//攻撃判定の出る位置(口)からターゲットの体の中心へ向かう方向
 	Vector3 CalcAimDir() const;
+	//今の攻撃判定の長さ(伸びる攻撃は判定が出てからの時間で長くなる)
+	float CalcHitLength() const;
 	//予兆エフェクトを止める(再生していなければ何もしない)
 	void StopTelegraph();
 

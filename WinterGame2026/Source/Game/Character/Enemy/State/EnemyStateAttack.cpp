@@ -4,13 +4,14 @@
 #include "../../../../Effect/EffectManager.h"
 #include <cstdio>
 #include <cmath>
+#include <algorithm>
 
 namespace
 {
-	//攻撃判定を出す位置(口の位置。デバッグ表示を見ながら調整する)
+	//攻撃判定を出す位置
 	constexpr float kHitForwardOffset = 50.0f;
 	constexpr float kHitHeight = 120.0f;
-	//予兆エフェクトの拡大率(Effekseerの1単位を何cmにするか。見た目を見ながら調整する)
+	//予兆エフェクトの拡大率
 	constexpr float kTelegraphScale = 20.0f;
 }
 
@@ -32,12 +33,12 @@ void EnemyStateAttack::Enter()
 	m_attackId = m_enemy.IssueAttackId();
 	m_nextHitFrame = static_cast<float>(m_info.hitStartFrame + m_info.hitInterval);
 
-	//予兆が始まった瞬間に狙いを決める(この後プレイヤーが動けば避けられる)
+	//予兆が始まった瞬間に狙いを決める
 	m_aimDir = CalcAimDir();
 	//予兆の始まり
 	m_enemy.SetWarning(true);
 
-	//予兆エフェクトを口の位置に出す(攻撃中は敵が止まっているので位置は最初に決めるだけでいい)
+	//予兆エフェクトを口の位置に出す
 	const Vector3& forward = m_enemy.GetForward();
 	const Vector3 mouthPos = m_enemy.GetPos() + forward * kHitForwardOffset + Vector3(0.0f, kHitHeight, 0.0f);
 	//エフェクトを敵の向きに合わせる(プレイヤーのエフェクトと同じ求め方)
@@ -87,7 +88,7 @@ void EnemyStateAttack::Update()
 		request.height = kHitHeight;
 		//lengthが0なら今まで通りの球、0より大きければ狙った方向へ伸びるカプセルになる
 		request.dir = m_aimDir;
-		request.length = m_info.length;
+		request.length = CalcHitLength();
 		m_enemy.RequestAttack(request);
 	}
 
@@ -99,6 +100,8 @@ void EnemyStateAttack::Exit()
 	//攻撃の途中でのけぞったときも予兆が出っぱなしにならないようにする
 	m_enemy.SetWarning(false);
 	StopTelegraph();
+	//攻撃が終わったので、ほかの敵が攻撃できるようにする
+	m_enemy.ReleaseAttackToken();
 }
 
 void EnemyStateAttack::StopTelegraph()
@@ -112,12 +115,26 @@ void EnemyStateAttack::StopTelegraph()
 #ifdef _DEBUG
 std::string EnemyStateAttack::GetDebugInfo() const
 {
-	char buf[128];
-	sprintf_s(buf, "%s  Frame:%.1f/%d  Hit:%s  Id:%d",
-		m_info.animName.c_str(), m_frame, m_info.totalFrame, IsHitActive() ? "ON" : "OFF", m_attackId);
+	char buf[160];
+	//判定が出ていない間は長さ0として表示する
+	const float length = IsHitActive() ? CalcHitLength() : 0.0f;
+	sprintf_s(buf, "%s  Frame:%.1f/%d  Hit:%s  Id:%d  Len:%.0f/%.0f",
+		m_info.animName.c_str(), m_frame, m_info.totalFrame, IsHitActive() ? "ON" : "OFF", m_attackId,
+		length, m_info.length);
 	return buf;
 }
 #endif
+
+float EnemyStateAttack::CalcHitLength() const
+{
+	//伸びない攻撃は最初から最大の長さで出る
+	if (m_info.growSpeed <= 0.0f) return m_info.length;
+
+	//判定が出てから何フレーム経ったか(判定が出る前は0にする)
+	const float elapsed = (std::max)(0.0f, m_frame - static_cast<float>(m_info.hitStartFrame));
+	//伸びた長さ(最大の長さを超えないようにする)
+	return (std::min)(elapsed * m_info.growSpeed, m_info.length);
+}
 
 bool EnemyStateAttack::IsHitActive() const
 {

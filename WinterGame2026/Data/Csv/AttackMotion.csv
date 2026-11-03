@@ -17,5 +17,5 @@ AirPunching,62,30,44,Player|AirPunching,18,30,30,0,0,0,1
 AirRush,66,58,66,Player|AirPunchrush,0,12,30,0,0,0,1
 AirSkyKick,64,56,64,Player|SkyKick,0,0,0,20,0,0,1
 Attack,100,100,100,Alien|Attack,0,0,0,0,0,0,1
-Breath,150,150,150,Alien|Attack,0,0,0,0,0,0,1
+Breath,150,150,150,Alien|Attack,0,0,0,0,0,45,0.67
 WarrokPunch,104,104,104,Warrok|Punch,0,0,0,0,0,48,0.25

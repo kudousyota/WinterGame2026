@@ -386,6 +386,8 @@ void GameScene::SpawnEnemy(const std::shared_ptr<Enemy>& enemy, const Vector3& g
 	enemy->LateUpdate();
 	//敵はプレイヤーを狙う
 	enemy->SetTarget(m_pPlayer.get());
+	//攻撃の枠をもらうためにまとめて持っている人を教えておく
+	enemy->SetManager(&m_enemyManager);
 
 	m_collision.Register(enemy.get());
 	m_enemyManager.Add(enemy);

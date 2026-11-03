@@ -3,7 +3,7 @@
 namespace
 {
 	//各CSVの列の数(足りない行は読まない)
-	constexpr int kHitColumnNum = 10;
+	constexpr int kHitColumnNum = 11;
 	constexpr int kMotionColumnNum = 12;
 	constexpr int kComboColumnNum = 5;
 
@@ -77,6 +77,7 @@ void AttackTable::Load(const Rows& hitRows, const Rows& motionRows, const Rows& 
 		info.canKnockDown = std::stoi(row[7]) != 0;
 		info.length = std::stof(row[8]);
 		info.carry = std::stoi(row[9]) != 0;
+		info.growSpeed = std::stof(row[10]);
 	}
 
 	//動き(AttackHitにない名前ならat()が例外を投げるので書き忘れに気づける)

@@ -10,7 +10,7 @@
 class EnemyManager
 {
 public:
-	//敵をリストに加える(Init・位置の設定・当たり判定への登録は呼ぶ側で先に行う)
+	//敵をリストに加える//Init、位置の設定、当たり判定への登録は呼ぶ側で先に行う
 	void Add(const std::shared_ptr<Enemy>& enemy);
 
 	void Update();
@@ -22,8 +22,15 @@ public:
 	//当たり判定の登録解除は、これより先に呼ぶ側で行う
 	void RemoveVanished();
 
+	//攻撃していいか
+	bool TryTakeAttackToken();
+	//攻撃したら攻撃枠を返す
+	void ReleaseAttackToken();
+
 	const std::vector<std::shared_ptr<Enemy>>& GetEnemies()const { return m_enemies; }
 
 private:
+	//今攻撃している敵の数
+	int m_attackerCount = 0;
 	std::vector<std::shared_ptr<Enemy>> m_enemies;
 };

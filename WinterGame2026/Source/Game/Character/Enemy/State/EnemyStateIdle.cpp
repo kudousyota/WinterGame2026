@@ -2,6 +2,7 @@
 #include "EnemyStateChase.h"
 #include "EnemyStateAttack.h"
 #include "EnemyStateRetreat.h"
+#include "EnemyStateObserve.h"
 
 namespace
 {
@@ -36,7 +37,15 @@ void EnemyStateIdle::Update()
 	//攻撃範囲にいれば攻撃する
 	if (distance <= m_enemy.GetAttackRange())
 	{
-		ChangeState<EnemyStateAttack>();
+		//ほかの敵が攻撃中なら、横に回って順番を待つ
+		if (m_enemy.TryTakeAttackToken())
+		{
+			ChangeState<EnemyStateAttack>();
+		}
+		else
+		{
+			ChangeState<EnemyStateObserve>();
+		}
 		return;
 	}
 	//索敵範囲にいれば追いかける

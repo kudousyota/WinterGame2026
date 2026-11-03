@@ -1,5 +1,11 @@
 ﻿#include "EnemyManager.h"
 
+namespace 
+{
+	//同時に攻撃できる枠
+	constexpr int kMaxAttackers = 2;
+}
+
 void EnemyManager::Add(const std::shared_ptr<Enemy>& enemy)
 {
 	m_enemies.push_back(enemy);
@@ -37,4 +43,20 @@ void EnemyManager::RemoveVanished()
 		{
 			return enemy->IsVanished();
 		});
+}
+
+bool EnemyManager::TryTakeAttackToken()
+{
+	//枠が埋まっていたら攻撃できない
+	if(m_attackerCount >= kMaxAttackers) return false;
+	//枠を使う
+	m_attackerCount++;
+	//枠が空いていたら攻撃できる
+	return true;
+}
+
+void EnemyManager::ReleaseAttackToken()
+{
+	//念のため0より下にならないようにする
+	if (m_attackerCount > 0) m_attackerCount--;
 }

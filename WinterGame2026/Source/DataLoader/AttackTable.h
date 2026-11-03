@@ -43,6 +43,8 @@ public:
 		bool canKnockDown = false;
 		//攻撃判定の長さ(0なら球で0より大きかったらカプセル状に延びていく)
 		float length = 0.0f;
+		//攻撃判定が1フレームに伸びる長さ(0なら最初からlengthの長さで出る)
+		float growSpeed = 0.0f;
 		//アニメーションの名前
 		std::string animName;
 		//コンボ中にパンチを押したとき次に出す攻撃(なければ空)

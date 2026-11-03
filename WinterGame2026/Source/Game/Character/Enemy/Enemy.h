@@ -2,7 +2,8 @@
 #include "../Character.h"
 
 //敵の基底クラス
-//どの敵にも共通する処理だけを持つ(敵ごとの処理は派生クラスに書く)
+//どの敵にも共通する処理だけを持つ
+class EnemyManager;
 class Enemy : public Character
 {
 public:
@@ -75,6 +76,13 @@ public:
 	void SetAnimPause(bool isPause) { m_isAnimPause = isPause; }
 	bool IsAnimPause()const { return m_isAnimPause; }
 
+	//敵をまとめて持っているマネージャーを設定する
+	void SetManager(EnemyManager* manager) { m_pManager = manager; }
+	//攻撃の枠をもらう
+	bool TryTakeAttackToken();
+	//攻撃の枠を返す
+	void ReleaseAttackToken();
+
 #ifdef _DEBUG
 	//索敵・攻撃などの範囲と向いている方向を描く
 	void DrawDebugRange()const;
@@ -110,7 +118,7 @@ protected:
 	//倒れた状態から起き上がるアニメーション
 	std::string m_getUpAnimName;
 
-	//モデルの不透明度(死亡演出で下げていく)
+	//モデルの不透明度//色んな使い道ありそう
 	float m_opacity = 1.0f;
 	//死亡演出が終わって消えたか
 	bool m_isVanished = false;
@@ -127,7 +135,20 @@ protected:
 	bool m_isWarning = false;
 	//アニメーションを止めているか
 	bool m_isAnimPause = false;
-	//攻撃の種類(フレームやダメージはcsvに書く)
+	//攻撃の種類//フレームやダメージはcsvに書く
 	AttackType m_attackType = AttackType::Attack;
+
+	//自分を持っているマネージャー
+	EnemyManager* m_pManager = nullptr;
+	//攻撃の枠を持っているか
+	bool m_hasAttackToken = false;
+
+#ifdef _DEBUG
+	//範囲を表示する地面の高さ(プレイヤーが着地している時だけ更新して、ジャンプしても円がついていかないようにする)
+	//描画(const)の中で更新するのでmutableにする
+	mutable float m_debugGroundY = 0.0f;
+	//m_debugGroundYが一度でも決まったか
+	mutable bool m_hasDebugGroundY = false;
+#endif
 };
 
