@@ -199,6 +199,7 @@
     <ClCompile Include="Source\DataLoader\StatusData.cpp" />
     <ClCompile Include="Source\System\Timer.cpp" />
     <ClCompile Include="Source\DataLoader\SpawnTable.cpp" />
+    <ClCompile Include="Source\Effect\ScreenDistortion.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Game\Character\Enemy\EnemySpawner.h" />
@@ -262,6 +263,15 @@
     <ClInclude Include="Source\DataLoader\StatusData.h" />
     <ClInclude Include="Source\System\Timer.h" />
     <ClInclude Include="Source\DataLoader\SpawnTable.h" />
+    <ClInclude Include="Source\Effect\ScreenDistortion.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Source\Shader\DistortionPS.hlsl">
+      <ShaderType>Pixel</ShaderType>
+      <ShaderModel>5.0</ShaderModel>
+      <EntryPointName>main</EntryPointName>
+      <ObjectFileOutput>$(ProjectDir)Data\Shader\%(Filename).pso</ObjectFileOutput>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

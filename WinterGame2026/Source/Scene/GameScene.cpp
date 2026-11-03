@@ -14,6 +14,7 @@
 #include "GameClearScene.h"
 #include "GameOverScene.h"
 #include <cassert>
+#include <algorithm>
 #include "../DataLoader/DataManager.h"
 
 namespace
@@ -24,11 +25,23 @@ namespace
 	constexpr float kShakePower = 8.0f;
 	//カメラシェイクのフレーム数
 	constexpr int kShakeFrame = 12;
-	//ウィッチタイム中に画面に重ねる色の濃さ(0～255)
+	//ウィッチタイム中に画面に重ねる色の濃さ
 	constexpr int kWitchTimeOverlayAlpha = 128;
-	//勝ち負けが決まってから画面を切り替えるまでのフレーム数(倒れる様子を見せる)
+	//勝ち負けが決まってから画面を切り替えるまでのフレーム数
 	constexpr int kGameEndWaitFrame = 120;
-	//CSVの名前から敵を作る(敵の種類が増えたらここに足す)
+	//ジャスト回避の歪みが画面の端まで広がるフレーム数
+	constexpr int kDistortionFrame = 40;
+	//ジャスト回避の歪みの強さ
+	constexpr float kDistortionStrength = 0.04f;
+	//ジャスト回避の歪みの輪の太さ
+	constexpr float kDistortionRingWidth = 0.2f;
+	//ウィッチタイム中の揺らぎの強さ
+	constexpr float kWaveStrength = 0.01f;
+	//揺らぎが最大になるまでのフレーム数
+	constexpr float kWaveFadeFrame = 20.0f;
+	//1フレームで進める揺らぎの時間
+	constexpr float kWaveTimeStep = 1.0f / 60.0f;
+	//CSVの名前から敵を作る
 	std::shared_ptr<Enemy> CreateEnemy(const std::string& name)
 	{
 		if (name == "Alien") return std::make_shared<Alien>();
@@ -79,6 +92,8 @@ void GameScene::Init()
 	//地形とのめり込み判定に使うステージを渡す
 	m_pCamera->SetStageHandle(m_pStage->GetCollisionHandle());
 
+	//画面の歪み(描画先のスクリーンとシェーダーを用意する)
+	m_distortion.Init();
 }
 void GameScene::Update()
 {
@@ -98,6 +113,7 @@ void GameScene::Update()
 	if (Timer::Instance().IsHitStop())
 	{
 		m_pCamera->Update(m_pPlayer->GetCameraTarget(),m_lockOn.GetTargetPos());
+		UpdateDistortion();
 		return;
 	}
 
@@ -136,6 +152,8 @@ void GameScene::Update()
 	m_pCamera->Update(m_pPlayer->GetCameraTarget(),m_lockOn.GetTargetPos());
 	//カメラが確定してからEffekseerに同期して更新する
 	EffectManager::Instns().Update();
+	//歪みの中心はプレイヤーの画面上の位置なので、カメラが確定してから決める
+	UpdateDistortion();
 
 	//このフレームの処理が全部終わってから消す
 	RemoveVanishedEnemies();
@@ -155,6 +173,9 @@ void GameScene::Update()
 
 void GameScene::Draw()
 {
+	//ここからエフェクトまでを歪みの対象にする
+	m_distortion.BeginCapture();
+
 	//ステージは背景として扱うので、紫を重ねる前に描く
 	m_pStage->Draw();
 
@@ -172,6 +193,9 @@ void GameScene::Draw()
 	m_projectiles.Draw();
 	//エフェクトの描画
 	EffectManager::Instns().Draw();
+
+	//歪ませて画面に出す
+	m_distortion.EndCapture();
 #ifdef _DEBUG
 	if (m_debug.IsShowGrid()) DrawGrid();
 	//当たり判定のカプセルを表示
@@ -270,11 +294,12 @@ void GameScene::ProcessProjectileHits()
 			if (hit.isJustDodge)
 			{
 				target.OnJustDodge();
+				StartJustDodgeDistortion();
 				projectile->Kill();
 				break;
 			}
 
-			//無敵中・死亡中は受けない(弾は消さずに通り抜ける)
+			//無敵中/死亡中は受けない(弾は消さずに通り抜ける)
 			if (!target.CanBeHit()) continue;
 
 			//連射で何度も当たるので、ヒットストップとカメラシェイクは入れない
@@ -282,6 +307,56 @@ void GameScene::ProcessProjectileHits()
 			projectile->Kill();
 			break;
 		}
+	}
+}
+
+void GameScene::StartJustDodgeDistortion()
+{
+	//連続で成功したら最初から広げ直す
+	m_distortionFrame = 0;
+}
+
+void GameScene::UpdateDistortion()
+{
+	ScreenDistortion::Param param = m_distortion.GetParam();
+
+	//ウィッチタイム中は揺らぎを強くして、終わったら弱くする
+	const float waveStep = kWaveStrength / kWaveFadeFrame;
+	if (Timer::Instance().IsEnemySlow())
+	{
+		m_waveStrength = (std::min)(m_waveStrength + waveStep, kWaveStrength);
+	}
+	else
+	{
+		m_waveStrength = (std::max)(m_waveStrength - waveStep, 0.0f);
+	}
+	m_waveTime += kWaveTimeStep;
+	param.time = m_waveTime;
+	param.waveStrength = m_waveStrength;
+
+	//揺らぎも中心からの距離を使うので、中心は毎フレーム決める
+	VECTOR screenPos = ConvWorldPosToScreenPos(m_pPlayer->GetCameraTarget().ToDxLibVector());
+	param.centerX = screenPos.x / static_cast<float>(Game::kScreenWidth);
+	param.centerY = screenPos.y / static_cast<float>(Game::kScreenHeight);
+
+	//輪が出ていないときは輪の強さだけ0にする
+	if (m_distortionFrame < 0)
+	{
+		param.strength = 0.0f;
+		m_distortion.SetParam(param);
+		return;
+	}
+
+	param.progress = static_cast<float>(m_distortionFrame) / static_cast<float>(kDistortionFrame);
+	param.strength = kDistortionStrength;
+	param.ringWidth = kDistortionRingWidth;
+	m_distortion.SetParam(param);
+
+	m_distortionFrame++;
+	//広がりきったら終わり
+	if (m_distortionFrame > kDistortionFrame)
+	{
+		m_distortionFrame = -1;
 	}
 }
 
@@ -297,6 +372,7 @@ void GameScene::ApplyAttackHit(Character& attacker, const AttackRequest& request
 	{
 		target.MarkAttackReceived(&attacker, request.attackId);
 		target.OnJustDodge();
+		StartJustDodgeDistortion();
 		return;
 	}
 

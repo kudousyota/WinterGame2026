@@ -61,6 +61,9 @@ bool Application::Init()
 	//フルスクリーンウインドウの切り替えでリソースが消えるのを防ぐ
 	SetChangeScreenModeGraphicsSystemResetFlag(false);
 
+	//SetDrawScreenでカメラの設定が消えないようにする
+	//(画面の歪みで描画先を切り替えるため。カメラはUpdateで設定している)
+	SetUseSetDrawScreenSettingReset(false);
 	//描画対象をバックバッファに変更
 	SetDrawScreen(DX_SCREEN_BACK);
 	//カリングの設定

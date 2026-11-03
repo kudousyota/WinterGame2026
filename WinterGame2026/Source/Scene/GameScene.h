@@ -10,6 +10,7 @@
 #include "../System/LockOnManager.h"
 #include "Scene.h"
 #include "../Game/Character/Enemy/EnemySpawner.h"
+#include "../Effect/ScreenDistortion.h"
 
 class GameScene : public Scene
 {
@@ -48,6 +49,10 @@ private:
 	void RemoveVanishedEnemies();
 	//勝ち負けが決まっていたら、少し待ってからクリア・ゲームオーバーに切り替える
 	void CheckGameEnd();
+	//ジャスト回避の歪みを最初から始める
+	void StartJustDodgeDistortion();
+	//歪みを進めて、シェーダーに渡す値を決める(カメラが確定してから呼ぶ)
+	void UpdateDistortion();
 
 
 #ifdef _DEBUG
@@ -64,16 +69,24 @@ private:
 	std::shared_ptr<Camera>m_pCamera;
 	std::shared_ptr<Stage> m_pStage;
 
-	//キャラクター同士の当たり判定(このシーンの中だけで使う)
+	//キャラクター同士の当たり判定このシーンの中だけで使う
 	CollisionManager m_collision;
 	//飛び道具(シーンと一緒に消えるので、次のシーンに弾が残らない)
 	ProjectileManager m_projectiles;
-	//ロックオン(このシーンの中だけで使う)
+	//ロックオンこのシーンの中だけで使う
 	LockOnManager m_lockOn;
-	//敵(敵の持ち主はここだけ)
+	//敵の持ち主はここだけ
 	EnemyManager m_enemyManager;
 	//敵のスポナー//敵を出すタイミングを決める
 	EnemySpawner m_spawner;
+	//画面の歪み
+	ScreenDistortion m_distortion;
+	//歪みが始まってから経ったフレーム数
+	int m_distortionFrame = -1;
+	//ウィッチタイム中の揺らぎの今の強さ
+	float m_waveStrength = 0.0f;
+	//揺らぎを動かす時間
+	float m_waveTime = 0.0f;
 
 #ifdef _DEBUG
 	//デバッグ機能(一時停止・表示切り替え・CSVの読み直し)
