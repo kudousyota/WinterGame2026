@@ -11,6 +11,10 @@ enum class EffectType
 	WickedWeaveLeg,
 	WickedWeaveStomp,
 	AttackTelegraph,
+	//弾を撃つときの魔法陣(止めるまで残る)
+	SummonCircle,
+	//魔法の弾(止めるまで残る)
+	MagicBullet,
 	Max
 };
 class Effect;
@@ -31,6 +35,10 @@ public:
 	void StopEffect(int handle);
 	//エフェクトを停止する
 	void StopAll();
+	//再生中のエフェクトを動かす(弾などについていかせる)
+	void SetEffectPos(int handle, const Vector3& pos);
+	//すぐ消さずに、エフェクト側で決めたフェードアウトをしてから消す
+	void FadeOutEffect(int handle);
 
 	int GetResourceHandle(EffectType type) const;
 

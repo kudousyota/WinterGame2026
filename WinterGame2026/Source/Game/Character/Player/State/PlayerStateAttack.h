@@ -30,6 +30,10 @@ private:
 	void RequestHit();
 
 	void SummonStomp();
+	//長押しで撃ち始めたときに、弾が出る位置へ魔法陣を出す
+	void OpenShotCircle();
+	//撃ち終わったら魔法陣をフェードして消す
+	void CloseShotCircle();
 private:
 
 	//今の攻撃のデータ
@@ -39,6 +43,8 @@ private:
 	int m_frame = 0;
 	//次の弾を出すまでのフレーム
 	int m_shotTimer = 0;
+	//撃っている間に出す魔法陣のエフェクト(出していなければ-1)
+	int m_shotCircleHandle = -1;
 	//この攻撃の番号(コンボの次の攻撃は別の番号になる)
 	int m_attackId = 0;
 	//攻撃でどのくらい進むか

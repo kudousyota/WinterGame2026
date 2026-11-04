@@ -189,6 +189,9 @@
     <ClCompile Include="Source\Game\Character\Enemy\EnemySpawner.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Effect\ScreenDistortion.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Game.h">
@@ -374,5 +377,11 @@
     <ClInclude Include="Source\Game\Character\Enemy\EnemySpawner.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Effect\ScreenDistortion.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Source\Shader\DistortionPS.hlsl" />
   </ItemGroup>
 </Project>

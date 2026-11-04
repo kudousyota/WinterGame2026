@@ -1,7 +1,7 @@
 ﻿#include "Model.h"
 #include <DxLib.h>
 //ベースモデルを一括でロードする
-//起動時に一度だけ呼び出し、作成して利用する
+//起動時に一度だけ呼び出して作成して利用する
 void Model::PreloadAll()
 {
 	m_playerBaseHandle = MV1LoadModel("Data/Model/Player.mv1");
@@ -14,5 +14,4 @@ void Model::ReleseAll()
 {
 	if (m_playerBaseHandle != -1)MV1DeleteModel(m_playerBaseHandle);
 	if (m_alienBaseHandle != -1)MV1DeleteModel(m_alienBaseHandle);
-	if (m_warrokBaseHandle != -1)MV1DeleteModel(m_warrokBaseHandle);
-}
+	if (m_warrokBaseHandle != -1)MV1DeleteModel(m_warrokBaseHandle);}

@@ -42,6 +42,10 @@ void EffectManager::Init()
     m_resourceHandles[static_cast<int>(EffectType::AttackTelegraph)] = LoadEffekseerEffect("Data/Effect/AttackTelegraph.efk");
     //デカイ足(踏みつけ)エフェクト
     m_resourceHandles[static_cast<int>(EffectType::WickedWeaveStomp)] = LoadEffekseerEffect("Data/Effect/WickedWeave_Stomp.efk");
+    //弾を撃つときの魔法陣
+    m_resourceHandles[static_cast<int>(EffectType::SummonCircle)] = LoadEffekseerEffect("Data/Effect/Summon_MagicCircle.efk");
+    //魔法の弾
+    m_resourceHandles[static_cast<int>(EffectType::MagicBullet)] = LoadEffekseerEffect("Data/Effect/MagicBullet.efk");
 }
 
 void EffectManager::Update()
@@ -116,6 +120,20 @@ void EffectManager::StopAll()
     }
     //即時にリストからも削除する
     m_effects.clear();
+}
+
+void EffectManager::SetEffectPos(int handle, const Vector3& pos)
+{
+    if (handle == -1) return;
+    SetPosPlayingEffekseer3DEffect(handle, pos.x, pos.y, pos.z);
+}
+
+void EffectManager::FadeOutEffect(int handle)
+{
+    if (handle == -1) return;
+    //一番上のノードだけ消すと、子はエフェクト側の「削除時」の設定でフェードして消える
+    //消え終わったらUpdateでリストから外れる
+    GetEffekseer3DManager()->StopRoot(handle);
 }
 
 //エフェクトの種類からリソースハンドルを取得

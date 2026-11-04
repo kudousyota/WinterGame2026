@@ -20,6 +20,8 @@ namespace
 	constexpr float kBulletSpeed = 30.0f;
 	constexpr int kBulletDamage = 1;
 	constexpr float kBulletRadius = 10.0f;
+	//弾を撃つときの魔法陣の拡大率(Effekseerの1単位を何cmにするか)
+	constexpr float kShotCircleScale = 7.0f;
 	//敵が遠いとき、前進距離をCSVの値の何倍まで伸ばすか
 	constexpr float kMaxMoveScale = 2.0f;
 	//敵の手前で止まるときに、体同士の間に空ける隙間
@@ -241,6 +243,11 @@ void PlayerStateAttack::Update()
 	{
 		//長押しは前進も止める
 		StopMove();
+		//撃ち始めに魔法陣を出す(撃っている間は出したまま)
+		if (m_shotCircleHandle == -1)
+		{
+			OpenShotCircle();
+		}
 		m_shotTimer--;
 		if (m_shotTimer <= 0)
 		{
@@ -255,7 +262,9 @@ void PlayerStateAttack::Update()
 		//フレームを進めないでボタンを離すと続きから進む
 		return;
 	}
-	
+	//ボタンを離したら魔法陣を消す
+	CloseShotCircle();
+
 	//前進する
 	UpdateMove();
 
@@ -302,8 +311,30 @@ void PlayerStateAttack::SummonStomp()
 	EffectManager::Instns().PlayEffect(EffectType::WickedWeaveStomp, pos, rot, kWitchHandScale);
 }
 
+void PlayerStateAttack::OpenShotCircle()
+{
+	const Vector3& forward = m_player.GetForward();
+	//弾が出る位置(ShotRequestと同じ)に出して、魔法陣から弾が出てくるように見せる
+	const Vector3 pos = m_player.GetPos() + forward * kHitForwardOffset + Vector3(0.0f, kHitHeight, 0.0f);
+
+	//魔法陣は地面に寝ているので、x軸で90度起こしてから撃つ方向へ向ける
+	Vector3 rot;
+	rot.x = DX_PI_F * 0.5f;
+	rot.y = atan2f(-forward.x, -forward.z);
+	m_shotCircleHandle = EffectManager::Instns().PlayEffect(EffectType::SummonCircle, pos, rot, kShotCircleScale);
+}
+
+void PlayerStateAttack::CloseShotCircle()
+{
+	if (m_shotCircleHandle == -1) return;
+	EffectManager::Instns().FadeOutEffect(m_shotCircleHandle);
+	m_shotCircleHandle = -1;
+}
+
 void PlayerStateAttack::Exit()
 {
+	//回避などで攻撃が途中で終わっても魔法陣を残さない
+	CloseShotCircle();
 	m_player.SetAnimPause(false);
 	m_player.SetGravityScale(1.0f);
 }
