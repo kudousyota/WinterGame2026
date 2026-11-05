@@ -2,6 +2,13 @@
 #include "../Common/Model.h"
 #include <algorithm>
 #include "../System/StageCollision.h"
+#include "../Effect/EffectManager.h"
+
+namespace
+{
+	//壁のエフェクトは1単位=1mで作っているので、cmに合わせて100倍にする
+	constexpr float kWallEffectScale = 100.0f;
+}
 
 Gate::~Gate()
 {
@@ -34,6 +41,10 @@ void Gate::Close(const std::vector<SpawnTable::GateInfo>& gates)
 		MV1SetPosition(handle, gates[i].pos);
 		MV1SetRotationXYZ(handle, Vector3(0.0f, gates[i].rotY, 0.0f));
 		MV1RefreshCollInfo(handle, -1);
+
+		//壁があることが見て分かるように、同じ場所にエフェクトを出す(壁と同じく下の中央が原点)
+		int effect = EffectManager::Instns().PlayEffect(EffectType::GateWall, gates[i].pos, Vector3(0.0f, gates[i].rotY, 0.0f), kWallEffectScale);
+		m_effectHandles.push_back(effect);
 	}
 	m_activeNum = num;
 	m_isClosed = true;
@@ -46,6 +57,12 @@ void Gate::Open()
 	{
 		MV1SetPosition(handle, Vector3(0.0f, -10000.0f, 0.0f));
 	}
+	//壁のエフェクトはフェードさせて消す
+	for (int effect : m_effectHandles)
+	{
+		EffectManager::Instns().FadeOutEffect(effect);
+	}
+	m_effectHandles.clear();
 	 m_activeNum = 0;
 	 m_isClosed = false;
 }

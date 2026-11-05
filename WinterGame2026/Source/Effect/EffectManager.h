@@ -15,6 +15,10 @@ enum class EffectType
 	SummonCircle,
 	//魔法の弾(止めるまで残る)
 	MagicBullet,
+	//ロックオン中の敵に付けるマーカー(止めるまで残る)
+	LockOn,
+	//ウェーブ中に通れない壁(止めるまで残る)
+	GateWall,
 	Max
 };
 class Effect;

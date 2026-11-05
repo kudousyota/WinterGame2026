@@ -46,6 +46,10 @@ void EffectManager::Init()
     m_resourceHandles[static_cast<int>(EffectType::SummonCircle)] = LoadEffekseerEffect("Data/Effect/Summon_MagicCircle.efk");
     //魔法の弾
     m_resourceHandles[static_cast<int>(EffectType::MagicBullet)] = LoadEffekseerEffect("Data/Effect/MagicBullet.efk");
+    //ロックオンのマーカー
+    m_resourceHandles[static_cast<int>(EffectType::LockOn)] = LoadEffekseerEffect("Data/Effect/LockOn.efk");
+    //ウェーブ中に通れない壁
+    m_resourceHandles[static_cast<int>(EffectType::GateWall)] = LoadEffekseerEffect("Data/Effect/GateWall.efk");
 }
 
 void EffectManager::Update()

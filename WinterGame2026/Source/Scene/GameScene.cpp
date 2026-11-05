@@ -9,7 +9,6 @@
 #include "../System/StageCollision.h"
 #include "../Game.h"
 #include "../Game/Bullet.h"
-#include "../System/Input.h"
 #include "../Effect/EffectManager.h"
 #include "SceneController.h"
 #include "GameClearScene.h"
@@ -131,8 +130,10 @@ void GameScene::Update()
 	//ロックオンの方向もカメラ基準なので、ロックオンより先に渡す
 	m_pPlayer->SetCameraAxis(m_pCamera->GetForward(), m_pCamera->GetRight());
 	//プレイヤーが攻撃の向きに使うので、プレイヤーより先にロックオンを更新する
-	UpdateLockOn();
-	m_pPlayer->SetAttackTarget(GetAttackTarget());
+	//敵の一覧は作り直しになるので1回だけ作る
+	auto enemies = GetEnemies();
+	m_lockOn.Update(m_pPlayer->GetPos(), m_pCamera->GetForward(), enemies);
+	m_pPlayer->SetAttackTarget(m_lockOn.GetAttackTarget(m_pPlayer->GetPos(), m_pPlayer->GetMoveInput(), m_pPlayer->GetForward(), enemies));
 	m_pPlayer->Update();
 	m_enemyManager.Update();
 
@@ -149,6 +150,8 @@ void GameScene::Update()
 	//押し出しで確定した位置をモデルに反映する
 	m_pPlayer->LateUpdate();
 	m_enemyManager.LateUpdate();
+	//敵の位置が確定してからマーカーを合わせる
+	m_lockOn.LateUpdate();
 
 	//位置が確定してから攻撃判定を行う
 	ProcessAttacks();
@@ -220,7 +223,7 @@ void GameScene::Draw()
 	//当たり判定のカプセルを表示
 	if (m_debug.IsShowCollision()) m_collision.DrawDebug();
 	//ロックオンできる範囲を表示
-	if (m_debug.IsShowLockOn()) m_lockOn.DrawDebug(m_pPlayer->GetPos(), GetLockOnBaseDir());
+	if (m_debug.IsShowLockOn()) m_lockOn.DrawDebug(m_pPlayer->GetPos(), m_pCamera->GetForward());
 	//敵の索敵・攻撃の範囲を表示
 	if (m_debug.IsShowEnemyRange())
 	{
@@ -231,10 +234,6 @@ void GameScene::Draw()
 	}
 	//文字情報
 	m_debug.Draw(GetDebugTargets(), *m_pCamera, m_frameCount);
-	if (auto pos = m_lockOn.GetTargetPos())
-	{
-		DrawSphere3D(VGet(pos->x, pos->y, pos->z), 15.0f, 8, 0xff0000, 0xff0000, true);
-	}
 #endif //_DEBUG
 
 }
@@ -405,44 +404,6 @@ void GameScene::ApplyAttackHit(Character& attacker, const AttackRequest& request
 	//ヒットストップ、カメラシェイク
 	Timer::Instance().RequestHitStop(kHitStopFrame);
 	m_pCamera->Shake(kShakePower, kShakeFrame);
-}
-
-Vector3 GameScene::GetLockOnBaseDir() const
-{
-	return m_pCamera->GetForward();
-}
-
-void GameScene::UpdateLockOn()
-{
-	auto& input = Input::Instance();
-	const Vector3& playerPos = m_pPlayer->GetPos();
-	//押している間
-	if (input.IsPressed("target"))
-	{
-		if (!m_lockOn.GetTarget())
-		{
-			//カメラの正面を基準にする
-			m_lockOn.Start(playerPos, GetLockOnBaseDir(), GetEnemies());
-		}
-	}
-	else
-	{
-		//ボタンをはなしたら外す
-		m_lockOn.Release();
-	}
-	//死亡と距離のチェック
-	m_lockOn.Update(playerPos);
-}
-
-std::shared_ptr<const Character> GameScene::GetAttackTarget() const
-{
-	//ロックオン中はその敵
-	if (auto target = m_lockOn.GetTarget())
-	{
-		return target;
-	}
-	//ロックオンしていないときは、近くで一番狙いやすい敵を返す
-	return m_lockOn.SearchSoft(m_pPlayer->GetPos(), m_pPlayer->GetMoveInput(), m_pPlayer->GetForward(), GetEnemies());
 }
 
 std::vector<Enemy*> GameScene::GetEnemyList()const

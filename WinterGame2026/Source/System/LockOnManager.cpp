@@ -3,6 +3,8 @@
 #include <cfloat>
 #include <cmath>
 #include "DebugDraw.h"
+#include "Input.h"
+#include "../Effect/EffectManager.h"
 
 namespace
 {
@@ -52,7 +54,38 @@ void LockOnManager::Release()
 	m_target.reset();
 }
 
-void LockOnManager::Update(const Vector3& playerPos)
+void LockOnManager::Update(const Vector3& playerPos, const Vector3& baseDir, const std::vector<std::shared_ptr<Character>>& enemies)
+{
+	//押している間
+	if (Input::Instance().IsPressed("target"))
+	{
+		//まだ誰も狙っていなければ探す
+		if (!m_target.lock())
+		{
+			Start(playerPos, baseDir, enemies);
+		}
+	}
+	else
+	{
+		//ボタンをはなしたら外す
+		Release();
+	}
+	//死亡と距離のチェック
+	CheckTarget(playerPos);
+}
+
+std::shared_ptr<const Character> LockOnManager::GetAttackTarget(const Vector3& playerPos, const Vector3& inputDir, const Vector3& forward, const std::vector<std::shared_ptr<Character>>& enemies) const
+{
+	//ロックオン中はその敵
+	if (auto target = m_target.lock())
+	{
+		return target;
+	}
+	//ロックオンしていないときは、近くで一番狙いやすい敵
+	return SearchSoft(playerPos, inputDir, forward, enemies);
+}
+
+void LockOnManager::CheckTarget(const Vector3& playerPos)
 {
 	//敵が消えていたら空になる
 	auto target = m_target.lock();
@@ -76,6 +109,32 @@ void LockOnManager::Update(const Vector3& playerPos)
 	{
 		Release();
 	}
+}
+
+void LockOnManager::LateUpdate()
+{
+	auto& effect = EffectManager::Instns();
+	auto target = m_target.lock();
+
+	//狙っていなければマーカーを消す(エフェクト側のフェードアウトをしてから消える)
+	if (!target)
+	{
+		if (m_markerHandle != -1)
+		{
+			effect.FadeOutEffect(m_markerHandle);
+			m_markerHandle = -1;
+		}
+		return;
+	}
+
+	//狙い始めたらマーカーを出す
+	if (m_markerHandle == -1)
+	{
+		m_markerHandle = effect.PlayEffect(EffectType::LockOn, target->GetCenterPos());
+		return;
+	}
+	//敵が動くので毎フレーム付いていかせる
+	effect.SetEffectPos(m_markerHandle, target->GetCenterPos());
 }
 
 std::optional<Vector3> LockOnManager::GetTargetPos() const

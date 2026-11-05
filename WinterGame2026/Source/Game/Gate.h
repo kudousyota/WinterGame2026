@@ -26,6 +26,8 @@ public:
 
 private:
 	std::vector<int> m_handles;
+	//閉じている壁に出しているエフェクト(開けたら空にする)
+	std::vector<int> m_effectHandles;
 	int m_activeNum = 0;
 	//閉じているか
 	//ゲートが0個のウェーブでも「閉じた」と覚えておくため、m_activeNumとは別に持つ
