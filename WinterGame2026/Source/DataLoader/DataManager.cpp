@@ -20,7 +20,7 @@ bool DataManager::ReloadData()
 	//編集途中のCSVで数字が読めなくても、今のデータが壊れないようにする
 	try
 	{
-		spawnTable.Load(LoadCsv("Data/Csv/Spawn.csv"));
+		spawnTable.Load(LoadCsv("Data/Csv/Spawn.csv"), LoadCsv("Data/Csv/Wave.csv"), LoadCsv("Data/Csv/Gate.csv"));
 		statusData.Load(LoadCsv("Data/Csv/State.csv"));
 		attackTable.Load(LoadCsv("Data/Csv/AttackHit.csv"),
 		                 LoadCsv("Data/Csv/AttackMotion.csv"),
@@ -74,7 +74,7 @@ std::vector<std::vector<std::string>> DataManager::LoadCsv(const std::string& pa
 
 void DataManager::LoadSpawnData()
 {
-	m_spawnTable.Load(LoadCsv("Data/Csv/Spawn.csv"));
+	m_spawnTable.Load(LoadCsv("Data/Csv/Spawn.csv"), LoadCsv("Data/Csv/Wave.csv"), LoadCsv("Data/Csv/Gate.csv"));
 }
 
 void DataManager::LoadStatusData()

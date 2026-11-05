@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "../Enemy.h"
 
-//近距離で殴ってくる地上の敵
+//近距離で殴ってくる地上のボス
 class Warrok : public Enemy
 {
 public:

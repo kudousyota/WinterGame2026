@@ -1,0 +1,8 @@
+#wave,x,y,z,rotY
+#Invisible walls that close while the wave is in battle. Write one row per wall (a wave can have several rows).
+#x,y,z: bottom center of the wall (y = floor height; inside the temple it is 260). rotY: degrees around the Y axis.
+#The wall is 3660 wide (along X when rotY=0), 100 thick, 2000 tall.
+#Temple great hall doors (for later): 0,260,8314,0 / 0,260,11482,0
+0,0,0,1990,0
+1,0,0,1990,0
+2,0,0,12850,0

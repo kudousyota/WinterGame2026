@@ -14,6 +14,8 @@ namespace
 void EnemyStateGetUp::Enter()
 {
 	m_enemy.StopMove();
+	//起き上がりのアニメーションがない敵は、Updateですぐ待機のアニメーションへ切り替える
+	if (m_enemy.GetGetUpAnimName().empty()) return;
 	m_enemy.GetAnim().ChangeAnim(m_enemy.GetGetUpAnimName(), false, kGetUpAnimSpeed);
 }
 
@@ -24,7 +26,7 @@ void EnemyStateGetUp::Update()
 	//起き上がりのアニメーションが終わるまでまつ
 	if (!m_isRising)
 	{
-		if (!m_enemy.GetAnim().GetAnimEndFlag())return;
+		if (!m_enemy.GetGetUpAnimName().empty() && !m_enemy.GetAnim().GetAnimEndFlag())return;
 		//浮き上がり始める
 		m_isRising = true;
 		m_tagetY = m_enemy.GetPos().y + m_enemy.GetHoverHeight();

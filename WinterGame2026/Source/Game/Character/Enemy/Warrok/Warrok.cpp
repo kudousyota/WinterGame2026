@@ -7,7 +7,7 @@ namespace
 {
 	const char* const kIdleAnimName = "Warrok|Idle";
 	const char* const kMoveAnimName = "Warrok|Run";
-	//死亡のアニメーション(その場で倒れる"Warrok|Dead"もモデルに入っている)
+	//死亡のアニメーション
 	const char* const kDeathAnimName = "Warrok|FlyingBackDeath";
 	//被弾・叩き落とし・起き上がりのアニメーションはまだ無いので空のまま
 	//(空ならのけぞらない・叩き落とされない)
@@ -15,9 +15,9 @@ namespace
 	//地上の敵なので浮かない
 	constexpr float kHoverHeight = 0.0f;
 
-	//最初の位置(スポーン時に上書きされる)
+	//最初の位置
 	const Vector3 kStartPos = Vector3(0.0f, kHoverHeight, 300.0f);
-	//体の大きさ(デバッグ表示のカプセルを見ながら調整する)
+	//体の大きさ
 	//身長
 	constexpr float kHeight = 250.0f;
 	//当たり判定のカプセルの半径
@@ -26,11 +26,11 @@ namespace
 	//索敵範囲
 	constexpr float kSearchRange = 1200.0f;
 	//攻撃範囲
-	//今の攻撃判定は「前に50・半径60」なので、これより遠いと空振りする
+	//今の攻撃判定
 	constexpr float kAttackRange = 140.0f;
 	//近づかれても離れない
 	constexpr float kTooCloseDistance = 0.0f;
-	//攻撃の後にこの距離まで離れる(近距離の敵なのであまり離れない)
+	//攻撃の後にこの距離まで離れる
 	constexpr float kKeepDistance = 150.0f;
 
 	//回転の補完
@@ -87,23 +87,23 @@ void Warrok::Update()
 	//HPが0以下になったら死亡ステートにする
 	CheckDeath();
 
-	//ゲーム全体の時間倍率に敵専用の倍率を掛ける(ウィッチタイム中は遅くなる)
+	//ゲーム全体の時間倍率に敵専用の倍率を掛ける
 	float timeScale = GetTimeScale();
 
-	//ステートの更新(死亡中も倒れる演出のために更新する)
+	//ステートの更新
 	UpdateState();
-	//アニメーションの更新(倒れたまま待つ時は止める)
+	//アニメーションの更新
 	if (!m_isAnimPause)
 	{
 		m_anim.Update(timeScale);
 	}
-	//移動(ウィッチタイム中は移動もゆっくりになる)
+	//移動
 	m_pos += m_velocity * timeScale;
 
 	//向いている方向に少しずつ体を向ける
 	//モデルは-Z方向に向きを合わせる
 	float targetAngle = atan2f(m_forward.x, m_forward.z) + DX_PI_F;
-	//目標の角度との差を-π~πにおさめる(遠回りして回転しないようにする)
+	//遠回りして回転しないようにする
 	float diff = targetAngle - m_angle;
 	while (diff > DX_PI_F)  diff -= DX_TWO_PI_F;
 	while (diff < -DX_PI_F) diff += DX_TWO_PI_F;

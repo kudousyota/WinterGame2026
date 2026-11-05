@@ -24,6 +24,7 @@ enum class AttackType
 	Attack,
 	Breath,
 	WarrokPunch,
+	GoblinAttack,
 	WitchHand,
 	WitchLeg,
 	WitchStomp,//真上から踏みつける足

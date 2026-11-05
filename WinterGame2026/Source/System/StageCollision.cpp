@@ -176,6 +176,20 @@ bool StageCollision::CheckGround(Character* character, int stagehandle, float& o
 	return false;
 
 }
+bool StageCollision::FindGroundY(int stagehandle, float x, float z, float baseY, float& outGroundY)
+{
+	//基準の高さより上の段差も拾えるよう、少し上から調べる
+	constexpr float kSearchUp = 200.0f;
+	constexpr float kSearchDown = 1000.0f;
+	VECTOR rayStart = VGet(x, baseY + kSearchUp, z);
+	VECTOR rayEnd = VGet(x, baseY - kSearchDown, z);
+
+	MV1_COLL_RESULT_POLY hitPoly = MV1CollCheck_Line(stagehandle, -1, rayStart, rayEnd);
+	if (hitPoly.HitFlag == 0) return false;
+	outGroundY = hitPoly.HitPosition.y;
+	return true;
+}
+
 //始点から終点へレイを飛ばし、ステージに遮られた場合は衝突位置を返す
 bool StageCollision::CheckCameraRay(int stagehandle, const Vector3& start, const Vector3& end, Vector3& hitpos)
 {

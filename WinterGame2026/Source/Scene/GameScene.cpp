@@ -3,6 +3,7 @@
 #include "../Game/Character/Character.h"
 #include "../Game/Character/Enemy/Alien/Alien.h"
 #include "../Game/Character/Enemy/Warrok/Warrok.h"
+#include "../Game/Character/Enemy/Goblin/Goblin.h"
 #include "../Game/Damage.h"
 #include "../System/Timer.h"
 #include "../System/StageCollision.h"
@@ -16,6 +17,7 @@
 #include <cassert>
 #include <algorithm>
 #include "../DataLoader/DataManager.h"
+#include "../Game/Gate.h"
 
 namespace
 {
@@ -46,6 +48,7 @@ namespace
 	{
 		if (name == "Alien") return std::make_shared<Alien>();
 		if (name == "Warrok") return std::make_shared<Warrok>();
+		if (name == "Goblin") return std::make_shared<Goblin>();
 		assert(false && "知らない敵の名前");
 		return nullptr;
 	}
@@ -86,6 +89,10 @@ void GameScene::Init()
 
 	//敵はプレイヤーを狙うので、プレイヤーの後に準備する
 	m_spawner.Init(DataManager::GetInstance().GetSpawnTable());
+
+	//ゲートの初期化
+	m_gate.Init(DataManager::GetInstance().GetSpawnTable().GetMaxGateNum());
+
 	//射影(視野角・映る距離)の設定もカメラが行う
 	m_pCamera = std::make_shared<Camera>();
 	m_pCamera->Init(m_pPlayer->GetCameraTarget(),m_pPlayer->GetAngle());
@@ -95,6 +102,7 @@ void GameScene::Init()
 	//画面の歪み(描画先のスクリーンとシェーダーを用意する)
 	m_distortion.Init();
 }
+
 void GameScene::Update()
 {
 #ifdef _DEBUG
@@ -134,6 +142,7 @@ void GameScene::Update()
 	//キャラクター同士の押し出しで壁にめり込むことがあるので、ステージとの判定は最後に行う
 	for (Character* character : GetAllCharacters())
 	{
+		m_gate.ResolveWall(character);
 		StageCollision::Resolve(character, m_pStage->GetCollisionHandle());
 	}
 
@@ -158,16 +167,26 @@ void GameScene::Update()
 	//このフレームの処理が全部終わってから消す
 	RemoveVanishedEnemies();
 	//消えた敵を外した後だからリストの数がそのまま残っている敵になる
-	m_spawner.Update(static_cast<int>(m_enemyManager.GetEnemies().size()));
+	//プレイヤー基準の敵は、カメラの正面(画面の奥)に出す
+	SpawnContext spawnContext{ m_pPlayer->GetPos(), m_pCamera->GetForward(), m_pCamera->GetRight() };
+	m_spawner.Update(static_cast<int>(m_enemyManager.GetEnemies().size()), spawnContext);
+	//戦闘はSpawnerのUpdateの中で始まる・終わるので、その後にゲートを合わせる
+	m_gate.Update(m_spawner.IsBattleLocked(), m_spawner.GetBattleArea().gates);
 	for (const auto& request : m_spawner.TakeSpawnRequests())
 	{
 		if (auto enemy = CreateEnemy(request.characterName))
 		{
-			SpawnEnemy(enemy, request.groundPos);
+			//神殿の床のように高さが違う場所もあるので、地面の高さに合わせる
+			Vector3 groundPos = request.groundPos;
+			float groundY = 0.0f;
+			if (StageCollision::FindGroundY(m_pStage->GetCollisionHandle(), groundPos.x, groundPos.z, groundPos.y, groundY))
+			{
+				groundPos.y = groundY;
+			}
+			SpawnEnemy(enemy, groundPos);
 		}
 	}
-	//最後のウェーブまで全滅させたらクリア
-	bool isClear = m_spawner.IsAllWavesFinished();
+	//勝ち負けの判定(最後のウェーブまで全滅させたらクリア)
 	CheckGameEnd();
 }
 
@@ -364,7 +383,7 @@ void GameScene::ApplyAttackHit(Character& attacker, const AttackRequest& request
 {
 	Character& target = *hit.target;
 
-	//同じ攻撃は1回しか受けない(判定が出ている間、毎フレーム当たらないようにする)
+	//同じ攻撃は1回しか受けない
 	if (target.HasReceivedAttack(&attacker, request.attackId)) return;
 
 	//ジャスト回避は無敵中でも成立する
@@ -376,14 +395,14 @@ void GameScene::ApplyAttackHit(Character& attacker, const AttackRequest& request
 		return;
 	}
 
-	//無敵中・死亡中は受けない
+	//無敵中、死亡中は受けない
 	//記録しないから無敵が切れた後にまだ判定が出ていれば当たる
 	if (!target.CanBeHit()) return;
 
 	target.MarkAttackReceived(&attacker, request.attackId);
 	target.OnHit(request.data, Damage::Calc(request.data, attacker, target));
 
-	//ヒットストップ・カメラシェイク
+	//ヒットストップ、カメラシェイク
 	Timer::Instance().RequestHitStop(kHitStopFrame);
 	m_pCamera->Shake(kShakePower, kShakeFrame);
 }
@@ -472,7 +491,6 @@ void GameScene::SpawnEnemy(const std::shared_ptr<Enemy>& enemy, const Vector3& g
 void GameScene::RemoveVanishedEnemies()
 {
 	//当たり判定は生ポインタで持っているので、消す前に必ず外す
-	//(ロックオンとプレイヤーの攻撃対象はweak_ptrなので、消えたら自動で空になる)
 	for (Enemy* enemy : GetEnemyList())
 	{
 		if (enemy->IsVanished())
@@ -486,8 +504,9 @@ void GameScene::RemoveVanishedEnemies()
 void GameScene::CheckGameEnd()
 {
 	bool isGameOver = m_pPlayer->IsDead();
+	//最後のウェーブまで出し終わっていなければクリアではない
 	//敵は倒れて消えるまで見せてからクリアにする
-	bool isClear = true;
+	bool isClear = m_spawner.IsAllWavesFinished();
 	for (auto enemy : GetEnemyList())
 	{
 		if (!enemy->IsVanished())

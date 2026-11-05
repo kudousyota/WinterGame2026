@@ -1,0 +1,6 @@
+#wave,areaX,areaZ,radius
+#The wave starts when the player enters this circle, and the player cannot leave it until the wave is cleared.
+#Waves not listed here start right away and do not lock the player in.
+0,0,500,1400
+1,0,500,1400
+2,0,15600,2300

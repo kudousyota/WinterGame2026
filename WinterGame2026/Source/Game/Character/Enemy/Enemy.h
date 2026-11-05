@@ -45,6 +45,10 @@ public:
 	const std::string& GetDeathAnimName()const { return m_deathAnimName; }
 	const std::string& GetKnockdownAnimName()const { return m_knockdownAnimName; }
 	const std::string& GetGetUpAnimName()const { return m_getUpAnimName; }
+	//吹っ飛びのアニメーションで、宙に浮いて後ろへ飛んでいる区間の終わり(アニメーション全体に対する割合)
+	float GetKnockdownFlyEndRate()const { return m_knockdownFlyEndRate; }
+	//吹っ飛びのアニメーションで、地面に倒れきった割合(ここでアニメーションを止める)
+	float GetKnockdownLieDownRate()const { return m_knockdownLieDownRate; }
 
 	//死亡ステートから使う
 	//モデルの不透明度(1で普通、0で見えない)
@@ -115,8 +119,11 @@ protected:
 	std::string m_deathAnimName;
 	//叩き落とされて倒れるアニメーション(空なら叩き落とされない)
 	std::string m_knockdownAnimName;
-	//倒れた状態から起き上がるアニメーション
+	//倒れた状態から起き上がるアニメーション(空なら待機のアニメーションへ切り替えて立つ)
 	std::string m_getUpAnimName;
+	//吹っ飛びのアニメーションのタイミング(初期値はAlienのFlyingBack・全92フレーム、27フレーム目で着地)
+	float m_knockdownFlyEndRate = 0.29f;
+	float m_knockdownLieDownRate = 0.9f;
 
 	//モデルの不透明度//色んな使い道ありそう
 	float m_opacity = 1.0f;

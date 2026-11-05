@@ -1,4 +1,5 @@
 #name,hp,maxhp,speed
 Player,100,100,12
 Alien,150,150,2
-Warrok,300,300,4
+Warrok,1000,1000,4
+Goblin,100,100,3

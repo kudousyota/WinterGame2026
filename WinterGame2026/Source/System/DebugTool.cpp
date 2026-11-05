@@ -50,6 +50,8 @@ void DebugTool::Update(const std::vector<Target>& targets)
 
 	//CSVの読み直し
 	if (IsKeyTriggered(KEY_INPUT_F5)) Reload(targets);
+	//今いる位置をスポーン位置としてコピー
+	if (IsKeyTriggered(KEY_INPUT_F11)) CopySpawnLine(targets);
 
 	//一時停止・スロー
 	if (IsKeyTriggered(KEY_INPUT_F6)) m_isPaused = !m_isPaused;
@@ -86,7 +88,7 @@ void DebugTool::Draw(const std::vector<Target>& targets, const Camera& camera, i
 	const unsigned int yellow = GetColor(255, 255, 0);
 	int y = 0;
 
-	DrawString(0, y, "F1:Collision F2:Text F3:Grid F5:Reload F6:Pause F7:Step F8:Slow", white);
+	DrawString(0, y, "F1:Collision F2:Text F3:Grid F5:Reload F6:Pause F7:Step F8:Slow F11:CopySpawnPos", white);
 	y += kLineHeight;
 
 	//フレーム数と一時停止・スローの状態
@@ -164,6 +166,22 @@ void DebugTool::Reload(const std::vector<Target>& targets)
 	{
 		m_message = "CSV reload failed (check the numbers in the CSV)";
 	}
+	m_messageFrame = kMessageFrame;
+}
+
+void DebugTool::CopySpawnLine(const std::vector<Target>& targets)
+{
+	//一覧の先頭はプレイヤー
+	if (targets.empty()) return;
+	const Vector3& pos = targets[0].character->GetPos();
+
+	//Spawn.csvの列: wave,type,base,spawnerX,spawnerZ,offsetX,offsetZ,delay
+	//ウェーブ番号と敵の種類は仮に入れておくので、貼った後に書き換える
+	char line[128];
+	sprintf_s(line, "0,Goblin,world,%.0f,%.0f,0,0,0", pos.x, pos.z);
+	SetClipboardText(line);
+
+	m_message = std::string("Copied to clipboard: ") + line;
 	m_messageFrame = kMessageFrame;
 }
 #endif // _DEBUG

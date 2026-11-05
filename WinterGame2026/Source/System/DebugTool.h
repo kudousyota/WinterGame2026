@@ -12,6 +12,7 @@ class Camera;
 //F5:CSVの読み直し
 //F6:一時停止  F7:コマ送り(一時停止中)  F8:スロー
 //F9:敵の索敵・攻撃範囲の表示
+//F11:プレイヤーの足元の位置を、Spawn.csvの1行としてクリップボードにコピー
 class DebugTool
 {
 public:
@@ -44,6 +45,8 @@ private:
 	bool IsKeyTriggered(int key)const;
 	//CSVを読み直してキャラクターに反映する
 	void Reload(const std::vector<Target>& targets);
+	//プレイヤーの足元の位置をSpawn.csvの1行の形にしてクリップボードにコピーする
+	void CopySpawnLine(const std::vector<Target>& targets);
 
 private:
 	//キーボードの状態(今と前のフレーム)

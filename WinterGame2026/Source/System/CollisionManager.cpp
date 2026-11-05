@@ -4,6 +4,7 @@
 #include <vector>
 #include "../DataLoader/AttackData.h"
 #include "Geometry.h"
+#include "../Game/Gate.h"
 
 //当たり判定対象のキャラクターを登録
 void CollisionManager::Register(Character* character)
@@ -150,10 +151,10 @@ void CollisionManager::DrawDebug()const
 {
 	for (auto character : m_pCharacters)
 	{
-		//当たり判定(黄色)
+		//当たり判定
 		Geometry::Capsule capsule = character->GetCollisionCapsule();
 		DrawCapsule3D(capsule.start, capsule.end, capsule.radius, 8, GetColor(255, 255, 0), GetColor(255, 255, 0), false);
-		//ジャスト回避判定(水色)
+		//ジャスト回避判定
 		Geometry::Capsule justDodge = character->GetJustDodgeCapsule();
 		if (justDodge.radius > 0.0f)
 		{
@@ -161,7 +162,7 @@ void CollisionManager::DrawDebug()const
 		}
 	}
 
-	//このフレームに判定した攻撃(緑)
+	//このフレームに判定した攻撃
 	for (auto& shape : m_debugAttackShapes)
 	{
 		DrawCapsule3D(shape.start, shape.end, shape.radius, 8, GetColor(0, 255, 0), GetColor(0, 255, 0), false);

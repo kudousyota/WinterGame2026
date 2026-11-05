@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Game\Gate.cpp" />
     <ClCompile Include="Source\Game\Character\Enemy\EnemySpawner.cpp" />
     <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateObserve.cpp" />
     <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateRetreat.cpp" />
@@ -160,6 +161,7 @@
     <ClCompile Include="Source\Game\Character\Enemy\Alien\Alien.cpp" />
     <ClCompile Include="Source\Game\Character\Enemy\Enemy.cpp" />
     <ClCompile Include="Source\Game\Character\Enemy\Warrok\Warrok.cpp" />
+    <ClCompile Include="Source\Game\Character\Enemy\Goblin\Goblin.cpp" />
     <ClCompile Include="Source\Game\Character\Enemy\EnemyManager.cpp" />
     <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateAttack.cpp" />
     <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateChase.cpp" />
@@ -202,6 +204,7 @@
     <ClCompile Include="Source\Effect\ScreenDistortion.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Game\Gate.h" />
     <ClInclude Include="Source\Game\Character\Enemy\EnemySpawner.h" />
     <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateObserve.h" />
     <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateRetreat.h" />
@@ -222,6 +225,7 @@
     <ClInclude Include="Source\Game\Character\Enemy\Alien\Alien.h" />
     <ClInclude Include="Source\Game\Character\Enemy\Enemy.h" />
     <ClInclude Include="Source\Game\Character\Enemy\Warrok\Warrok.h" />
+    <ClInclude Include="Source\Game\Character\Enemy\Goblin\Goblin.h" />
     <ClInclude Include="Source\Game\Character\Enemy\EnemyManager.h" />
     <ClInclude Include="Source\Game\Character\Player\State\PlayerStateAttack.h" />
     <ClInclude Include="Source\System\Projectile.h" />

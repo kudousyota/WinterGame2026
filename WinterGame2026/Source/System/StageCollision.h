@@ -13,6 +13,8 @@ namespace StageCollision
 	bool CheckWall(Character* character, int stagehandle);
 	//ステージの地面
 	bool CheckGround(Character* character, int stagehandle, float& outGroundY, Vector3& outGroundNormal);
+	//(x,z)の真下にある地面の高さを探す
+	bool FindGroundY(int stagehandle, float x, float z, float baseY, float& outGroundY);
 	//カメラとステージの判定
 	bool CheckCameraRay(int stagehandle, const Vector3& start, const Vector3& end, Vector3& hitpos);
 }

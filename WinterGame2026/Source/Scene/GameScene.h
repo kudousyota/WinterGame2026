@@ -11,6 +11,7 @@
 #include "Scene.h"
 #include "../Game/Character/Enemy/EnemySpawner.h"
 #include "../Effect/ScreenDistortion.h"
+#include "../Game/Gate.h"
 
 class GameScene : public Scene
 {
@@ -81,6 +82,8 @@ private:
 	EnemySpawner m_spawner;
 	//画面の歪み
 	ScreenDistortion m_distortion;
+	//ゲート
+	Gate m_gate;
 	//歪みが始まってから経ったフレーム数
 	int m_distortionFrame = -1;
 	//ウィッチタイム中の揺らぎの今の強さ

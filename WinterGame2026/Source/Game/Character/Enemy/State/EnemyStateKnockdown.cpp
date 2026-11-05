@@ -5,15 +5,12 @@
 
 namespace
 {
-	//吹っ飛びのアニメーション(FlyingBack・全92フレーム)で、体が宙に浮いて後ろへ飛んでいる区間(アニメーション全体に対する割合)
-	//当たった瞬間から飛び始めて、27フレーム目で背中から地面に着く
+	//吹っ飛びのアニメーションで、体が宙に浮いて後ろへ飛び始める割合
+	//飛び終わる割合と倒れきる割合はアニメーションごとに違うので、敵から受け取る
 	//この区間の外(倒れた後)は動かさないので、体が滑って見えない
 	constexpr float kFlyStartRate = 0.0f;
-	constexpr float kFlyEndRate = 0.29f;
-	//地面に倒れきった割合(着地した後の揺れが収まるまで流してから止める)
-	constexpr float kLieDownRate = 0.9f;
 
-	//飛び始めが一番速く、着地に向けてゆっくりになる(アニメーションの腰の動きに合わせる)
+	//飛び始めが一番速く、着地に向けてゆっくりになる
 	float EaseOut(float t)
 	{
 		return 1.0f - (1.0f - t) * (1.0f - t);
@@ -57,7 +54,7 @@ void EnemyStateKnockdown::Update()
 	m_enemy.StopMove();
 	float animRate = m_enemy.GetAnim().GetAnimRate();
 	//宙に浮いている区間でのラープ
-	float t = (animRate - kFlyStartRate) / (kFlyEndRate - kFlyStartRate);
+	float t = (animRate - kFlyStartRate) / (m_enemy.GetKnockdownFlyEndRate() - kFlyStartRate);
 	//区間の外は0か１にする
 	t = std::clamp(t, 0.0f, 1.0f);
 
@@ -72,7 +69,7 @@ void EnemyStateKnockdown::Update()
 	m_prevT = t;
 
 	//地面に倒れきったらアニメーションを止める
-	if (animRate >= kLieDownRate)
+	if (animRate >= m_enemy.GetKnockdownLieDownRate())
 	{
 		m_enemy.SetAnimPause(true);
 	}
