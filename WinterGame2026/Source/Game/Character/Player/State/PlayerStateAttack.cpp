@@ -9,7 +9,7 @@
 
 namespace
 {
-	//攻撃判定を出す位置(足元から前方への距離と高さ)
+	//攻撃判定を出す位置
 	//ボーンの位置から出すようにしたらCSVで攻撃ごとに指定する
 	constexpr float kHitForwardOffset = 60.0f;
 	constexpr float kHitHeight = 100.0f;
@@ -20,19 +20,19 @@ namespace
 	constexpr float kBulletSpeed = 30.0f;
 	constexpr int kBulletDamage = 1;
 	constexpr float kBulletRadius = 10.0f;
-	//弾を撃つときの魔法陣の拡大率(Effekseerの1単位を何cmにするか)
+	//弾を撃つときの魔法陣の拡大率
 	constexpr float kShotCircleScale = 7.0f;
-	//敵が遠いとき、前進距離をCSVの値の何倍まで伸ばすか
+	//敵が遠いとき前進距離をCSVの値の何倍まで伸ばすか
 	constexpr float kMaxMoveScale = 2.0f;
-	//敵の手前で止まるときに、体同士の間に空ける隙間
+	//敵の手前で止まるときに体同士の間に空ける隙間
 	constexpr float kStopMargin = 10.0f;
-	//ウィケッドウィーブを出す位置(足元から前方への距離)
+	//ウィケッドウィーブを出す位置
 	constexpr float kWitchHandForwardOffset = 150.0f;
-	//ウィケッドウィーブのエフェクトの拡大率(Effekseerの1単位を何cmにするか)
+	//ウィケッドウィーブのエフェクトの拡大率
 	constexpr float kWitchHandScale = 40.0f;
 	//エフェクトの原点から拳までの距離
 	constexpr float kWitchHandFistDistance = 1.1f;
-	//魔法陣を出したい位置(足元から見て後ろ・上・右への距離)。右肩のあたりから前へ突き出す
+	//魔法陣を出したい位置
 	constexpr float kWitchHandPortalBack = 50.0f;
 	constexpr float kWitchHandPortalHeight = 150.0f;
 	//足のウィケッドウィーブは腰のあたりから蹴り出す
@@ -41,7 +41,7 @@ namespace
 	//踏みつけエフェクトで衝撃が出る位置
 	constexpr float kStompImpactOffset = 0.9f;
 
-	//最初が速く、だんだん遅くなる(0～1を受け取って0～1を返す)
+	//最初が速く、だんだん遅くなる
 	float EaseOut(float t)
 	{
 		return 1.0f - (1.0f - t) * (1.0f - t);
@@ -61,7 +61,7 @@ void PlayerStateAttack::Enter()
 	m_moveDistance = m_info.moveDistance;
 	//空中で出した攻撃か
 	m_isAir = !m_player.IsGround();
-	//地面まで落ちる攻撃は、振りかぶる間だけその場に浮いて、攻撃判定が出たら落ち始める
+	//地面まで落ちる攻撃は、振りかぶる間だけその場に浮いて攻撃判定が出たら落ち始める
 	m_isFalling = m_isAir && m_info.fallSpeed > 0.0f;
 	if (m_isFalling)
 	{
@@ -81,8 +81,8 @@ void PlayerStateAttack::Enter()
 	}
 	
 
-	//上がる攻撃は、縦の速度を自分で決めるので重力を使わない
-	//地上でたまっていた下向きの速度が残ると沈むので、縦の速度も0にしておく
+	//上がる攻撃は縦の速度を自分で決めるので重力を使わない
+	//地上でたまっていた下向きの速度が残ると沈むから縦の速度も0にしておく
 	if (m_info.riseSpeed > 0.0f)
 	{
 		auto vel = m_player.GetVelocity();
@@ -97,21 +97,21 @@ void PlayerStateAttack::Enter()
 		//敵への向き
 		Vector3 toTarget = target->GetPos() - m_player.GetPos();
 		toTarget.y = 0.0f;
-		//重なっていると向きが決まらないので、そのときは向きを変えない
+		//重なっていると向きが決まらないそのときは向きを変えない
 		if (toTarget.SqMagnitude() > 0.0f)
 		{
 			m_player.FaceTo(toTarget.Normalize());
 		}
 
-		//踏み込む攻撃だけ、敵との距離に合わせて進む距離を変える
+		//踏み込む攻撃だけ敵との距離に合わせて進む距離を変える
 		if (m_info.moveDistance > 0.0f)
 		{
 			//体同士が触れる少し前で止まる
 			float stopDistance = m_player.GetCollisionRadius() + target->GetCollisionRadius() + kStopMargin;
 			float maxDistance = m_info.moveDistance * kMaxMoveScale;
-			//近すぎるときは進まない、遠すぎるときは最大距離まで
+			//近すぎるときは進まない遠すぎるときは最大距離まで
 			float reach = std::clamp(toTarget.Magnitude() - stopDistance, 0.0f,maxDistance);
-			//敵を運ぶ攻撃は敵を押していくので、敵が近くても止まらずにCSVの距離は進む
+			//敵を運ぶ攻撃は敵を押していくので敵が近くても止まらずにCSVの距離は進む
 			m_moveDistance = m_info.carry ? (std::max)(reach, m_info.moveDistance) : reach;
 		}
 	}

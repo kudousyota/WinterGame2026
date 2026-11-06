@@ -21,6 +21,10 @@ public:
 	//timeScaleはウィッチタイムなどの時間倍率
 	virtual void Update(float timeScale) = 0;
 	virtual void Draw() = 0;
+#ifdef _DEBUG
+	//当たり範囲などを描く(デバッグ用・必要な飛び道具だけ上書きする)
+	virtual void DrawDebug()const {}
+#endif
 
 	//消す
 	void Kill() { m_isDead = true; }

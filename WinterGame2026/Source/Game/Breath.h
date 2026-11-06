@@ -16,6 +16,11 @@ public:
 	Breath(const Vector3& pos, const Vector3& forward, float speed, const AttackData& attack);
 
 	void Update(float timeScale)override;
+	//見た目はエフェクトで出すので何も描かない
 	void Draw()override;
+#ifdef _DEBUG
+	//当たり範囲を描く
+	void DrawDebug()const override;
+#endif
 };
 

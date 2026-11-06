@@ -63,3 +63,14 @@ void ProjectileManager::Draw()
 	}
 
 }
+
+#ifdef _DEBUG
+void ProjectileManager::DrawDebug() const
+{
+	for (const auto& projectile : m_pProjectiles)
+	{
+		if (projectile->IsDead()) continue;
+		projectile->DrawDebug();
+	}
+}
+#endif // _DEBUG

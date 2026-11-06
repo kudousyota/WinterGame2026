@@ -219,19 +219,26 @@ void GameScene::Draw()
 	//歪ませて画面に出す
 	m_distortion.EndCapture();
 #ifdef _DEBUG
-	if (m_debug.IsShowGrid()) DrawGrid();
-	//当たり判定のカプセルを表示
-	if (m_debug.IsShowCollision()) m_collision.DrawDebug();
-	//ロックオンできる範囲を表示
-	if (m_debug.IsShowLockOn()) m_lockOn.DrawDebug(m_pPlayer->GetPos(), m_pCamera->GetForward());
-	//敵の索敵・攻撃の範囲を表示
-	if (m_debug.IsShowEnemyRange())
+	//どれを出すかはDebugToolのメニュー(TAB)やFキーで切り替える
+	using Show = DebugTool::Show;
+	if (m_debug.IsShow(Show::Grid)) DrawGrid();
+	//キャラクターの当たり判定のカプセルを表示
+	if (m_debug.IsShow(Show::Collision)) m_collision.DrawDebugBody();
+	//攻撃判定(このフレームの攻撃とブレス)を表示
+	if (m_debug.IsShow(Show::AttackHit))
 	{
-		for (const Enemy* enemy : GetEnemyList())
-		{
-			if (!enemy->IsVanished()) enemy->DrawDebugRange();
-		}
+		m_collision.DrawDebugAttack();
+		m_projectiles.DrawDebug();
 	}
+	//ロックオンできる範囲を表示
+	if (m_debug.IsShow(Show::LockOn)) m_lockOn.DrawDebug(m_pPlayer->GetPos(), m_pCamera->GetForward());
+	//敵の範囲・向き・攻撃枠を表示
+	for (const Enemy* enemy : GetEnemyList())
+	{
+		if (enemy->IsVanished()) continue;
+		if (m_debug.IsShow(Show::EnemyRange)) enemy->DrawDebugRange();
+		if (m_debug.IsShow(Show::EnemyForward)) enemy->DrawDebugForward();
+		if (m_debug.IsShow(Show::EnemyToken)) enemy->DrawDebugToken();	}
 	//文字情報
 	m_debug.Draw(GetDebugTargets(), *m_pCamera, m_frameCount);
 #endif //_DEBUG
@@ -254,17 +261,21 @@ std::vector<DebugTool::Target> GameScene::GetDebugTargets() const
 
 void GameScene::ProcessAttacks()
 {
+
 	for (Character* attacker : GetAllCharacters())
 	{
+
 		for (const auto& request : attacker->TakeAttackRequests())
 		{
 			Vector3 pos = attacker->GetAttackPos(request);
 
 			//lengthがあれば狙った方向へ伸びるカプセル、なければ球で判定する
 			std::vector<CollisionManager::AttackHit> hits;
+			Vector3 end = pos;
 			if (request.length > 0.0f)
 			{
-				hits = m_collision.CheckAttackCapsule(request.data, pos, pos + request.dir * request.length);
+				end = pos + request.dir * request.length;
+				hits = m_collision.CheckAttackCapsule(request.data, pos, end);			
 			}
 			else
 			{
@@ -273,7 +284,7 @@ void GameScene::ProcessAttacks()
 
 			for (const auto& hit : hits)
 			{
-				ApplyAttackHit(*attacker, request, hit);
+				ApplyAttackHit(*attacker, request, hit,pos,end);
 			}
 		}
 	}
@@ -378,7 +389,7 @@ void GameScene::UpdateDistortion()
 	}
 }
 
-void GameScene::ApplyAttackHit(Character& attacker, const AttackRequest& request, const CollisionManager::AttackHit& hit)
+void GameScene::ApplyAttackHit(Character& attacker, const AttackRequest& request, const CollisionManager::AttackHit& hit,const Vector3& start, const Vector3& end)
 {
 	Character& target = *hit.target;
 
@@ -399,7 +410,7 @@ void GameScene::ApplyAttackHit(Character& attacker, const AttackRequest& request
 	if (!target.CanBeHit()) return;
 
 	target.MarkAttackReceived(&attacker, request.attackId);
-	target.OnHit(request.data, Damage::Calc(request.data, attacker, target));
+	target.OnHit(request.data, Damage::Calc(request.data, attacker, target,start,end));
 
 	//ヒットストップ、カメラシェイク
 	Timer::Instance().RequestHitStop(kHitStopFrame);

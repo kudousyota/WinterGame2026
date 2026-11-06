@@ -8,9 +8,6 @@
 
 namespace
 {
-	//攻撃判定を出す位置
-	constexpr float kHitForwardOffset = 50.0f;
-	constexpr float kHitHeight = 120.0f;
 	//予兆エフェクトの拡大率
 	constexpr float kTelegraphScale = 20.0f;
 }
@@ -40,7 +37,7 @@ void EnemyStateAttack::Enter()
 
 	//予兆エフェクトを口の位置に出す
 	const Vector3& forward = m_enemy.GetForward();
-	const Vector3 mouthPos = m_enemy.GetPos() + forward * kHitForwardOffset + Vector3(0.0f, kHitHeight, 0.0f);
+	const Vector3 mouthPos = m_enemy.GetPos() + forward * m_enemy.GetHitForwardOffset() + Vector3(0.0f, m_enemy.GetHitHeight(), 0.0f);
 	//エフェクトを敵の向きに合わせる(プレイヤーのエフェクトと同じ求め方)
 	Vector3 rot;
 	rot.y = atan2f(-forward.x, -forward.z);
@@ -84,8 +81,8 @@ void EnemyStateAttack::Update()
 		//攻撃を申請するだけ
 		AttackRequest request{ AttackData(CharacterType::Enemy, m_info.type, m_info.damage, m_info.radius) };
 		request.attackId = m_attackId;
-		request.forwardOffset = kHitForwardOffset;
-		request.height = kHitHeight;
+		request.forwardOffset = m_enemy.GetHitForwardOffset();
+		request.height = m_enemy.GetHitHeight();
 		//lengthが0なら今まで通りの球、0より大きければ狙った方向へ伸びるカプセルになる
 		request.dir = m_aimDir;
 		request.length = CalcHitLength();
@@ -148,7 +145,7 @@ Vector3 EnemyStateAttack::CalcAimDir() const
 	if (!target) return forward;
 
 	//Character::GetAttackPosと同じ求め方で口の位置を出す
-	Vector3 mouthPos = m_enemy.GetPos() + forward * kHitForwardOffset + Vector3(0.0f, kHitHeight, 0.0f);
+	Vector3 mouthPos = m_enemy.GetPos() + forward * m_enemy.GetHitForwardOffset() + Vector3(0.0f, m_enemy.GetHitHeight(), 0.0f);
 	//浮いているので水平に吐くと頭の上を通り過ぎる。体の中心を狙って斜め下に吐く
 	Vector3 toTarget = target->GetCenterPos() - mouthPos;
 	if (toTarget.SqMagnitude() <= 0.0f) return forward;

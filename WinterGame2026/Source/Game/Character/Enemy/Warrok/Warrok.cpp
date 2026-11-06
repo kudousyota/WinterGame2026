@@ -1,6 +1,7 @@
 ﻿#include "Warrok.h"
 #include "../../../../Common/Model.h"
 #include "../State/EnemyStateIdle.h"
+#include "../../../../Effect/EffectManager.h"
 #include <cmath>
 
 namespace
@@ -10,31 +11,58 @@ namespace
 	//死亡のアニメーション
 	const char* const kDeathAnimName = "Warrok|FlyingBackDeath";
 	//被弾・叩き落とし・起き上がりのアニメーションはまだ無いので空のまま
-	//(空ならのけぞらない・叩き落とされない)
 
 	//地上の敵なので浮かない
 	constexpr float kHoverHeight = 0.0f;
+
+	//モデルの拡大率
+	constexpr float kModelScale = 4.0f;
 
 	//最初の位置
 	const Vector3 kStartPos = Vector3(0.0f, kHoverHeight, 300.0f);
 	//体の大きさ
 	//身長
-	constexpr float kHeight = 250.0f;
+	constexpr float kHeight = 250.0f * kModelScale;
 	//当たり判定のカプセルの半径
-	constexpr float kCollisionRadius = 60.0f;
+	constexpr float kCollisionRadius = 60.0f * kModelScale;
+
+	//距離はすべて体の半径を基準にする
+	//プレイヤーは体に押し出されるので、中心から半径より内側には入ってこない
+	//攻撃判定を出す位置
+	constexpr float kHitForwardOffset = kCollisionRadius + 80.0f;
+	//プレイヤーに当たる高さ
+	constexpr float kHitHeight = 120.0f;
 
 	//索敵範囲
-	constexpr float kSearchRange = 1200.0f;
+	constexpr float kSearchRange = kCollisionRadius + 1100.0f;
 	//攻撃範囲
-	//今の攻撃判定
-	constexpr float kAttackRange = 140.0f;
+	constexpr float kAttackRange = kCollisionRadius + 140.0f;
 	//近づかれても離れない
 	constexpr float kTooCloseDistance = 0.0f;
 	//攻撃の後にこの距離まで離れる
-	constexpr float kKeepDistance = 150.0f;
+	constexpr float kKeepDistance = kCollisionRadius + 260.0f;
 
 	//回転の補完
+	//ウィッチタイム中はこれにも時間の倍率がかかって遅くなる
 	constexpr float kRotateRate = 0.15f;
+
+	//弱点の位置
+	const float kWeakPointOffset = kCollisionRadius;
+
+	constexpr float kWeakPointHeight = kHeight * 0.5f;
+
+	constexpr float kWeakPointRadius = 80.0f;
+
+	//弱点に当たった時のダメージ倍率
+	constexpr float kWeakPointDamageRate = 3.0f;
+	//弱点以外に当たった時のダメージ倍率
+	constexpr float kArmorDamageRate = 0.5f;
+
+	//弱点の目印のエフェクト
+	//拡大率(この大きさで広がるリングの半径がだいたい弱点の半径になる)
+	constexpr float kWeakPointEffectScale = 22.0f;
+	//弱点の中心からさらに後ろへずらす距離(体に半分埋もれて見えなくならないように)
+	constexpr float kWeakPointEffectBackOffset = 40.0f;
 }
 
 Warrok::Warrok()
@@ -43,6 +71,11 @@ Warrok::Warrok()
 
 Warrok::~Warrok()
 {
+	//死ぬ前に消された(シーンが切り替わったなど)ときもエフェクトを残さない
+	if (m_weakPointEffectHandle != -1)
+	{
+		EffectManager::Instns().StopEffect(m_weakPointEffectHandle);
+	}
 	MV1DeleteModel(m_modelHandle);
 }
 
@@ -50,6 +83,8 @@ void Warrok::Init()
 {
 	//モデルの生成
 	m_modelHandle = Model::Instance().CreatWarrokModel();
+	//ボスなので大きくする
+	MV1SetScale(m_modelHandle, VGet(kModelScale, kModelScale, kModelScale));
 	//アニメーションの初期化
 	m_anim.Init(m_modelHandle, kIdleAnimName, true);
 	//ステータスの初期化
@@ -69,12 +104,17 @@ void Warrok::Init()
 	m_attackRange = kAttackRange;
 	m_tooCloseDistance = kTooCloseDistance;
 	m_keepDistance = kKeepDistance;
+	m_hitForwardOffset = kHitForwardOffset;
+	m_hitHeight = kHitHeight;
 	m_idleAnimName = kIdleAnimName;
 	m_moveAnimName = kMoveAnimName;
 	m_deathAnimName = kDeathAnimName;
 	m_hoverHeight = kHoverHeight;
-	//攻撃の種類(フレームやダメージはcsvに書く)
+	//攻撃の種類
 	m_attackType = AttackType::WarrokPunch;
+
+	//背中の弱点の目印(位置は出した後にLateUpdateで合わせる)
+	m_weakPointEffectHandle = EffectManager::Instns().PlayEffect(EffectType::WeakPoint, GetWeakPointEffectPos(), Vector3(), kWeakPointEffectScale);
 
 	ChangeState(std::make_unique<EnemyStateIdle>(*this));
 }
@@ -86,6 +126,11 @@ void Warrok::Update()
 
 	//HPが0以下になったら死亡ステートにする
 	CheckDeath();
+	//倒れたら弱点の目印は消す
+	if (m_isDead)
+	{
+		StopWeakPointEffect();
+	}
 
 	//ゲーム全体の時間倍率に敵専用の倍率を掛ける
 	float timeScale = GetTimeScale();
@@ -115,6 +160,9 @@ void Warrok::LateUpdate()
 	//当たり判定で押し出された後の位置をモデルに反映する
 	MV1SetRotationXYZ(m_modelHandle, VGet(0.0f, m_angle, 0.0f));
 	MV1SetPosition(m_modelHandle, m_pos);
+	//弱点の目印を背中についていかせる
+	//(SetEffectPosは-1なら何もしないので、消した後も呼んで大丈夫)
+	EffectManager::Instns().SetEffectPos(m_weakPointEffectHandle, GetWeakPointEffectPos());
 }
 
 void Warrok::Draw()
@@ -122,7 +170,68 @@ void Warrok::Draw()
 	//消えた後は描画しない
 	if (m_isVanished) return;
 
+
 	//死亡演出でだんだん透明にする
 	MV1SetOpacityRate(m_modelHandle, m_opacity);
 	MV1DrawModel(m_modelHandle);
+
+#ifdef _DEBUG
+	//弱点の当たり判定をデバッグ表示
+	DrawSphere3D(GetWeakPointPos(), kWeakPointRadius, 16, 0xff0000,0xff0000, false);
+#endif
+}
+
+float Warrok::GetDamageRate(const Vector3& start, const Vector3& end, float radius) const
+{
+	if (IsHitWeakPoint(start,end,radius))
+	{
+		return kWeakPointDamageRate;
+	}
+	else
+	{
+		return kArmorDamageRate;
+	}
+
+}
+
+Vector3 Warrok::GetModelForward() const
+{
+	//モデルは-Z方向に向いているので、-Z方向のベクトルを回転させる
+	return Vector3(-sinf(m_angle), 0.0f, -cosf(m_angle));
+}
+
+Vector3 Warrok::GetWeakPointPos() const
+{
+	//背中側にずらす
+	const Vector3 backPos = m_pos - GetModelForward() * kWeakPointOffset;
+	return Vector3(backPos.x, backPos.y + kWeakPointHeight, backPos.z);
+}
+
+bool Warrok::IsHitWeakPoint(const Vector3& start, const Vector3& end, float radius) const
+{
+	//弱点の中心位置を貰う
+	const Vector3 CenterPos = GetWeakPointPos();
+	const Vector3 closest = Geometry::ClosestPointOnSegment(start, end, CenterPos);
+
+	const Vector3 diff = closest - CenterPos;
+
+	const float dist2 = diff.SqMagnitude();
+
+	const float hitRange = radius + kWeakPointRadius;
+
+	return dist2 < hitRange * hitRange;
+}
+
+Vector3 Warrok::GetWeakPointEffectPos() const
+{
+	//当たり判定の中心は体の表面にあるので、見た目だけもう少し後ろに出す
+	return GetWeakPointPos() - GetModelForward() * kWeakPointEffectBackOffset;
+}
+
+void Warrok::StopWeakPointEffect()
+{
+	if (m_weakPointEffectHandle == -1) return;
+	//ぱっと消さずにエフェクト側のフェードアウトで消す
+	EffectManager::Instns().FadeOutEffect(m_weakPointEffectHandle);
+	m_weakPointEffectHandle = -1;
 }

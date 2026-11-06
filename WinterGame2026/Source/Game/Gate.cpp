@@ -6,7 +6,7 @@
 
 namespace
 {
-	//壁のエフェクトは1単位=1mで作っているので、cmに合わせて100倍にする
+	//壁のエフェクトのサイズ
 	constexpr float kWallEffectScale = 100.0f;
 }
 

@@ -19,6 +19,8 @@ enum class EffectType
 	LockOn,
 	//ウェーブ中に通れない壁(止めるまで残る)
 	GateWall,
+	//ボスの背中の弱点の目印(止めるまで残る)
+	WeakPoint,
 	Max
 };
 class Effect;

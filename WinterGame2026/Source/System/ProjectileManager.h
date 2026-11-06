@@ -21,6 +21,10 @@ public:
 
 	void Update();
 	void Draw();
+#ifdef _DEBUG
+	//当たり範囲などを描く(デバッグ用)
+	void DrawDebug()const;
+#endif
 
 	//管理している飛び道具の一覧(当たり判定に使う)
 	const std::vector<std::unique_ptr<Projectile>>& GetProjectiles()const { return m_pProjectiles; }

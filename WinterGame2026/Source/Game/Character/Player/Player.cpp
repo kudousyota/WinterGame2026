@@ -110,7 +110,7 @@ void Player::Update()
 	m_velocity.y -= m_gravity * m_gravityScale;
 
 	//移動
-	//地面との判定は、全員が動き終わった後にGameSceneがステージとまとめて行う
+	//地面との判定は全員が動き終わった後にGameSceneがステージとまとめて行う
 	m_pos += m_velocity;
 
 	//移動している方向に体を向ける
@@ -122,7 +122,7 @@ void Player::Update()
 	//モデルは-Z方向に向きを合わせる
 	float targetAngle = atan2f(m_forward.x, m_forward.z) + DX_PI_F;
 
-	//目標の角度との差を-π~πにおさめる(遠回りして回転しないようにする)
+	//遠回りして回転しないようにする
 	float diff = targetAngle - m_angle;
 	while (diff > DX_PI_F)  diff -= DX_TWO_PI_F;
 	while (diff < -DX_PI_F) diff += DX_TWO_PI_F;

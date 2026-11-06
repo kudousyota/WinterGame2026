@@ -146,8 +146,8 @@ std::vector<CollisionManager::AttackHit> CollisionManager::CheckAttackCapsule(co
 	return hits;
 }
 
-//当たり判定を描画する(デバッグ用)
-void CollisionManager::DrawDebug()const
+//キャラクターの体とジャスト回避の判定を描画する(デバッグ用)
+void CollisionManager::DrawDebugBody()const
 {
 	for (auto character : m_pCharacters)
 	{
@@ -161,8 +161,11 @@ void CollisionManager::DrawDebug()const
 			DrawCapsule3D(justDodge.start, justDodge.end, justDodge.radius, 8, GetColor(0, 255, 255), GetColor(0, 255, 255), false);
 		}
 	}
+}
 
-	//このフレームに判定した攻撃
+//このフレームに判定した攻撃を描画する(デバッグ用)
+void CollisionManager::DrawDebugAttack()const
+{
 	for (auto& shape : m_debugAttackShapes)
 	{
 		DrawCapsule3D(shape.start, shape.end, shape.radius, 8, GetColor(0, 255, 0), GetColor(0, 255, 0), false);

@@ -50,6 +50,8 @@ void EffectManager::Init()
     m_resourceHandles[static_cast<int>(EffectType::LockOn)] = LoadEffekseerEffect("Data/Effect/LockOn.efk");
     //ウェーブ中に通れない壁
     m_resourceHandles[static_cast<int>(EffectType::GateWall)] = LoadEffekseerEffect("Data/Effect/GateWall.efk");
+    //ボスの背中の弱点の目印
+    m_resourceHandles[static_cast<int>(EffectType::WeakPoint)] = LoadEffekseerEffect("Data/Effect/WeakPoint.efk");
 }
 
 void EffectManager::Update()

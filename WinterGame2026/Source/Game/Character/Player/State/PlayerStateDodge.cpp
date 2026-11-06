@@ -5,9 +5,9 @@
 namespace
 {
 	//回避にかかるフレーム数
-	constexpr int kDodgeFrame = 20;
+	constexpr int kDodgeFrame = 25;
 	//回避中の移動速度の倍率
-	constexpr float kDodgeSpeedScale = 0.75f;
+	constexpr float kDodgeSpeedScale = 1.25f;
 	//ジャスト回避を受け付けるフレーム数
 	constexpr int kJustDodgeFrame = 13;
 }
@@ -24,6 +24,8 @@ void PlayerStateDodge::Enter()
 	{
 		m_dir = m_player.GetForward();
 	}
+	//アニメーションの再生
+	m_player.GetAnim().ChangeAnim("Player|Dodge",false,1.5f);
 
 	//回避中は無敵
 	m_player.SetInvincible(true);

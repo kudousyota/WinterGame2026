@@ -23,9 +23,13 @@ void Breath::Update(float timeScale)
 
 void Breath::Draw()
 {
+}
+
 #ifdef _DEBUG
+void Breath::DrawDebug() const
+{
 	//当たり範囲の表示
 	Vector3 endpos = m_pos + m_forward * kBreathRange;
 	DrawCapsule3D(m_pos, endpos, m_attackData.GetRadius(), 4, 0xffffff, 0xffffff, false);
-#endif // _DEBUG
 }
+#endif // _DEBUG

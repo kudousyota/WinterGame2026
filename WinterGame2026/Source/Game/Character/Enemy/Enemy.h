@@ -68,6 +68,10 @@ public:
 	//狙う相手
 	const Character* GetTarget()const { return m_pTarget; }
 
+	//攻撃判定を出す位置(足元から前へ・上へ)
+	float GetHitForwardOffset()const { return m_hitForwardOffset; }
+	float GetHitHeight()const { return m_hitHeight; }
+
 	//これより近づかれたら離れる距離
 	float GetTooCloseDistance()const { return m_tooCloseDistance; }
 	//攻撃の後に離れる距離
@@ -88,8 +92,12 @@ public:
 	void ReleaseAttackToken();
 
 #ifdef _DEBUG
-	//索敵・攻撃などの範囲と向いている方向を描く
+	//索敵・攻撃などの範囲の円を描く
 	void DrawDebugRange()const;
+	//向いている方向(視線)の線を描く
+	void DrawDebugForward()const;
+	//攻撃の枠を持っているかを頭の上の球で描く
+	void DrawDebugToken()const;
 #endif
 
 protected:
@@ -99,7 +107,11 @@ protected:
 	virtual AttackType SelectAttack();
 	//攻撃が終わったときの次のステート
 	virtual void OnAttackFinished();
-		
+#ifdef _DEBUG
+	//範囲や向きを描く中心(プレイヤーの足元の高さに合わせた自分の位置)
+	Vector3 GetDebugGroundCenter()const;
+#endif
+
 protected:
 	//狙う相手(所有はしない)
 	const Character* m_pTarget = nullptr;
@@ -135,9 +147,9 @@ protected:
 	float m_tooCloseDistance = 0.0f;
 	//攻撃の後に離れる距離
 	float m_keepDistance = 0.0f;
-	//攻撃判定を出す位置
-	float m_hitForwardOffset = 0.0f;
-	float m_hitHeight = 0.0f;
+	//攻撃判定を出す位置(足元から前へ・上へ)。体の大きい敵は派生クラスで大きくする
+	float m_hitForwardOffset = 50.0f;
+	float m_hitHeight = 120.0f;
 	//攻撃の予兆中か
 	bool m_isWarning = false;
 	//アニメーションを止めているか

@@ -33,8 +33,10 @@ public:
 	//攻撃用のカプセル判定
 	std::vector<AttackHit> CheckAttackCapsule(const AttackData& attackdata, const Vector3& start, const Vector3& end);
 
-	//当たり判定を描画する(デバッグ用)
-	void DrawDebug()const;
+	//キャラクターの体とジャスト回避の判定を描画する(デバッグ用)
+	void DrawDebugBody()const;
+	//このフレームに判定した攻撃を描画する(デバッグ用)
+	void DrawDebugAttack()const;
 
 private:
 	//2つのキャラクターのカプセルが重なっているか判定する

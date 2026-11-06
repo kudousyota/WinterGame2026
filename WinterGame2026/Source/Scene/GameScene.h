@@ -30,7 +30,7 @@ private:
 	//飛び道具の当たり判定を行い、当たった相手にダメージを与える
 	void ProcessProjectileHits();
 	//攻撃が当たったときの処理
-	void ApplyAttackHit(Character& attacker, const AttackRequest& request, const CollisionManager::AttackHit& hit);
+	void ApplyAttackHit(Character& attacker, const AttackRequest& request, const CollisionManager::AttackHit& hit, const Vector3& start,const Vector3& end);
 	//敵の一覧(その場で使うだけの処理用。フレームをまたいで持たない)
 	std::vector<Enemy*> GetEnemyList() const;
 	//敵の一覧(ロックオンなど、weak_ptrで敵を覚えておく処理用)
@@ -66,7 +66,7 @@ private:
 
 	//キャラクター同士の当たり判定このシーンの中だけで使う
 	CollisionManager m_collision;
-	//飛び道具(シーンと一緒に消えるので、次のシーンに弾が残らない)
+	//飛び道具
 	ProjectileManager m_projectiles;
 	//ロックオンこのシーンの中だけで使う
 	LockOnManager m_lockOn;

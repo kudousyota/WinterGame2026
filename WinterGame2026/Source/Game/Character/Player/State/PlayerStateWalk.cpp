@@ -18,7 +18,7 @@ void PlayerStateWalk::Update()
 	}
 
 
-	//ジャンプ・回避・攻撃の入力があればそちらにする
+	//ジャンプ、回避、攻撃の入力があればそちらにする
 	if (TryGroundAction(kInputBufferFrame))
 	{
 		return;

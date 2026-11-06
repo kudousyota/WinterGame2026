@@ -60,7 +60,7 @@ public:
 	//現在のステートの種類を取得
 	StateBase::StateKind GetStateKind()const;
 
-	//水平方向の速度を0にする(Y方向の速度は維持)
+	//水平方向の速度を0にする
 	void StopMove();
 
 	//ステートから操作するためのアクセサ
@@ -82,8 +82,8 @@ public:
 	//アニメーション
 	Animation& GetAnim() { return m_anim; }
 
-	//体の大きさ・部位の位置(足元基準)
-	//身長(足元から頭のてっぺんまで)
+	//体の大きさ、部位の位置
+	//身長
 	float GetHeight()const { return m_height; }
 	//体の中心
 	Vector3 GetCenterPos()const { return Vector3(m_pos.x, m_pos.y + m_height * 0.5f, m_pos.z); }
@@ -91,11 +91,11 @@ public:
 	Vector3 GetHeadPos()const { return Vector3(m_pos.x, m_pos.y + m_height, m_pos.z); }
 
 	//当たり判定
-	//当たり判定のカプセル(足元から頭のてっぺんまでを包む)
+	//当たり判定のカプセル
 	Geometry::Capsule GetCollisionCapsule()const;
-	//ジャスト回避判定のカプセル(当たり判定と同じ軸で半径だけ大きい)
+	//ジャスト回避判定のカプセル
 	Geometry::Capsule GetJustDodgeCapsule()const;
-	//カプセル軸の長さ(身長から上下の半球分を引いた長さ)
+	//カプセル軸の長さ
 	//身長が直径より小さい場合は球として扱う
 	float GetCollisionHeight()const;
 	//カプセルの半径
@@ -115,16 +115,15 @@ public:
 	//攻撃する側
 	//攻撃を始めるたびに新しい番号を発行する
 	//番号は全キャラクターで共通にして、同じ番号が二度と出ないようにする
-	//(消えた敵と同じアドレスに新しい敵が作られても、前の敵の記録と番号がかぶらない)
 	int IssueAttackId() { return ++s_attackIdCounter; }
-	//攻撃を申請する(判定はGameSceneが行う)
+	//攻撃を申請する
 	void RequestAttack(const AttackRequest& request) { m_attackRequests.push_back(request); }
 	
 	void RequestShot(const ShotRequest& request) { m_shotRequests.push_back(request); }
 
-	//このフレームに申請された攻撃を取り出す(取り出したら空になる)
+	//このフレームに申請された攻撃を取り出す
 	std::vector<AttackRequest> TakeAttackRequests();
-	//このフレームに申請された飛び道具を取り出す(取り出したら空になる)
+	//このフレームに申請された飛び道具を取り出す
 	std::vector<ShotRequest> TakeShotRequests();
 	//申請された攻撃の判定位置
 	Vector3 GetAttackPos(const AttackRequest& request)const;
@@ -137,6 +136,9 @@ public:
 
 	//読み直したステータスを反映する(今のHPは残す)
 	void ReloadStatus();
+	//受けるダメージ倍率
+	virtual float GetDamageRate(const Vector3& start, const Vector3& end, float radius)const { return 1.0f; }
+
 
 #ifdef _DEBUG
 	//デバッグ表示用のステート情報
@@ -148,7 +150,7 @@ protected:
 	void LoadStatus(const std::string& name);
 	//ステートの更新と切り替えを行う
 	void UpdateState();
-
+	
 private:
 	//予約されているステートがあれば切り替える
 	void ApplyNextState();
@@ -156,17 +158,17 @@ private:
 protected:
 	//現在のステート
 	std::unique_ptr<StateBase> m_pState;
-	//次のステート(ChangeStateで予約される)
+	//次のステート
 	std::unique_ptr<StateBase> m_pNextState;
 	Animation m_anim;
 
-	//位置(足元)
+	//位置
 	Vector3 m_pos = Vector3(0.0f,0.0f,0.0f);
-	//向いている方向(長さ1)
+	//向いている方向
 	Vector3 m_forward = Vector3(0.0f, 0.0f, 0.0f);
-	//速度(1フレームに動く量)
+	//速度
 	Vector3 m_velocity = Vector3(0.0f, 0.0f, 0.0f);
-	//モデルのY軸回転の角度(ラジアン。m_forwardへ少しずつ近づける)
+	//モデルのY軸回転の角度
 	float m_angle = 0.0f;
 	//スピード
 	float m_speed = 0.0f;
@@ -178,17 +180,17 @@ protected:
 	int m_hp = 0;
 	//HPの最大値
 	int m_maxhp = 0;
-	//State.csvでの名前(読み直しに使う)
+	//State.csvでの名前
 	std::string m_statusName;
 
 	//攻撃
-	//発行した攻撃番号(全キャラクターで1つ)
+	//発行した攻撃番号
 	inline static int s_attackIdCounter = 0;
 	//このフレームに申請された攻撃
 	std::vector<AttackRequest> m_attackRequests;
 	//このフレームに申請された飛び道具
 	std::vector<ShotRequest> m_shotRequests;
-	//攻撃してきた相手ごとに、最近受けた攻撃番号を覚えておく(相手は所有しない)
+	//攻撃してきた相手ごとに、最近受けた攻撃番号を覚えておく
 	std::unordered_map<const Character*, std::vector<int>> m_receivedAttackIds;
 
 	//状態
@@ -203,14 +205,14 @@ protected:
 	//ジャスト回避の受付中か
 	bool m_isJustDodgeWindow = false;
 
-	//体の大きさ・当たり判定(派生クラスで設定する)
-	//身長(足元から頭のてっぺんまで)
+	//体の大きさ、当たり判定
+	//身長
 	float m_height = 0.0f;
 	//カプセルの半径
 	float m_collisionRadius = 0.0f;
 	//ジャスト回避判定の半径
 	float m_justDodgeRadius = 0.0f;
-	//被弾後の無敵の残りフレーム数(回避の無敵とは別に数える)
+	//被弾後の無敵の残りフレーム数
 	int m_hitInvincibleFrame = 0;
 };
 

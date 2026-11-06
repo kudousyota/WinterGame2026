@@ -172,7 +172,7 @@ void Enemy::StrafeAroundTarget(float speedScale, float side)
 }
 
 #ifdef _DEBUG
-void Enemy::DrawDebugRange() const
+Vector3 Enemy::GetDebugGroundCenter() const
 {
 	//距離はXZ平面で測っているので、ターゲット(プレイヤー)の足元の高さに描く
 	//(敵は浮いているので、敵の高さに描くと地面から離れて見づらい)
@@ -186,6 +186,12 @@ void Enemy::DrawDebugRange() const
 	Vector3 center = m_pos;
 	if (m_hasDebugGroundY) center.y = m_debugGroundY;
 	center.y += 2.0f;
+	return center;
+}
+
+void Enemy::DrawDebugRange() const
+{
+	const Vector3 center = GetDebugGroundCenter();
 
 	//索敵範囲(水色):この中にプレイヤーが入ると追いかける
 	DebugDraw::DrawCircle(center, m_searchRange, 0x00ffff);
@@ -195,10 +201,17 @@ void Enemy::DrawDebugRange() const
 	DebugDraw::DrawCircle(center, m_keepDistance, 0xffffff);
 	//近すぎる距離(ピンク):この中に入られると離れる
 	DebugDraw::DrawCircle(center, m_tooCloseDistance, 0xff00ff);
+}
 
-	//向いている方向
+void Enemy::DrawDebugForward() const
+{
+	const Vector3 center = GetDebugGroundCenter();
+	//向いている方向(視線)
 	DrawLine3D(center, center + m_forward * m_tooCloseDistance, 0xff00ff);
+}
 
+void Enemy::DrawDebugToken() const
+{
 	//攻撃の枠を持っているかを頭の上の球で表示する
 	//赤く塗りつぶした大きい球:枠を持っている(攻撃できる)
 	//灰色の線だけの小さい球:枠を持っていない(順番待ち)
