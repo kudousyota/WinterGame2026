@@ -40,6 +40,8 @@ void EnemyStateIdle::Update()
 		//ほかの敵が攻撃中なら、横に回って順番を待つ
 		if (m_enemy.TryTakeAttackToken())
 		{
+			//攻撃ステートは作られたときに攻撃のデータを読むので、先に攻撃を決める
+			m_enemy.DecideAttack();
 			ChangeState<EnemyStateAttack>();
 		}
 		else

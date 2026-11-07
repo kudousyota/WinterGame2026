@@ -14,7 +14,7 @@ namespace
 	constexpr float kNearDistance = 200.0f;
 	//狙える角度
 	constexpr float kMinDot = 0.5f;
-	//近い敵は真横まで(cos90度=0)
+	//近い敵は真横まで
 	constexpr float kNearMinDot = 0.0f;
 	//ロックオンは、近い敵なら後ろにいても狙える
 	//前の敵の方が点数が高いので、後ろの敵は前に狙える敵がいないときだけ選ばれる
@@ -40,7 +40,7 @@ void LockOnManager::Start(const Vector3& playerPos, const Vector3& baseDir, cons
 
 std::shared_ptr<Character> LockOnManager::SearchSoft(const Vector3& playerPos, const Vector3& inputDir, const Vector3& forward, const std::vector<std::shared_ptr<Character>>& enemies) const
 {
-	//スティックを倒していればその方向を優先する(倒した方向と逆の敵には振り向かない)
+	//スティックを倒していればその方向を優先する
 	if (inputDir.SqMagnitude() >= kMinSqLength)
 	{
 		return Search(playerPos, inputDir, enemies, kSoftMaxDistance, kNearMinDot);

@@ -14,9 +14,15 @@ public:
 
 	float GetDamageRate(const Vector3& start, const Vector3& end, float radius)const override;
 
+protected:
+	//パンチとスワイプからランダムに選ぶ(同じ攻撃が続きすぎないようにする)
+	AttackType SelectAttack()override;
+
 private:
 	Vector3 GetModelForward()const;
 	Vector3 GetWeakPointPos()const;
+	//弱点の位置を背中のボーンに合わせる(モデルの位置とアニメーションが決まった後に呼ぶ)
+	void UpdateWeakPointPos();
 
 	//弱点に当たったか
 	bool IsHitWeakPoint(const Vector3& start, const Vector3& end, float radius)const;
@@ -27,6 +33,14 @@ private:
 	void StopWeakPointEffect();
 
 	int m_modelHandle = -1;
+	//同じ攻撃を何回続けて出したか
+	int m_sameAttackCount = 0;
 	//弱点の目印のエフェクト(出していないときは-1)
 	int m_weakPointEffectHandle = -1;
+	//弱点の基準にする背中のボーン(見つからなければ-1)
+	int m_weakPointFrame = -1;
+	//ボーンから見た弱点の中心(ボーンが回転しても背中の同じ場所についていく)
+	Vector3 m_weakPointLocalPos;
+	//弱点の中心(LateUpdateで更新する)
+	Vector3 m_weakPointPos;
 };

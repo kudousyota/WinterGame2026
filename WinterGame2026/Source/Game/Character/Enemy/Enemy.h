@@ -59,6 +59,8 @@ public:
 	//消えたか(消えた敵は更新も描画もしない)
 	bool IsVanished()const { return m_isVanished; }
 	AttackType GetAttackType()const { return m_attackType; }
+	//次に使う攻撃を決める(攻撃ステートに入る直前に呼ぶ)
+	void DecideAttack();
 	//浮いている高さ(地面から足元まで)
 	float GetHoverHeight()const { return m_hoverHeight; }
 	//ターゲットから離れる(Y方向の速度は維持)

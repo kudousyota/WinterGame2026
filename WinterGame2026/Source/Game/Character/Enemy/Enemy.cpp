@@ -84,9 +84,15 @@ void Enemy::CheckDeath()
 	ChangeState(std::make_unique<EnemyStateDeath>(*this));
 }
 
+void Enemy::DecideAttack()
+{
+	m_attackType = SelectAttack();
+}
+
 AttackType Enemy::SelectAttack()
 {
-	return AttackType();
+	//攻撃が1種類の敵は、Initで決めた攻撃をそのまま使う
+	return m_attackType;
 }
 
 void Enemy::OnAttackFinished()

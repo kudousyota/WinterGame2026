@@ -47,11 +47,18 @@ namespace
 	constexpr float kRotateRate = 0.15f;
 
 	//弱点の位置
+	//背中の上のほう(肩甲骨の間)のボーンを基準にする
+	const char* const kWeakPointFrameName = "mixamorig:Spine2";
+	//ボーンから背中の表面までの距離(Blenderで測ると約30cm)
+	constexpr float kWeakPointBackOffset = 30.0f * kModelScale;
+	//ボーンが見つからなかったときの位置
 	const float kWeakPointOffset = kCollisionRadius;
-
 	constexpr float kWeakPointHeight = kHeight * 0.5f;
 
 	constexpr float kWeakPointRadius = 80.0f;
+
+	//同じ攻撃はこの回数まで続けて出す(超えたらもう片方の攻撃にする)
+	constexpr int kMaxSameAttackCount = 2;
 
 	//弱点に当たった時のダメージ倍率
 	constexpr float kWeakPointDamageRate = 3.0f;
@@ -113,6 +120,21 @@ void Warrok::Init()
 	//攻撃の種類
 	m_attackType = AttackType::WarrokPunch;
 
+	//弱点の基準のボーンを探して、最初の位置を決めておく
+	m_weakPointFrame = MV1SearchFrame(m_modelHandle, kWeakPointFrameName);
+	MV1SetRotationXYZ(m_modelHandle, VGet(0.0f, m_angle, 0.0f));
+	if (m_weakPointFrame != -1)
+	{
+		//待機ポーズは上体がほぼまっすぐなので、ここで背中の表面の点を決める
+		//ボーンは体の中にあるので、背中側へずらして体の表面に出す
+		const Vector3 bonePos = MV1GetFramePosition(m_modelHandle, m_weakPointFrame);
+		const Vector3 surfacePos = bonePos - GetModelForward() * kWeakPointBackOffset;
+		//ボーンから見た位置に直して覚えておく
+		const MATRIX frameMat = MV1GetFrameLocalWorldMatrix(m_modelHandle, m_weakPointFrame);
+		m_weakPointLocalPos = VTransform(surfacePos, MInverse(frameMat));
+	}
+	UpdateWeakPointPos();
+
 	//背中の弱点の目印(位置は出した後にLateUpdateで合わせる)
 	m_weakPointEffectHandle = EffectManager::Instns().PlayEffect(EffectType::WeakPoint, GetWeakPointEffectPos(), Vector3(), kWeakPointEffectScale);
 
@@ -160,6 +182,8 @@ void Warrok::LateUpdate()
 	//当たり判定で押し出された後の位置をモデルに反映する
 	MV1SetRotationXYZ(m_modelHandle, VGet(0.0f, m_angle, 0.0f));
 	MV1SetPosition(m_modelHandle, m_pos);
+	//モデルが動いた後のボーンの位置に弱点を合わせる
+	UpdateWeakPointPos();
 	//弱点の目印を背中についていかせる
 	//(SetEffectPosは-1なら何もしないので、消した後も呼んで大丈夫)
 	EffectManager::Instns().SetEffectPos(m_weakPointEffectHandle, GetWeakPointEffectPos());
@@ -194,6 +218,23 @@ float Warrok::GetDamageRate(const Vector3& start, const Vector3& end, float radi
 
 }
 
+AttackType Warrok::SelectAttack()
+{
+	//前の攻撃のもう片方
+	const AttackType other = (m_attackType == AttackType::WarrokPunch) ? AttackType::WarrokSwipe : AttackType::WarrokPunch;
+
+	//同じ攻撃が続きすぎたらもう片方にする。それ以外は半々で選ぶ(GetRand(1)は0か1を返す)
+	AttackType next = m_attackType;
+	if (m_sameAttackCount >= kMaxSameAttackCount || GetRand(1) == 0)
+	{
+		next = other;
+	}
+
+	//続けて出した回数を数える
+	m_sameAttackCount = (next == m_attackType) ? m_sameAttackCount + 1 : 1;
+	return next;
+}
+
 Vector3 Warrok::GetModelForward() const
 {
 	//モデルは-Z方向に向いているので、-Z方向のベクトルを回転させる
@@ -202,9 +243,21 @@ Vector3 Warrok::GetModelForward() const
 
 Vector3 Warrok::GetWeakPointPos() const
 {
-	//背中側にずらす
-	const Vector3 backPos = m_pos - GetModelForward() * kWeakPointOffset;
-	return Vector3(backPos.x, backPos.y + kWeakPointHeight, backPos.z);
+	return m_weakPointPos;
+}
+
+void Warrok::UpdateWeakPointPos()
+{
+	if (m_weakPointFrame == -1)
+	{
+		//ボーンが見つからないときは、足元から背中側へずらした位置にする
+		const Vector3 backPos = m_pos - GetModelForward() * kWeakPointOffset;
+		m_weakPointPos = Vector3(backPos.x, backPos.y + kWeakPointHeight, backPos.z);
+		return;
+	}
+	//ボーンの今の位置と回転で、ボーンから見た位置をワールド座標に戻す
+	const MATRIX frameMat = MV1GetFrameLocalWorldMatrix(m_modelHandle, m_weakPointFrame);
+	m_weakPointPos = VTransform(m_weakPointLocalPos, frameMat);
 }
 
 bool Warrok::IsHitWeakPoint(const Vector3& start, const Vector3& end, float radius) const
