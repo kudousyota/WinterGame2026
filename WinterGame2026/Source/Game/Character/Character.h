@@ -27,9 +27,21 @@ struct AttackRequest
 	Vector3 dir = Vector3(0.0f, 0.0f, 0.0f);
 	float length = 0.0f;
 };
+//飛び道具の種類
+enum class ShotKind
+{
+	//まっすぐ飛ぶ弾
+	Bullet,
+	//足元から広がる衝撃波
+	Shockwave,
+};
+
 struct ShotRequest
 {
 	AttackData data;
+	//書かなければ今まで通り弾になる
+	ShotKind kind = ShotKind::Bullet;
+	//弾は飛ぶ速さ、衝撃波は1フレームに広がる量
 	float speed = 0.0f;
 	float forwardOffset = 0.0f;
 	float height = 0.0f;

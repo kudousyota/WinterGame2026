@@ -32,6 +32,10 @@ public:
 	std::vector<AttackHit> CheckAttackSphere(const AttackData& attackdata, const Vector3& pos);
 	//攻撃用のカプセル判定
 	std::vector<AttackHit> CheckAttackCapsule(const AttackData& attackdata, const Vector3& start, const Vector3& end);
+	//攻撃用のリング判定
+	//足元から広がる衝撃波などに使う
+	//中心から水平にinnerRadiusからouterRadiusまでの帯に入っていて、足元が中心より高さheight以下なら当たる
+	std::vector<AttackHit> CheckAttackRing(const AttackData& attackdata, const Vector3& center, float innerRadius, float outerRadius, float height);
 
 	//キャラクターの体とジャスト回避の判定を描画する(デバッグ用)
 	void DrawDebugBody()const;

@@ -1,6 +1,7 @@
 ﻿#include "CollisionManager.h"
 #include "../Game/Character/Character.h"
 #include <algorithm>
+#include <cmath>
 #include <vector>
 #include "../DataLoader/AttackData.h"
 #include "Geometry.h"
@@ -139,6 +140,52 @@ std::vector<CollisionManager::AttackHit> CollisionManager::CheckAttackCapsule(co
 		float hitRange = attackdata.GetRadius() + capsule.radius;
 
 		if (distance <= hitRange)
+		{
+			hits.push_back({ character, false });
+		}
+	}
+	return hits;
+}
+
+//リング状の攻撃判定を行う
+std::vector<CollisionManager::AttackHit> CollisionManager::CheckAttackRing(const AttackData& attackdata, const Vector3& center, float innerRadius, float outerRadius, float height)
+{
+	std::vector<AttackHit> hits;
+
+	for (auto& character : m_pCharacters)
+	{
+		//攻撃した側と同じタイプには当たらない
+		if (character->GetCharacterType() == attackdata.GetAttacker())
+		{
+			continue;
+		}
+
+		const Vector3& pos = character->GetPos();
+		//足元が波より高ければ当たらない。ジャンプで越えられるようにする
+		if (pos.y - center.y > height)
+		{
+			continue;
+		}
+
+		//水平方向の距離だけで調べる
+		const float dx = pos.x - center.x;
+		const float dz = pos.z - center.z;
+		const float dist = sqrtf(dx * dx + dz * dz);
+
+		//体の太さの分だけ帯を広げて、帯に入っているか調べる
+		auto isInBand = [&](float bodyRadius)
+			{
+				return innerRadius - bodyRadius <= dist && dist <= outerRadius + bodyRadius;
+			};
+
+		//ジャスト回避の判定は通常より少し太いので先に調べる
+		if (isInBand(character->GetJustDodgeRadius()) && character->IsJustDodgeWindow())
+		{
+			hits.push_back({ character, true });
+			continue;
+		}
+
+		if (isInBand(character->GetCollisionRadius()))
 		{
 			hits.push_back({ character, false });
 		}

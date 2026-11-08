@@ -12,6 +12,17 @@ Projectile::Projectile(const Vector3& pos, const Vector3& forward, float speed, 
 {
 }
 
+std::vector<CollisionManager::AttackHit> Projectile::CheckHits(CollisionManager& collision) const
+{
+	return collision.CheckAttackCapsule(m_attackData, m_prevPos, m_pos);
+}
+
+void Projectile::OnHitTarget(bool isJustDodge)
+{
+	//弾はジャスト回避されても当たっても消える
+	Kill();
+}
+
 void Projectile::UpdateLife(float timeScale)
 {
 	m_lifeFrame += timeScale;

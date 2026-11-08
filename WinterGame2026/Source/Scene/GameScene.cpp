@@ -9,6 +9,7 @@
 #include "../System/StageCollision.h"
 #include "../Game.h"
 #include "../Game/Bullet.h"
+#include "../Game/Shockwave.h"
 #include "../Effect/EffectManager.h"
 #include "SceneController.h"
 #include "GameClearScene.h"
@@ -290,6 +291,23 @@ void GameScene::ProcessAttacks()
 	}
 }
 
+namespace
+{
+	//リクエストの種類に合わせて飛び道具を作る
+	//種類が増えたらここに足す
+	std::unique_ptr<Projectile> CreateProjectile(const ShotRequest& request, const Vector3& pos, const Vector3& forward)
+	{
+		switch (request.kind)
+		{
+		case ShotKind::Shockwave:
+			return std::make_unique<Shockwave>(pos, request.speed, request.data);
+		case ShotKind::Bullet:
+		default:
+			return std::make_unique<Bullet>(pos, forward, request.speed, request.data);
+		}
+	}
+}
+
 void GameScene::ProcessShots()
 {
 	for (Character* attacker : GetAllCharacters())
@@ -297,10 +315,10 @@ void GameScene::ProcessShots()
 		for (const auto& request : attacker->TakeShotRequests())
 		{
 			//確定した位置から判定の位置を求める
+			//forwardOffsetとheightが0なら足元になる
 			Vector3 pos = attacker->GetShotPos(request);
 
-			Vector3 forward = attacker->GetForward();
-			m_projectiles.Add(std::make_unique<Bullet>(pos, forward, request.speed, request.data));
+			m_projectiles.Add(CreateProjectile(request, pos, attacker->GetForward()));
 		}
 	}
 }
@@ -314,8 +332,8 @@ void GameScene::ProcessProjectileHits()
 
 		const AttackData& data = projectile->GetAttackData();
 
-		//速い弾がすり抜けないよう、前の位置から今の位置までをカプセルで判定する
-		for (const auto& hit : m_collision.CheckAttackCapsule(data, projectile->GetPrevPos(), projectile->GetPos()))
+		//どんな形で当たるかは飛び道具ごとに決める
+		for (const auto& hit : projectile->CheckHits(m_collision))
 		{
 			Character& target = *hit.target;
 
@@ -324,7 +342,8 @@ void GameScene::ProcessProjectileHits()
 			{
 				target.OnJustDodge();
 				StartJustDodgeDistortion();
-				projectile->Kill();
+				//消えるか残るかは飛び道具が決める
+				projectile->OnHitTarget(true);
 				break;
 			}
 
@@ -333,7 +352,7 @@ void GameScene::ProcessProjectileHits()
 
 			//連射で何度も当たるので、ヒットストップとカメラシェイクは入れない
 			target.OnHit(data, data.GetDamage());
-			projectile->Kill();
+			projectile->OnHitTarget(false);
 			break;
 		}
 	}
