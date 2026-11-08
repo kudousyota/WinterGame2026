@@ -1,6 +1,7 @@
 ﻿#include "Warrok.h"
 #include "../../../../Common/Model.h"
 #include "../State/EnemyStateIdle.h"
+#include "../State/EnemyStateJumpAttack.h"
 #include "../../../../Effect/EffectManager.h"
 #include <cmath>
 
@@ -59,6 +60,13 @@ namespace
 
 	//同じ攻撃はこの回数まで続けて出す(超えたらもう片方の攻撃にする)
 	constexpr int kMaxSameAttackCount = 2;
+
+	//ジャンプ攻撃
+	//その場で跳んで衝撃波を出すので、衝撃波が届く距離にしておく
+	constexpr float kJumpAttackRange = kCollisionRadius + 1000.0f;
+	//一度使ったら、次に使えるまでのフレーム数
+	//続けて跳びすぎないようにする
+	constexpr float kJumpAttackCooldownFrame = 300.0f;
 
 	//弱点に当たった時のダメージ倍率
 	constexpr float kWeakPointDamageRate = 3.0f;
@@ -157,6 +165,12 @@ void Warrok::Update()
 	//ゲーム全体の時間倍率に敵専用の倍率を掛ける
 	float timeScale = GetTimeScale();
 
+	//ジャンプ攻撃が使えるまでの時間を進める
+	if (m_jumpAttackCooldown > 0.0f)
+	{
+		m_jumpAttackCooldown -= timeScale;
+	}
+
 	//ステートの更新
 	UpdateState();
 	//アニメーションの更新
@@ -218,20 +232,50 @@ float Warrok::GetDamageRate(const Vector3& start, const Vector3& end, float radi
 
 }
 
+bool Warrok::CanStartAttack(float distance) const
+{
+	//殴れる距離なら攻撃する
+	if (distance <= kAttackRange) return true;
+	//離れていても、ジャンプ攻撃が使えて届くなら攻撃する
+	return m_jumpAttackCooldown <= 0.0f && distance <= kJumpAttackRange;
+}
+
+std::unique_ptr<StateBase> Warrok::CreateAttackState()
+{
+	if (m_attackType == AttackType::WarrokJumpAttack)
+	{
+		return std::make_unique<EnemyStateJumpAttack>(*this);
+	}
+	return Enemy::CreateAttackState();
+}
+
 AttackType Warrok::SelectAttack()
 {
-	//前の攻撃のもう片方
-	const AttackType other = (m_attackType == AttackType::WarrokPunch) ? AttackType::WarrokSwipe : AttackType::WarrokPunch;
+	//殴れる距離より離れていたら、その場で跳んで衝撃波で攻撃する
+	if (GetTargetDistance() > kAttackRange)
+	{
+		m_jumpAttackCooldown = kJumpAttackCooldownFrame;
+		return AttackType::WarrokJumpAttack;
+	}
+	return SelectMeleeAttack();
+}
 
-	//同じ攻撃が続きすぎたらもう片方にする。それ以外は半々で選ぶ(GetRand(1)は0か1を返す)
-	AttackType next = m_attackType;
+AttackType Warrok::SelectMeleeAttack()
+{
+	//前の近接攻撃のもう片方
+	const AttackType other = (m_lastMeleeAttack == AttackType::WarrokPunch) ? AttackType::WarrokSwipe : AttackType::WarrokPunch;
+
+	//同じ攻撃が続きすぎたらもう片方にする。それ以外は半々で選ぶ
+	//GetRand(1)は0か1を返す
+	AttackType next = m_lastMeleeAttack;
 	if (m_sameAttackCount >= kMaxSameAttackCount || GetRand(1) == 0)
 	{
 		next = other;
 	}
 
 	//続けて出した回数を数える
-	m_sameAttackCount = (next == m_attackType) ? m_sameAttackCount + 1 : 1;
+	m_sameAttackCount = (next == m_lastMeleeAttack) ? m_sameAttackCount + 1 : 1;
+	m_lastMeleeAttack = next;
 	return next;
 }
 

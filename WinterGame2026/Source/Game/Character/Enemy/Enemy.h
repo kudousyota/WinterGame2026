@@ -61,6 +61,12 @@ public:
 	AttackType GetAttackType()const { return m_attackType; }
 	//次に使う攻撃を決める(攻撃ステートに入る直前に呼ぶ)
 	void DecideAttack();
+	//この距離から攻撃を始めていいか
+	//標準は攻撃範囲の中なら攻撃する。遠くから使える攻撃を持つ敵は上書きする
+	virtual bool CanStartAttack(float distance)const;
+	//決めた攻撃に合ったステートを作る
+	//標準は普通の攻撃ステート。ジャンプ攻撃など動きが違う攻撃を持つ敵は上書きする
+	virtual std::unique_ptr<StateBase> CreateAttackState();
 	//浮いている高さ(地面から足元まで)
 	float GetHoverHeight()const { return m_hoverHeight; }
 	//ターゲットから離れる(Y方向の速度は維持)

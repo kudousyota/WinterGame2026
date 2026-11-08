@@ -33,6 +33,7 @@ namespace
 			{ "Breath",		AttackType::Breath },
 			{ "WarrokPunch",	AttackType::WarrokPunch },
 			{ "WarrokSwipe",	AttackType::WarrokSwipe },
+			{ "WarrokJumpAttack",	AttackType::WarrokJumpAttack },
 			{ "GoblinAttack",	AttackType::GoblinAttack },
 			{ "WitchHand",	AttackType::WitchHand },
 			{ "WitchLeg",	AttackType::WitchLeg },

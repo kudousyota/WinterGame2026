@@ -25,6 +25,7 @@ enum class AttackType
 	Breath,
 	WarrokPunch,
 	WarrokSwipe,//腕で横になぎ払う(パンチより範囲が広い)
+	WarrokJumpAttack,//跳び上がって着地で押しつぶす。着地で衝撃波も出す
 	GoblinAttack,
 	WitchHand,
 	WitchLeg,

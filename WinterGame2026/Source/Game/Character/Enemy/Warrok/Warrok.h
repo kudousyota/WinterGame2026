@@ -14,11 +14,20 @@ public:
 
 	float GetDamageRate(const Vector3& start, const Vector3& end, float radius)const override;
 
+	//近ければ殴る。離れていても、ジャンプ攻撃が使えるなら跳んで攻撃する
+	bool CanStartAttack(float distance)const override;
+	//ジャンプ攻撃だけ専用のステートにする
+	std::unique_ptr<StateBase> CreateAttackState()override;
+
 protected:
-	//パンチとスワイプからランダムに選ぶ(同じ攻撃が続きすぎないようにする)
+	//離れていたらジャンプ攻撃、近ければパンチとスワイプから選ぶ
 	AttackType SelectAttack()override;
 
 private:
+	//パンチとスワイプからランダムに選ぶ
+	//同じ攻撃が続きすぎないようにする
+	AttackType SelectMeleeAttack();
+
 	Vector3 GetModelForward()const;
 	Vector3 GetWeakPointPos()const;
 	//弱点の位置を背中のボーンに合わせる(モデルの位置とアニメーションが決まった後に呼ぶ)
@@ -35,6 +44,12 @@ private:
 	int m_modelHandle = -1;
 	//同じ攻撃を何回続けて出したか
 	int m_sameAttackCount = 0;
+	//最後に出した近接攻撃
+	//間にジャンプ攻撃を挟んでも、パンチとスワイプの交互の流れを覚えておく
+	AttackType m_lastMeleeAttack = AttackType::WarrokPunch;
+	//次にジャンプ攻撃を使えるまでのフレーム数
+	//0以下なら使える
+	float m_jumpAttackCooldown = 0.0f;
 	//弱点の目印のエフェクト(出していないときは-1)
 	int m_weakPointEffectHandle = -1;
 	//弱点の基準にする背中のボーン(見つからなければ-1)

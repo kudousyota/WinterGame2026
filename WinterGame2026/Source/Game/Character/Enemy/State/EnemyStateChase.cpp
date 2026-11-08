@@ -20,15 +20,16 @@ void EnemyStateChase::Update()
 		return;
 	}
 
-	//攻撃範囲に入ったら攻撃する
-	if (distance <= m_enemy.GetAttackRange())
+	//攻撃できる距離に入ったら攻撃する
+	if (m_enemy.CanStartAttack(distance))
 	{
 		//ほかの敵が攻撃中なら、横に回って順番を待つ
 		if (m_enemy.TryTakeAttackToken())
 		{
 			//攻撃ステートは作られたときに攻撃のデータを読むので、先に攻撃を決める
 			m_enemy.DecideAttack();
-			ChangeState<EnemyStateAttack>();
+			//どのステートで攻撃するかは敵ごとに決める
+			m_enemy.ChangeState(m_enemy.CreateAttackState());
 		}
 		else
 		{

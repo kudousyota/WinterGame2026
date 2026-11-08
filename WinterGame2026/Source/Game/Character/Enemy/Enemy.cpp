@@ -3,6 +3,7 @@
 #include "State/EnemyStateDamage.h"
 #include "State/EnemyStateDeath.h"
 #include "State/EnemyStateKnockdown.h"
+#include "State/EnemyStateAttack.h"
 #include <cfloat>
 #include "DxLib.h"
 #include "EnemyManager.h"
@@ -87,6 +88,16 @@ void Enemy::CheckDeath()
 void Enemy::DecideAttack()
 {
 	m_attackType = SelectAttack();
+}
+
+bool Enemy::CanStartAttack(float distance) const
+{
+	return distance <= m_attackRange;
+}
+
+std::unique_ptr<StateBase> Enemy::CreateAttackState()
+{
+	return std::make_unique<EnemyStateAttack>(*this);
 }
 
 AttackType Enemy::SelectAttack()
