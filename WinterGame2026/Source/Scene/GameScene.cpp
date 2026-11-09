@@ -239,7 +239,10 @@ void GameScene::Draw()
 		if (enemy->IsVanished()) continue;
 		if (m_debug.IsShow(Show::EnemyRange)) enemy->DrawDebugRange();
 		if (m_debug.IsShow(Show::EnemyForward)) enemy->DrawDebugForward();
-		if (m_debug.IsShow(Show::EnemyToken)) enemy->DrawDebugToken();	}
+		if (m_debug.IsShow(Show::EnemyToken)) enemy->DrawDebugToken();
+		//弱点も体の当たり判定と一緒に切り替える
+		if (m_debug.IsShow(Show::Collision)) enemy->DrawDebugWeakPoint();
+	}
 	//文字情報
 	m_debug.Draw(GetDebugTargets(), *m_pCamera, m_frameCount);
 #endif //_DEBUG

@@ -19,6 +19,11 @@ public:
 	//ジャンプ攻撃だけ専用のステートにする
 	std::unique_ptr<StateBase> CreateAttackState()override;
 
+#ifdef _DEBUG
+	//背中の弱点の当たり判定を球で描く
+	void DrawDebugWeakPoint()const override;
+#endif
+
 protected:
 	//離れていたらジャンプ攻撃、近ければパンチとスワイプから選ぶ
 	AttackType SelectAttack()override;
@@ -27,7 +32,6 @@ private:
 	//パンチとスワイプからランダムに選ぶ
 	//同じ攻撃が続きすぎないようにする
 	AttackType SelectMeleeAttack();
-
 	Vector3 GetModelForward()const;
 	Vector3 GetWeakPointPos()const;
 	//弱点の位置を背中のボーンに合わせる(モデルの位置とアニメーションが決まった後に呼ぶ)
@@ -49,8 +53,7 @@ private:
 	AttackType m_lastMeleeAttack = AttackType::WarrokPunch;
 	//次にジャンプ攻撃を使えるまでのフレーム数
 	//0以下なら使える
-	float m_jumpAttackCooldown = 0.0f;
-	//弱点の目印のエフェクト(出していないときは-1)
+	float m_jumpAttackCooldown = 0.0f;	//弱点の目印のエフェクト(出していないときは-1)
 	int m_weakPointEffectHandle = -1;
 	//弱点の基準にする背中のボーン(見つからなければ-1)
 	int m_weakPointFrame = -1;

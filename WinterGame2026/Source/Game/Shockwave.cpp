@@ -1,4 +1,5 @@
 ﻿#include "Shockwave.h"
+#include "../Effect/EffectManager.h"
 #include "DxLib.h"
 #include <cmath>
 
@@ -10,6 +11,13 @@ namespace
 	constexpr float kHalfWidth = 40.0f;
 	//足元がこの高さより上なら当たらない。ジャンプで越えられる
 	constexpr float kWaveHeight = 60.0f;
+
+	//エフェクト
+	//リングはEffekseerで半径1に作ってあるので、横の拡大率=今の半径になる
+	//壁の高さの拡大率
+	constexpr float kEffectHeightScale = 100.0f;
+	//最大の半径に対してこの割合まで広がったら薄くし始める
+	constexpr float kEffectFadeStartRate = 0.7f;
 
 #ifdef _DEBUG
 	//デバッグ表示の円を何本の線で描くか
@@ -26,6 +34,13 @@ Shockwave::Shockwave(const Vector3& center, float speed, const AttackData& attac
 	//寿命は半径で決めるので寿命なしにする
 	Projectile(center, Vector3(), speed, attack)
 {
+	//半径0から始まるので、大きさはUpdateで合わせる
+	m_effectHandle = EffectManager::Instns().PlayEffect(EffectType::Shockwave, m_pos, Vector3(), 0.0f);
+}
+
+Shockwave::~Shockwave()
+{
+	EffectManager::Instns().StopEffect(m_effectHandle);
 }
 
 void Shockwave::Update(float timeScale)
@@ -39,6 +54,14 @@ void Shockwave::Update(float timeScale)
 	{
 		Kill();
 	}
+
+	//見た目を判定の半径に合わせる
+	EffectManager& effect = EffectManager::Instns();
+	effect.SetEffectScale(m_effectHandle, Vector3(m_radius, kEffectHeightScale, m_radius));
+	//最後のほうはだんだん薄くしてぱっと消えないようにする
+	const float fadeStart = kMaxRadius * kEffectFadeStartRate;
+	const float fadeRate = (m_radius - fadeStart) / (kMaxRadius - fadeStart);
+	effect.SetEffectAlpha(m_effectHandle, 1.0f - fadeRate);
 }
 
 void Shockwave::Draw()

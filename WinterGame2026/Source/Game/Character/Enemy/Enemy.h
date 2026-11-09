@@ -106,6 +106,8 @@ public:
 	void DrawDebugForward()const;
 	//攻撃の枠を持っているかを頭の上の球で描く
 	void DrawDebugToken()const;
+	//弱点の当たり判定を描く(弱点のある敵だけ上書きする)
+	virtual void DrawDebugWeakPoint()const {}
 #endif
 
 protected:

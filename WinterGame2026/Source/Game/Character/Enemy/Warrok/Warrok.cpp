@@ -170,7 +170,6 @@ void Warrok::Update()
 	{
 		m_jumpAttackCooldown -= timeScale;
 	}
-
 	//ステートの更新
 	UpdateState();
 	//アニメーションの更新
@@ -212,12 +211,14 @@ void Warrok::Draw()
 	//死亡演出でだんだん透明にする
 	MV1SetOpacityRate(m_modelHandle, m_opacity);
 	MV1DrawModel(m_modelHandle);
+}
 
 #ifdef _DEBUG
-	//弱点の当たり判定をデバッグ表示
-	DrawSphere3D(GetWeakPointPos(), kWeakPointRadius, 16, 0xff0000,0xff0000, false);
-#endif
+void Warrok::DrawDebugWeakPoint() const
+{
+	DrawSphere3D(GetWeakPointPos(), kWeakPointRadius, 16, 0xff0000, 0xff0000, false);
 }
+#endif
 
 float Warrok::GetDamageRate(const Vector3& start, const Vector3& end, float radius) const
 {

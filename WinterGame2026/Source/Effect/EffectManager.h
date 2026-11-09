@@ -21,6 +21,8 @@ enum class EffectType
 	GateWall,
 	//ボスの背中の弱点の目印(止めるまで残る)
 	WeakPoint,
+	//ボスのジャンプ攻撃の衝撃波(止めるまで残る。大きさはコードで半径に合わせる)
+	Shockwave,
 	Max
 };
 class Effect;
@@ -43,6 +45,10 @@ public:
 	void StopAll();
 	//再生中のエフェクトを動かす(弾などについていかせる)
 	void SetEffectPos(int handle, const Vector3& pos);
+	//再生中のエフェクトの大きさを軸ごとに変える(広がるリングなどに使う)
+	void SetEffectScale(int handle, const Vector3& scale);
+	//再生中のエフェクトの不透明度を変える(0で見えない、1で普通)
+	void SetEffectAlpha(int handle, float alpha);
 	//すぐ消さずに、エフェクト側で決めたフェードアウトをしてから消す
 	void FadeOutEffect(int handle);
 

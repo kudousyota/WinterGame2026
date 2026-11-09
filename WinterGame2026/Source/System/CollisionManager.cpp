@@ -193,7 +193,7 @@ std::vector<CollisionManager::AttackHit> CollisionManager::CheckAttackRing(const
 	return hits;
 }
 
-//キャラクターの体とジャスト回避の判定を描画する(デバッグ用)
+//キャラクターの体とジャスト回避の判定を描画する
 void CollisionManager::DrawDebugBody()const
 {
 	for (auto character : m_pCharacters)

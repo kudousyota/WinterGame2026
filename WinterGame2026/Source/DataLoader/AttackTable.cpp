@@ -34,6 +34,7 @@ namespace
 			{ "WarrokPunch",	AttackType::WarrokPunch },
 			{ "WarrokSwipe",	AttackType::WarrokSwipe },
 			{ "WarrokJumpAttack",	AttackType::WarrokJumpAttack },
+			{ "WarrokCharge",	AttackType::WarrokCharge },
 			{ "GoblinAttack",	AttackType::GoblinAttack },
 			{ "WitchHand",	AttackType::WitchHand },
 			{ "WitchLeg",	AttackType::WitchLeg },

@@ -52,6 +52,8 @@ void EffectManager::Init()
     m_resourceHandles[static_cast<int>(EffectType::GateWall)] = LoadEffekseerEffect("Data/Effect/GateWall.efk");
     //ボスの背中の弱点の目印
     m_resourceHandles[static_cast<int>(EffectType::WeakPoint)] = LoadEffekseerEffect("Data/Effect/WeakPoint.efk");
+    //ボスの衝撃波
+    m_resourceHandles[static_cast<int>(EffectType::Shockwave)] = LoadEffekseerEffect("Data/Effect/Shockwave.efk");
 }
 
 void EffectManager::Update()
@@ -132,6 +134,20 @@ void EffectManager::SetEffectPos(int handle, const Vector3& pos)
 {
     if (handle == -1) return;
     SetPosPlayingEffekseer3DEffect(handle, pos.x, pos.y, pos.z);
+}
+
+void EffectManager::SetEffectScale(int handle, const Vector3& scale)
+{
+    if (handle == -1) return;
+    SetScalePlayingEffekseer3DEffect(handle, scale.x, scale.y, scale.z);
+}
+
+void EffectManager::SetEffectAlpha(int handle, float alpha)
+{
+    if (handle == -1) return;
+    //色はそのままで、不透明度だけ0~255に直して掛ける
+    const int a = static_cast<int>(alpha * 255.0f);
+    SetColorPlayingEffekseer3DEffect(handle, 255, 255, 255, (a < 0) ? 0 : (a > 255) ? 255 : a);
 }
 
 void EffectManager::FadeOutEffect(int handle)

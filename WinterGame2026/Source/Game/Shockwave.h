@@ -14,9 +14,10 @@ public:
 	/// <param name="speed">1フレームに広がる量</param>
 	/// <param name="attack">攻撃データ</param>
 	Shockwave(const Vector3& center, float speed, const AttackData& attack);
+	~Shockwave()override;
 
 	void Update(float timeScale)override;
-	//見た目はあとでエフェクトにするので今は何も描かない
+	//見た目はEffectManagerが描くので、ここでは何もしない
 	void Draw()override;
 
 	//リングの帯で当たりを調べる
@@ -36,4 +37,6 @@ private:
 	float m_prevRadius = 0.0f;
 	//もう当たったか。当たった後は判定しない
 	bool m_hasHit = false;
+	//見た目のエフェクト
+	int m_effectHandle = -1;
 };

@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateCharge.cpp" />
     <ClCompile Include="Source\Game\Gate.cpp" />
     <ClCompile Include="Source\Game\Character\Enemy\EnemySpawner.cpp" />
     <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateObserve.cpp" />
@@ -206,6 +207,7 @@
     <ClCompile Include="Source\Effect\ScreenDistortion.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateCharge.h" />
     <ClInclude Include="Source\Game\Gate.h" />
     <ClInclude Include="Source\Game\Character\Enemy\EnemySpawner.h" />
     <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateObserve.h" />
