@@ -2,6 +2,7 @@
 #include "../../../../Common/Model.h"
 #include "../State/EnemyStateIdle.h"
 #include "../State/EnemyStateJumpAttack.h"
+#include "../State/EnemyStateCharge.h"
 #include "../../../../Effect/EffectManager.h"
 #include <cmath>
 
@@ -68,6 +69,12 @@ namespace
 	//続けて跳びすぎないようにする
 	constexpr float kJumpAttackCooldownFrame = 300.0f;
 
+	//突進
+	//突進で進む距離より少し短くして、届かない距離からは出さない
+	constexpr float kChargeRange = kCollisionRadius + 1800.0f;
+	//一度使ったら、次に使えるまでのフレーム数
+	constexpr float kChargeCooldownFrame = 360.0f;
+
 	//弱点に当たった時のダメージ倍率
 	constexpr float kWeakPointDamageRate = 3.0f;
 	//弱点以外に当たった時のダメージ倍率
@@ -87,10 +94,7 @@ Warrok::Warrok()
 Warrok::~Warrok()
 {
 	//死ぬ前に消された(シーンが切り替わったなど)ときもエフェクトを残さない
-	if (m_weakPointEffectHandle != -1)
-	{
-		EffectManager::Instns().StopEffect(m_weakPointEffectHandle);
-	}
+	EffectManager::Instns().StopEffect(m_weakPointEffectHandle);
 	MV1DeleteModel(m_modelHandle);
 }
 
@@ -170,6 +174,11 @@ void Warrok::Update()
 	{
 		m_jumpAttackCooldown -= timeScale;
 	}
+	//突進が使えるまでの時間を進める
+	if (m_chargeCooldown > 0.0f)
+	{
+		m_chargeCooldown -= timeScale;
+	}
 	//ステートの更新
 	UpdateState();
 	//アニメーションの更新
@@ -238,7 +247,9 @@ bool Warrok::CanStartAttack(float distance) const
 	//殴れる距離なら攻撃する
 	if (distance <= kAttackRange) return true;
 	//離れていても、ジャンプ攻撃が使えて届くなら攻撃する
-	return m_jumpAttackCooldown <= 0.0f && distance <= kJumpAttackRange;
+	if (m_jumpAttackCooldown <= 0.0f && distance <= kJumpAttackRange) return true;
+	//突進が使えて届くなら攻撃する
+	return m_chargeCooldown <= 0.0f && distance <= kChargeRange;
 }
 
 std::unique_ptr<StateBase> Warrok::CreateAttackState()
@@ -247,18 +258,32 @@ std::unique_ptr<StateBase> Warrok::CreateAttackState()
 	{
 		return std::make_unique<EnemyStateJumpAttack>(*this);
 	}
+	if (m_attackType == AttackType::WarrokCharge)
+	{
+		return std::make_unique<EnemyStateCharge>(*this);
+	}
 	return Enemy::CreateAttackState();
 }
 
 AttackType Warrok::SelectAttack()
 {
-	//殴れる距離より離れていたら、その場で跳んで衝撃波で攻撃する
-	if (GetTargetDistance() > kAttackRange)
+	const float distance = GetTargetDistance();
+	//殴れる距離ならパンチかスワイプ
+	if (distance <= kAttackRange) return SelectMeleeAttack();
+
+	//離れているときは、使える方の遠距離攻撃を選ぶ
+	const bool canJump = m_jumpAttackCooldown <= 0.0f && distance <= kJumpAttackRange;
+	const bool canCharge = m_chargeCooldown <= 0.0f && distance <= kChargeRange;
+
+	//両方使えるときは半々で選ぶ
+	if (canCharge && (!canJump || GetRand(1) == 0))
 	{
-		m_jumpAttackCooldown = kJumpAttackCooldownFrame;
-		return AttackType::WarrokJumpAttack;
+		m_chargeCooldown = kChargeCooldownFrame;
+		return AttackType::WarrokCharge;
 	}
-	return SelectMeleeAttack();
+	//CanStartAttackが通った後に呼ばれるので、ここに来るのはジャンプ攻撃が使えるとき
+	m_jumpAttackCooldown = kJumpAttackCooldownFrame;
+	return AttackType::WarrokJumpAttack;
 }
 
 AttackType Warrok::SelectMeleeAttack()
@@ -328,8 +353,6 @@ Vector3 Warrok::GetWeakPointEffectPos() const
 
 void Warrok::StopWeakPointEffect()
 {
-	if (m_weakPointEffectHandle == -1) return;
 	//ぱっと消さずにエフェクト側のフェードアウトで消す
 	EffectManager::Instns().FadeOutEffect(m_weakPointEffectHandle);
-	m_weakPointEffectHandle = -1;
 }

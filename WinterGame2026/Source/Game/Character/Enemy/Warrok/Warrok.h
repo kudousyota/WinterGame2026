@@ -14,9 +14,9 @@ public:
 
 	float GetDamageRate(const Vector3& start, const Vector3& end, float radius)const override;
 
-	//近ければ殴る。離れていても、ジャンプ攻撃が使えるなら跳んで攻撃する
+	//近ければ殴る。離れていても、ジャンプ攻撃か突進が使えるならそれで攻撃する
 	bool CanStartAttack(float distance)const override;
-	//ジャンプ攻撃だけ専用のステートにする
+	//ジャンプ攻撃と突進は専用のステートにする
 	std::unique_ptr<StateBase> CreateAttackState()override;
 
 #ifdef _DEBUG
@@ -25,7 +25,7 @@ public:
 #endif
 
 protected:
-	//離れていたらジャンプ攻撃、近ければパンチとスワイプから選ぶ
+	//離れていたらジャンプ攻撃か突進、近ければパンチとスワイプから選ぶ
 	AttackType SelectAttack()override;
 
 private:
@@ -53,7 +53,11 @@ private:
 	AttackType m_lastMeleeAttack = AttackType::WarrokPunch;
 	//次にジャンプ攻撃を使えるまでのフレーム数
 	//0以下なら使える
-	float m_jumpAttackCooldown = 0.0f;	//弱点の目印のエフェクト(出していないときは-1)
+	float m_jumpAttackCooldown = 0.0f;
+	//次に突進を使えるまでのフレーム数
+	//0以下なら使える
+	float m_chargeCooldown = 0.0f;
+	//弱点の目印のエフェクト(出していないときは-1)
 	int m_weakPointEffectHandle = -1;
 	//弱点の基準にする背中のボーン(見つからなければ-1)
 	int m_weakPointFrame = -1;

@@ -114,9 +114,7 @@ bool EnemyStateJumpAttack::IsHitActive() const
 
 void EnemyStateJumpAttack::StopTelegraph()
 {
-	if (m_telegraphHandle == -1) return;
 	EffectManager::Instns().StopEffect(m_telegraphHandle);
-	m_telegraphHandle = -1;
 }
 
 #ifdef _DEBUG

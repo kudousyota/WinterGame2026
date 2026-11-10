@@ -40,7 +40,8 @@ public:
 	//scaleは拡大率(1単位=1cmなのでEffekseer側の大きさに合わせて拡大する)
 	int PlayEffect(EffectType type, const Vector3& pos, const Vector3& rot = Vector3(), float scale = 20.0f);
 	//個別でエフェクトを停止する
-	void StopEffect(int handle);
+	//止めた後、渡したハンドルを-1にする。-1を渡したときは何もしない
+	void StopEffect(int& handle);
 	//エフェクトを停止する
 	void StopAll();
 	//再生中のエフェクトを動かす(弾などについていかせる)
@@ -50,7 +51,8 @@ public:
 	//再生中のエフェクトの不透明度を変える(0で見えない、1で普通)
 	void SetEffectAlpha(int handle, float alpha);
 	//すぐ消さずに、エフェクト側で決めたフェードアウトをしてから消す
-	void FadeOutEffect(int handle);
+	//止めた後、渡したハンドルを-1にする。-1を渡したときは何もしない
+	void FadeOutEffect(int& handle);
 
 	int GetResourceHandle(EffectType type) const;
 

@@ -103,17 +103,20 @@ int EffectManager::PlayEffect(EffectType type, const Vector3& pos, const Vector3
     return handle;
 }
 
-void EffectManager::StopEffect(int handle)
+void EffectManager::StopEffect(int& handle)
 {
+    if (handle == -1) return;
     for (auto it = m_effects.begin(); it != m_effects.end(); ++it)
     {
         if ((*it)->GetPlayingHandle() == handle)
         {
             (*it)->Stop();
             m_effects.erase(it);
-            return;
+            break;
         }
     }
+    //再生が終わってリストから消えていた場合も、止めたことにする
+    handle = -1;
 }
 
 void EffectManager::StopAll()
@@ -150,12 +153,13 @@ void EffectManager::SetEffectAlpha(int handle, float alpha)
     SetColorPlayingEffekseer3DEffect(handle, 255, 255, 255, (a < 0) ? 0 : (a > 255) ? 255 : a);
 }
 
-void EffectManager::FadeOutEffect(int handle)
+void EffectManager::FadeOutEffect(int& handle)
 {
     if (handle == -1) return;
     //一番上のノードだけ消すと、子はエフェクト側の「削除時」の設定でフェードして消える
     //消え終わったらUpdateでリストから外れる
     GetEffekseer3DManager()->StopRoot(handle);
+    handle = -1;
 }
 
 //エフェクトの種類からリソースハンドルを取得

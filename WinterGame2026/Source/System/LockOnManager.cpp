@@ -119,11 +119,7 @@ void LockOnManager::LateUpdate()
 	//狙っていなければマーカーを消す(エフェクト側のフェードアウトをしてから消える)
 	if (!target)
 	{
-		if (m_markerHandle != -1)
-		{
-			effect.FadeOutEffect(m_markerHandle);
-			m_markerHandle = -1;
-		}
+		effect.FadeOutEffect(m_markerHandle);
 		return;
 	}
 

@@ -58,7 +58,7 @@ void Gate::Open()
 		MV1SetPosition(handle, Vector3(0.0f, -10000.0f, 0.0f));
 	}
 	//壁のエフェクトはフェードさせて消す
-	for (int effect : m_effectHandles)
+	for (int& effect : m_effectHandles)
 	{
 		EffectManager::Instns().FadeOutEffect(effect);
 	}

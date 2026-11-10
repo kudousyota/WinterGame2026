@@ -103,10 +103,8 @@ void EnemyStateAttack::Exit()
 
 void EnemyStateAttack::StopTelegraph()
 {
-	if (m_telegraphHandle == -1) return;
-	//再生が終わって管理リストから消えていても、StopEffectは見つからなければ何もしない
+	//再生していないときや再生が終わっているときは、EffectManagerの方で何もしない
 	EffectManager::Instns().StopEffect(m_telegraphHandle);
-	m_telegraphHandle = -1;
 }
 
 #ifdef _DEBUG

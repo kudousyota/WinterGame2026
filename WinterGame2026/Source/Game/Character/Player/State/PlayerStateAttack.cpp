@@ -326,9 +326,7 @@ void PlayerStateAttack::OpenShotCircle()
 
 void PlayerStateAttack::CloseShotCircle()
 {
-	if (m_shotCircleHandle == -1) return;
 	EffectManager::Instns().FadeOutEffect(m_shotCircleHandle);
-	m_shotCircleHandle = -1;
 }
 
 void PlayerStateAttack::Exit()
