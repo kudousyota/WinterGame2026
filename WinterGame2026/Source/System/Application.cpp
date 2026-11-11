@@ -32,6 +32,8 @@ Application& Application::GetInstance()
 
 bool Application::Init()
 {
+	//Log.txtを出力しない
+	SetOutApplicationLogValidFlag(false);
 
 	//ウィンドウモード設定
 	ChangeWindowMode(true);

@@ -207,15 +207,15 @@ std::shared_ptr<Character> LockOnManager::Search(const Vector3& playerPos, const
 
 void LockOnManager::Switch(int dir, const Vector3& playerPos, const Vector3& baseDir, const std::vector<std::shared_ptr<Character>>& enemies)
 {
-	//今狙っている敵(いなければ切り替えない)
+	//今狙っている敵いなければ切り替えない
 	auto current = m_target.lock();
 	if (!current) return;
 
-	//カメラの右方向(Camera::GetRightと同じ式)
-	//敵どうしの大小を比べるだけなので、長さは1でなくてよい
+	//カメラの右方向
+	//敵どうしの大小を比べる
 	Vector3 right(baseDir.z, 0.0f, -baseDir.x);
 
-	//今の敵の画面上の横の位置(右ほど大きい)
+	//今の敵の画面上の横の位置
 	float curX = (current->GetCenterPos() - playerPos).Dot(right);
 
 	//はじいた方向で一番近い隣の敵
@@ -247,7 +247,7 @@ void LockOnManager::Switch(int dir, const Vector3& playerPos, const Vector3& bas
 		}
 	}
 
-	//見つかったときだけ入れ替える(端の敵なら今のまま)
+	//見つかったときだけ入れ替える
 	if (best)
 	{
 		m_target = best;
