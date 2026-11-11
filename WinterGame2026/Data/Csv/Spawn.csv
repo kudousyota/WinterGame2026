@@ -1,10 +1,12 @@
 #wave,type,base,spawnerX,spawnerZ,offsetX,offsetZ,delay
 #base: player = from player at wave start (X: camera right, Z: camera forward) / world = world position,,,,,,
-0,Goblin,player,0,500,0,0,0
-0,Goblin,player,0,500,-150,50,15
-0,Goblin,player,0,500,150,50,30
-1,Goblin,player,-400,350,0,0,0
-1,Goblin,player,400,350,0,0,15
-1,Alien,player,0,700,-150,0,20
-1,Alien,player,0,700,150,0,40
+#wave 0: temple front plaza (x -1970..1970, z 3530..5570). The player comes in from the corridor at z 3530.,,,,,,
+0,Goblin,world,0,5100,0,0,0
+0,Goblin,world,-700,4900,0,0,15
+0,Goblin,world,700,4900,0,0,30
+#wave 1: temple great hall (x -946..946, z 8374..11370, floor y 260). The player comes in from the front door at z 8314.,,,,,,
+1,Goblin,world,-400,9700,0,0,0
+1,Goblin,world,400,9700,0,0,15
+1,Alien,world,-400,10600,0,0,20
+1,Alien,world,400,10600,0,0,40
 2,Warrok,world,210,16108,0,0,0

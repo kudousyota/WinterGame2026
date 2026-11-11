@@ -14,6 +14,9 @@ namespace
 		//12バイト
 	};
 	constexpr char kConfigfilename[] = "keyconf.kcnf";
+
+	constexpr float kOn = 0.7f;
+	constexpr float kOff = 0.3f;
 }
 
 Input& Input::Instance()
@@ -48,7 +51,9 @@ void Input::InitializeInputTable()
 	m_inputTable["right"] = { { PeripheralType::keyboard,KEY_INPUT_RIGHT},
 						  { PeripheralType::pad1,PAD_INPUT_RIGHT } };
 	m_inputTable["target"] = { { PeripheralType::keyboard,KEY_INPUT_SPACE},
-							{ PeripheralType::pad1,PAD_INPUT_5 } };	// PADの右スティック押し込み
+							{ PeripheralType::pad1,PAD_INPUT_5 } };	
+	m_inputTable["targetRight"] = { {PeripheralType::keyboard,KEY_INPUT_E} };
+	m_inputTable["targetLeft"] = { {PeripheralType::keyboard,KEY_INPUT_Q} };
 }
 
 Input::Input() : m_inputData{}, m_lastInputData{}, m_inputTable{}
@@ -108,7 +113,34 @@ void Input::Update(int nowFrame)
 			}
 		}
 	}
+	//右スティックの横倒し具合
+	float rx = GetStickRX();
+	bool wasOn = m_lastInputData["targetRight"];
+	bool stickOn;
+	if (wasOn)
+	{
+		//もうONなら0.3より倒している間はONにする
+		stickOn = (rx > kOff);
+	}
+	else
+	{
+		//まだOFFなら0.7より倒したらONにする
+		stickOn = (rx > kOn);
+	}
+	m_inputData["targetRight"] = m_inputData["targetRight"] || stickOn;
 
+	//左
+	bool wasOnL = m_lastInputData["targetLeft"];
+	bool stickOnL;
+	if (wasOnL)
+	{
+		stickOnL = (rx < -kOff);
+	}
+	else
+	{
+		stickOnL = (rx < -kOn);
+	}
+	m_inputData["targetLeft"] = m_inputData["targetLeft"] || stickOnL;
 	//全ボタンの状態が確定してから、押された瞬間のボタンのフレーム番号を記録する
 	//押していないボタンは前の記録のまま
 	for (auto& [name, frame] : m_lastTriggeredFrame)

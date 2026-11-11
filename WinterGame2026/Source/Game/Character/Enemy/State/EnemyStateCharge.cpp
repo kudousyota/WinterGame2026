@@ -122,7 +122,7 @@ void EnemyStateCharge::StartCharge()
 	//突進が始まったら予兆エフェクトは消す
 	EffectManager::Instns().StopEffect(m_telegraphHandle);
 	//走りアニメーションに切り替える
-	m_enemy.GetAnim().ChangeAnim(m_enemy.GetMoveAnimName(), true);
+	m_enemy.GetAnim().ChangeAnim(m_enemy.GetChargeRunAnimName(), true);
 }
 
 #ifdef _DEBUG

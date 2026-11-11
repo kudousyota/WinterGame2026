@@ -8,9 +8,8 @@ namespace
 {
 	//視野角
 	constexpr float kFov = DX_PI_F / 3.0f;
-	//映る一番近い距離と遠い距離(ステージの端から端まで映るようにする)
-	//大聖堂の時計塔(高さ約80m)の先まで映るように200mにしている
-	constexpr float kNear = 200.0f;
+	//映る一番近い距離と遠い距離ステージの端から端まで映るようにする
+	constexpr float kNear = 20.0f;
 	constexpr float kFar = 20000.0f;
 
 	//注視点からカメラまでの距離

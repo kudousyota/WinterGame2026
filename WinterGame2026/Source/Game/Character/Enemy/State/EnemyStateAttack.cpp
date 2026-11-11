@@ -24,7 +24,7 @@ void EnemyStateAttack::Enter()
 	m_enemy.StopMove();
 	//攻撃を始めた時の方向に攻撃する
 	m_enemy.FaceTarget();
-	//予備動作(振りかぶり)がある攻撃は、最初はゆっくり再生して溜めているように見せる
+	//予備動作がある攻撃は、最初はゆっくり再生して溜めているように見せる
 	const float animScale = (m_info.windupFrame > 0) ? m_info.windupAnimScale : 1.0f;
 	m_enemy.GetAnim().ChangeAnim(m_info.animName, false, animScale);
 	m_attackId = m_enemy.IssueAttackId();
@@ -38,7 +38,7 @@ void EnemyStateAttack::Enter()
 	//予兆エフェクトを口の位置に出す
 	const Vector3& forward = m_enemy.GetForward();
 	const Vector3 mouthPos = m_enemy.GetPos() + forward * m_enemy.GetHitForwardOffset() + Vector3(0.0f, m_enemy.GetHitHeight(), 0.0f);
-	//エフェクトを敵の向きに合わせる(プレイヤーのエフェクトと同じ求め方)
+	//エフェクトを敵の向きに合わせる
 	Vector3 rot;
 	rot.y = atan2f(-forward.x, -forward.z);
 	m_telegraphHandle = EffectManager::Instns().PlayEffect(EffectType::AttackTelegraph, mouthPos, rot, kTelegraphScale);

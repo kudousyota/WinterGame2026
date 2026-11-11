@@ -44,6 +44,11 @@ public:
 	//空中で浮ける権利を使う
 	void UseAirHover();
 
+	//二段ジャンプの権利があるか
+	bool CanDobuleJump()const { return m_canDoubleJump; }
+	//二段ジャンプの権利を使う
+	void UseDoubuleJump();
+
 	//攻撃を受けたらのけぞる
 	void OnHit(const AttackData& attackData, int damage)override;
 private:
@@ -55,6 +60,7 @@ private:
 	Vector3 m_cameraRight = Vector3(1.0f, 0.0f, 0.0f);
 	float m_gravityScale = 1.0f;
 	bool m_canAirHover = false;
+	bool m_canDoubleJump = false;
 	//所有せず、シーンから向く相手を指定してもらう
 	//敵が消えても触らないようにweak_ptrで持つ
 	std::weak_ptr<const Character> m_attackTarget;

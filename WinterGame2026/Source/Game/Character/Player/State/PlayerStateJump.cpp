@@ -71,6 +71,19 @@ void PlayerStateJump::Update()
 		ChangeAttackState(AttackType::AirSkyKick, "Kick");
 		return;
 	}
+	if (input.IsBuffered("Jump", kBufferFrame) && m_player.CanDobuleJump())
+	{
+		//1段目に使った入力を消して、2段目が勝手に出ないようにする
+		input.ConsumeBuffer("Jump");
+		//権利を使い切る
+		m_player.UseDoubuleJump();
+		//上方向に速度を与えなおす
+		auto vel = m_player.GetVelocity();
+		vel.y = kJumpPower;
+		m_player.SetVelocity(vel);
+		//アニメーションの再生
+		m_player.GetAnim().ChangeAnim("Player|Jump", false);
+	}
 	//空中でも移動できる
 	Move(kAirMoveSpeedScale);
 }

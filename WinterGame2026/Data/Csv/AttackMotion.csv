@@ -21,5 +21,5 @@ Breath,150,150,150,Alien|Attack,0,0,0,0,0,45,0.67
 WarrokPunch,104,104,104,Warrok|Punch,0,0,0,0,0,48,0.25
 WarrokSwipe,160,160,160,Warrok|Swipe,0,0,0,0,0,0,1
 WarrokJumpAttack,246,246,246,Warrok|JumpAttack,56,116,0,0,0,40,0.4
-WarrokCharge,200,200,200,Warrok|Roar,60,110,2000,0,0,0,1
+WarrokCharge,200,200,200,Warrok|Scream,60,110,2000,0,0,60,1.8
 GoblinAttack,95,95,95,Goblin|Attack,0,0,0,0,0,30,0.5

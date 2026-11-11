@@ -56,22 +56,40 @@ void LockOnManager::Release()
 
 void LockOnManager::Update(const Vector3& playerPos, const Vector3& baseDir, const std::vector<std::shared_ptr<Character>>& enemies)
 {
-	//押している間
-	if (Input::Instance().IsPressed("target"))
+	//押したらロックオンを開始する
+	if (Input::Instance().IsTriggered("target"))
 	{
+		//誰か狙っていたら外す
+		if (m_target.lock())
+		{
+			Release();
+		}
 		//まだ誰も狙っていなければ探す
-		if (!m_target.lock())
+		else
 		{
 			Start(playerPos, baseDir, enemies);
 		}
 	}
-	else
+	//狙っている敵が死んだら次の敵に移る
+	auto target = m_target.lock();
+	if(target && target->IsDead())
 	{
-		//ボタンをはなしたら外す
-		Release();
+		Retarget(playerPos, baseDir, enemies);
 	}
 	//死亡と距離のチェック
 	CheckTarget(playerPos);
+
+	//ロックオン中だけ、右スティック(またはE・Qキー)で対象を切り替える
+	if (!m_target.lock())return;
+	auto& input = Input::Instance();
+	if (input.IsTriggered("targetRight"))
+	{
+		Switch(1, playerPos, baseDir, enemies);
+	}
+	if (input.IsTriggered("targetLeft"))
+	{
+		Switch(-1, playerPos, baseDir, enemies);
+	}
 }
 
 std::shared_ptr<const Character> LockOnManager::GetAttackTarget(const Vector3& playerPos, const Vector3& inputDir, const Vector3& forward, const std::vector<std::shared_ptr<Character>>& enemies) const
@@ -116,7 +134,7 @@ void LockOnManager::LateUpdate()
 	auto& effect = EffectManager::Instns();
 	auto target = m_target.lock();
 
-	//狙っていなければマーカーを消す(エフェクト側のフェードアウトをしてから消える)
+	//狙っていなければマーカーを消す
 	if (!target)
 	{
 		effect.FadeOutEffect(m_markerHandle);
@@ -185,6 +203,61 @@ std::shared_ptr<Character> LockOnManager::Search(const Vector3& playerPos, const
 		}
 	}
 	return bestTarget;
+}
+
+void LockOnManager::Switch(int dir, const Vector3& playerPos, const Vector3& baseDir, const std::vector<std::shared_ptr<Character>>& enemies)
+{
+	//今狙っている敵(いなければ切り替えない)
+	auto current = m_target.lock();
+	if (!current) return;
+
+	//カメラの右方向(Camera::GetRightと同じ式)
+	//敵どうしの大小を比べるだけなので、長さは1でなくてよい
+	Vector3 right(baseDir.z, 0.0f, -baseDir.x);
+
+	//今の敵の画面上の横の位置(右ほど大きい)
+	float curX = (current->GetCenterPos() - playerPos).Dot(right);
+
+	//はじいた方向で一番近い隣の敵
+	std::shared_ptr<Character> best;
+	float bestDiff = FLT_MAX;
+
+	for (const auto& enemy : enemies)
+	{
+		//今の敵と死亡中は無視
+		if (enemy == current) continue;
+		if (enemy->IsDead()) continue;
+
+		//遠すぎる敵は無視
+		Vector3 toEnemy = enemy->GetCenterPos() - playerPos;
+		toEnemy.y = 0.0f;
+		if (toEnemy.SqMagnitude() > kMaxDistance * kMaxDistance) continue;
+
+		//今の敵からはじいた方向へどれだけ離れているか
+		//dirを掛けるので右でも左でもはじいた側ならプラスになる
+		float diff = (toEnemy.Dot(right) - curX) * dir;
+		//逆側の敵は無視
+		if (diff <= 0.0f) continue;
+
+		//一番近い隣を選ぶ
+		if (diff < bestDiff)
+		{
+			bestDiff = diff;
+			best = enemy;
+		}
+	}
+
+	//見つかったときだけ入れ替える(端の敵なら今のまま)
+	if (best)
+	{
+		m_target = best;
+	}
+}
+
+void LockOnManager::Retarget(const Vector3& playerPos, const Vector3& baseDir, const std::vector<std::shared_ptr<Character>>& enemies)
+{
+	//見つからなかったら空のまま
+	m_target = Search(playerPos, baseDir, enemies, kMaxDistance, kNearMinDot);
 }
 
 #ifdef _DEBUG

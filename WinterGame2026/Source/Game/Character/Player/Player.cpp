@@ -96,8 +96,8 @@ void Player::Update()
 	if (IsGround())
 	{
 		m_canAirHover = true;
+		m_canDoubleJump = true;
 	}
-
 
 	//ステートの更新
 	UpdateState();
@@ -211,4 +211,9 @@ Vector3 Player::GetMoveInput()const
 void Player::UseAirHover()
 {
 	m_canAirHover = false;
+}
+
+void Player::UseDoubuleJump()
+{
+	m_canDoubleJump = false;
 }

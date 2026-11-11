@@ -10,6 +10,8 @@ namespace
 {
 	const char* const kIdleAnimName = "Warrok|Idle";
 	const char* const kMoveAnimName = "Warrok|Run";
+	//突進中の走り(前かがみの全力疾走)
+	const char* const kChargeRunAnimName = "Warrok|ChargeRun";
 	//死亡のアニメーション
 	const char* const kDeathAnimName = "Warrok|FlyingBackDeath";
 	//被弾・叩き落とし・起き上がりのアニメーションはまだ無いので空のまま
@@ -127,6 +129,7 @@ void Warrok::Init()
 	m_hitHeight = kHitHeight;
 	m_idleAnimName = kIdleAnimName;
 	m_moveAnimName = kMoveAnimName;
+	m_chargeRunAnimName = kChargeRunAnimName;
 	m_deathAnimName = kDeathAnimName;
 	m_hoverHeight = kHoverHeight;
 	//攻撃の種類

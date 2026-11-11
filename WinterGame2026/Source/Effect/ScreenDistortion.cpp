@@ -6,7 +6,7 @@
 
 namespace
 {
-	//DxLibが使っていない定数バッファの番号(シェーダーのregister(b4)と合わせる)
+	//DxLibが使っていない定数バッファの番号
 	constexpr int kConstantBufferSlot = 4;
 }
 
