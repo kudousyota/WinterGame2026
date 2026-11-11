@@ -13,29 +13,29 @@ public:
 	explicit PlayerStateBase(Player& player) : m_player(player) {}
 
 protected:
-	//ステートを遷移する(切り替えはこのフレームのステート更新後に行われる)
-	//テンプレートだと関数一個で済む、if文対策
+	//ステートを遷移する
+	//テンプレートだと関数一個で済むif文対策
 	template<class Type>
 	void ChangeState()
 	{
 		m_player.ChangeState(std::make_unique<Type>(m_player));
 	}
-	//攻撃ステートに遷移する(攻撃の種類を渡す必要があるので専用の関数にする)
+	//攻撃ステートに遷移する
 	void ChangeAttackState(AttackType type, const char* buttonName);
 
 	//左スティックの入力をXZ平面の移動方向として取得する
 	Vector3 GetMoveInput() const;
-	//入力に合わせて水平方向の速度を設定する(Y方向の速度は維持)
+	//入力に合わせて水平方向の速度を設定する
 	void Move(float speedScale);
-	//水平方向の速度を0にする(Y方向の速度は維持)
+	//入力に向かって水平方向の速度を少しずつ近づける
+	void MoveSmooth(float speedScale);
+	//水平方向の速度を0にする
 	void StopMove();
 
-	//地上で出せる行動(ジャンプ・回避・攻撃)の入力を見て、あればステートを切り替える
-	//切り替えたらtrueを返す(呼び出し側はそのままreturnする)
-	//bufferFrame:先行入力を何フレーム前まで受け付けるか(ステートごとに指定する)
+	//地上で出せる行動の入力を見てあればステートを切り替える
 	bool TryGroundAction(int bufferFrame);
 
 protected:
-	//持ち主のプレイヤー(ステートはプレイヤーが所有して参照で持つ)
+	//持ち主のプレイヤー
 	Player& m_player;
 };

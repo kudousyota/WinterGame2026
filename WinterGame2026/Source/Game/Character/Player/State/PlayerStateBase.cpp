@@ -4,6 +4,12 @@
 #include "PlayerStateDodge.h"
 #include "../../../../System/Input.h"
 
+namespace
+{
+	constexpr int kAccelFrame = 6;
+	constexpr int kDecelFrame = 4;
+}
+
 Vector3 PlayerStateBase::GetMoveInput() const
 {
 	return m_player.GetMoveInput();
@@ -14,6 +20,26 @@ void PlayerStateBase::Move(float speedScale)
 	auto move = GetMoveInput() * (m_player.GetSpeed() * speedScale);
 	auto vel = m_player.GetVelocity();
 	m_player.SetVelocity(Vector3(move.x, vel.y, move.z));
+}
+
+void PlayerStateBase::MoveSmooth(float speedScale)
+{
+	//目標の速度
+	Vector3 target = GetMoveInput() * (m_player.GetSpeed() * speedScale);
+	//今の水平方向の速度
+	Vector3 vel = m_player.GetVelocity();
+	Vector3 current(vel.x, 0.0f, vel.z);
+	float step = 0.0f;
+	//目標の方が遅いなら減速
+	if (target.SqMagnitude() < current.SqMagnitude())
+	{
+		step = m_player.GetSpeed() / kDecelFrame;
+	}
+	//ちがったら加速
+	else
+	{
+		step = m_player.GetSpeed() / kAccelFrame;
+	}
 }
 
 void PlayerStateBase::StopMove()
