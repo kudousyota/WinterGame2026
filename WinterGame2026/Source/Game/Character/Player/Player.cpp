@@ -62,8 +62,8 @@ void Player::Init()
 	LoadStatus("Player");
 
 	m_pos = Vector3(0.0f, 0.0f, 0.0f);
-	//最初はカメラの方を向かせる
-	m_forward = Vector3(0.0f, 0.0f, -1.0f);
+	//最初は+Zを向く
+	m_forward = Vector3(0.0f, 0.0f, 1.0f);
 	m_angle = atan2f(m_forward.x, m_forward.z) + DX_PI_F;
 	
 	m_gravity = kGravity;
@@ -72,6 +72,8 @@ void Player::Init()
 	m_collisionRadius = kCollisionRadius;
 	m_justDodgeRadius = kJustDodgeRadius;
 	MV1SetPosition(m_modelHandle, m_pos);
+	//向きもすぐ反映する
+	MV1SetRotationXYZ(m_modelHandle, VGet(0.0f, m_angle, 0.0f));
 
 	//最初はIdleで初期化
 	ChangeState(std::make_unique<PlayerStateIdle>(*this));

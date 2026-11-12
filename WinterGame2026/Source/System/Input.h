@@ -31,7 +31,7 @@ public:
 	//特定のボタンが押されたかどうか
 	bool IsPressed(const char* name)const;
 
-	//特定のボタンが今押されたか(押された瞬間にしか反応しない)
+	//特定のボタンが今押されたか
 	bool IsTriggered(const char* name)const;
 
 	//void Save();
@@ -45,10 +45,13 @@ public:
 
 	//フレーム以内に押されたかどうか
 	bool IsBuffered(const char* name, int frame)const;
-	//フレーム以内に押されていたら、押されたフレーム番号を返す(なければ値なし)
+	//フレーム以内に押されていたら、押されたフレーム番号を返す
 	std::optional<int> GetBufferedFrame(const char* name, int frame)const;
-	//使った入力をリセットする(2回反応しないようにする)
+	//使った入力をリセットする
 	void ConsumeBuffer(const char* name);
+
+	//右スティックを倒しているか
+	bool IsRightStickActive()const;
 
 #ifdef _DEBUG
 	//最後に使われた入力の記録(デバッグ表示用)

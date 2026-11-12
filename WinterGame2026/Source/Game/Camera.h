@@ -6,10 +6,10 @@
 class Camera
 {
 public:
-	//射影の設定と、最初の向き・位置を決める
-	void Init(const Vector3& focusPos, float yaw);
-	//focusPos:追いかける位置 lockOnPos:ロックオン中の敵の位置
-	void Update(const Vector3& focusPos, const std::optional<Vector3>& lockOnPos);
+	//射影の設定と最初の向き位置を決める
+	void Init(const Vector3& focusPos, const Vector3& forward);
+
+	void Update(const Vector3& focusPos, const Vector3& PlayerForward,const std::optional<Vector3>& lockOnPos);
 
 	//めり込み判定に使うステージのモデル
 	void SetStageHandle(int handle) { m_stageHandle = handle; }
@@ -33,6 +33,8 @@ private:
 	void UpdateFreeAngle();
 	//ロックオン中の角度
 	void UpdateLockOnAngle(const Vector3& focusPos, const Vector3& lockOnPos);
+	//カメラリセット中なら、プレイヤーの背中側へ少しずつ回す
+	void UpdateRecenter(const Vector3& playerForward);
 	//縦の制限と横を-π～πに収める
 	void ClampAngle();
 	//引きの量を補間する
@@ -40,11 +42,12 @@ private:
 	//注視点から見たカメラの向き
 	Vector3 CalcDir() const;
 	//ステージにめり込まない位置にする
-	Vector3 AvoidStage(const Vector3& idealPos) const;
+	float CalcStageDistance(const Vector3& dir, float idealDist) const;
 	//揺れを足してDxLibに反映しライトの向きを合わせる
 	void Apply();
 	//今フレームの揺れの量を求める
 	Vector3 CalcShakeOffset() const;
+
 
 private:
 	//横回転の角度
@@ -54,6 +57,10 @@ private:
 	//引いている量
 	float m_pullOffset = 0.0f;
 	bool m_isPull = false;
+	//右スティックを触っていないフレーム(戦闘の構図を自動で調整するときに使う)
+	int m_noInputFrame = 0;
+	//カメラリセットで背中側へ戻している途中か
+	bool m_isRecentering = false;
 
 	//補間した注視点
 	Vector3 m_focus = Vector3(0.0f, 0.0f, 0.0f);

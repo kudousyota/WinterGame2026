@@ -16,7 +16,10 @@ namespace
 	constexpr float kDistance = 500.0f;
 	//注視点が追いかける速さ(0～1) 
 	constexpr float kFocusFollow = 0.15f;
-
+	//ジャンプでカメラが揺れない用に遅くする
+	constexpr float kFocusFollowY = 0.04f;
+	//注視点が縦に遅れてよい最大の量
+	constexpr float kFocusMaxLagY = 120.0f;
 	//右スティックで回る速さ
 	constexpr float kRotSpeedYaw = 0.037f;
 	constexpr float kRotSpeedPitch = 0.03f;
@@ -31,8 +34,17 @@ namespace
 
 	//ステージに当たったとき、壁から離す距離
 	constexpr float kStageMargin = 10.0f;
+	//壁から離れた時に戻る速さ
+	constexpr float kReturnSpeed = 0.1f;
 	//ロックオン中の敵の方へ回る速さ
 	constexpr float kLockOnRotSpeed = 0.1f;
+	//カメラリセットで背中側へ戻る速さ(0～1)
+	//一瞬で切り替えると向きを見失うので、回っていく様子が見える程度に速くする
+	constexpr float kRecenterSpeed = 0.2f;
+	//目標との差がこれより小さくなったら戻し終わったとみなす(ラジアン)
+	constexpr float kRecenterEndAngle = 0.01f;
+	//カメラリセットで戻す縦の角度(Initと同じ水平)
+	constexpr float kRecenterPitch = 0.0f;
 	//敵がこれより近いと向きが安定しないので回さない
 	constexpr float kLockOnMindistance = 50.0f;
 
@@ -42,30 +54,36 @@ namespace
 	constexpr float kLockOnFocusMax = 150.0f;
 }
 
-void Camera::Init(const Vector3& focusPos, float yaw)
+void Camera::Init(const Vector3& focusPos, const Vector3& forward)
 {
 	SetupCamera_Perspective(kFov);
 	SetCameraNearFar(kNear, kFar);
 
-	m_yaw = yaw;
+	//プレイヤーの正面の向きから角度を出す(プレイヤーのm_angleはモデル用に180度ずれているので使わない)
+	m_yaw = atan2f(forward.x, forward.z);
 	m_pitch = 0.0f;
 	m_pullOffset = 0.0f;
 	m_focus = focusPos;
-	m_pos = m_focus - CalcDir() * kDistance;
+	m_curDistance = kDistance;
+	m_pos = m_focus - CalcDir() * m_curDistance;
 
 	Apply();
 }
 
-void Camera::Update(const Vector3& focusPos, const std::optional<Vector3>& lockOnPos)
+void Camera::Update(const Vector3& focusPos, const Vector3& PlayerForward, const std::optional<Vector3>& lockOnPos)
 {
 	//角度を決める
 	if (lockOnPos)
 	{
 		UpdateLockOnAngle(focusPos, *lockOnPos);
+		m_noInputFrame = 0;
+		//ロックオン中は敵の方を向くのが優先なので、カメラリセットはやめる
+		m_isRecentering = false;
 	}
 	else
 	{
 		UpdateFreeAngle();
+		UpdateRecenter(PlayerForward);
 	}
 	ClampAngle();
 
@@ -74,6 +92,7 @@ void Camera::Update(const Vector3& focusPos, const std::optional<Vector3>& lockO
 
 	//注視点を追いかける
 	Vector3 focusGoal = focusPos;
+
 	if (lockOnPos)
 	{
 		Vector3 shift = (*lockOnPos - focusPos) * kLockOnFocusRate;
@@ -84,11 +103,36 @@ void Camera::Update(const Vector3& focusPos, const std::optional<Vector3>& lockO
 		}
 		focusGoal += shift;
 	}
-	m_focus += (focusGoal - m_focus) * kFocusFollow;
+	m_focus.x += (focusGoal.x - m_focus.x) * kFocusFollow;
+	m_focus.y += (focusGoal.y - m_focus.y) * kFocusFollowY;
+	m_focus.z += (focusGoal.z - m_focus.z) * kFocusFollow;
 
+	//離れすぎたら上限の位置まで戻す
+	float lagY = m_focus.y - focusGoal.y;
+	//上に離れすぎたら
+	if (lagY > kFocusMaxLagY)
+	{
+		m_focus.y = focusGoal.y + kFocusMaxLagY;
+	}
+	//下に離れすぎたら
+	else if (lagY < -kFocusMaxLagY)
+	{
+		m_focus.y = focusGoal.y - kFocusMaxLagY;
+	}
+
+	Vector3 dir = CalcDir();
 	//角度と距離から位置を出し、ステージにめり込まないようにする
-	Vector3 idealPos = m_focus - CalcDir() * (kDistance + m_pullOffset);
-	m_pos = AvoidStage(idealPos);
+	float idealPos = kDistance + m_pullOffset;
+	float limit = CalcStageDistance(dir, idealPos);
+	if (limit < m_curDistance)
+	{
+		m_curDistance = limit;
+	}
+	else
+	{
+		m_curDistance += (limit - m_curDistance) * kReturnSpeed;
+	}
+	m_pos = m_focus - dir * m_curDistance;
 
 	Apply();
 }
@@ -97,8 +141,49 @@ void Camera::UpdateFreeAngle()
 {
 	auto& input = Input::Instance();
 	m_yaw += input.GetStickRX() * kRotSpeedYaw;
-	//スティックを上に倒すとカメラが下から見上げる(作り直す前と同じ向き)
+	//スティックを上に倒すとカメラが下から見上げる
 	m_pitch += input.GetStickRY() * kRotSpeedPitch;
+	if (input.IsRightStickActive())
+	{
+		m_noInputFrame = 0;
+		//自分で動かし始めたら、カメラリセットより操作を優先する
+		m_isRecentering = false;
+	}
+	else
+	{
+		m_noInputFrame++;
+	}
+
+	//右スティック押し込みで、背中側へ戻し始める
+	if (input.IsTriggered("cameraReset"))
+	{
+		m_isRecentering = true;
+	}
+}
+
+void Camera::UpdateRecenter(const Vector3& playerForward)
+{
+	//戻している途中でなければ何もしない
+	if (!m_isRecentering) return;
+
+	//プレイヤーの正面の角度(背中側から見るときのカメラの角度)
+	float targetYaw = atan2f(playerForward.x, playerForward.z);
+
+	//遠回りしないように
+	float diffYaw = targetYaw - m_yaw;
+	if (diffYaw > DX_PI_F)  diffYaw -= DX_TWO_PI_F;
+	if (diffYaw < -DX_PI_F) diffYaw += DX_TWO_PI_F;
+	float diffPitch = kRecenterPitch - m_pitch;
+
+	//差の一部だけ回す(横も縦も)
+	m_yaw += diffYaw * kRecenterSpeed;
+	m_pitch += diffPitch * kRecenterSpeed;
+
+	//横も縦もほぼ目標に着いたら、戻し終わり
+	if (fabsf(diffYaw) < kRecenterEndAngle && fabsf(diffPitch) < kRecenterEndAngle)
+	{
+		m_isRecentering = false;
+	}
 }
 
 void Camera::UpdateLockOnAngle(const Vector3& focusPos, const Vector3& lockOnPos)
@@ -150,19 +235,20 @@ Vector3 Camera::CalcDir() const
 		sinf(m_pitch),
 		cosf(m_yaw) * cosf(m_pitch));
 }
-
-Vector3 Camera::AvoidStage(const Vector3& idealPos) const
+float Camera::CalcStageDistance(const Vector3& dir, float idealDist) const
 {
-	if (m_stageHandle < 0) return idealPos;
+	//ステージがなければ位置を変えない
+	if (m_stageHandle < 0) return idealDist;
+	//本来のカメラの位置
+	Vector3 idealPos = m_focus - dir * idealDist;
 
 	//注視点からカメラへレイを飛ばし、間に壁があればその手前に置く
 	Vector3 hitPos;
 	if (!StageCollision::CheckCameraRay(m_stageHandle, m_focus, idealPos, hitPos))
 	{
-		return idealPos;
+		return idealDist;
 	}
-	Vector3 toFocus = (m_focus - hitPos).Normalize();
-	return hitPos + toFocus * kStageMargin;
+	return (hitPos - m_focus).Magnitude() - kStageMargin;
 }
 
 void Camera::Apply()

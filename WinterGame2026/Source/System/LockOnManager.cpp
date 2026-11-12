@@ -232,6 +232,8 @@ void LockOnManager::Switch(int dir, const Vector3& playerPos, const Vector3& bas
 		Vector3 toEnemy = enemy->GetCenterPos() - playerPos;
 		toEnemy.y = 0.0f;
 		if (toEnemy.SqMagnitude() > kMaxDistance * kMaxDistance) continue;
+		//後ろの敵を選ばないようにする
+		if (toEnemy.Dot(baseDir) < 0.0f) continue;
 
 		//今の敵からはじいた方向へどれだけ離れているか
 		//dirを掛けるので右でも左でもはじいた側ならプラスになる
@@ -239,6 +241,7 @@ void LockOnManager::Switch(int dir, const Vector3& playerPos, const Vector3& bas
 		//逆側の敵は無視
 		if (diff <= 0.0f) continue;
 
+		
 		//一番近い隣を選ぶ
 		if (diff < bestDiff)
 		{
@@ -271,11 +274,11 @@ void LockOnManager::DrawDebug(const Vector3& playerPos, const Vector3& baseDir) 
 	//地面と重なってちらつかないよう少し浮かせる
 	Vector3 center = playerPos + Vector3(0.0f, 2.0f, 0.0f);
 
-	//遠い敵を狙える範囲(緑)
+	//遠い敵を狙える範囲
 	DebugDraw::DrawFan(center, dir, kNearDistance, kMaxDistance, acosf(kMinDot), 0x00ff00);
-	//近い敵を狙える範囲(黄)
+	//近い敵を狙える範囲
 	DebugDraw::DrawFan(center, dir, 0.0f, kNearDistance, acosf(kLockOnNearMinDot), 0xffff00);
-	//ロックオンが外れる距離(赤)
+	//ロックオンが外れる距離
 	DebugDraw::DrawCircle(center, kLoseDistance, 0xff0000);
 }
 #endif

@@ -51,9 +51,13 @@ void Input::InitializeInputTable()
 	m_inputTable["right"] = { { PeripheralType::keyboard,KEY_INPUT_RIGHT},
 						  { PeripheralType::pad1,PAD_INPUT_RIGHT } };
 	m_inputTable["target"] = { { PeripheralType::keyboard,KEY_INPUT_SPACE},
-							{ PeripheralType::pad1,PAD_INPUT_5 } };	
+							{ PeripheralType::pad1,PAD_INPUT_5 } };	// PADのLBボタン
+	//ロックオン対象の切り替え(右スティックをはじいた分はUpdateで足す)
 	m_inputTable["targetRight"] = { {PeripheralType::keyboard,KEY_INPUT_E} };
 	m_inputTable["targetLeft"] = { {PeripheralType::keyboard,KEY_INPUT_Q} };
+	//カメラを背中側へ戻す
+	m_inputTable["cameraReset"] = { { PeripheralType::keyboard,KEY_INPUT_R},
+								{ PeripheralType::pad1,PAD_INPUT_10 } };	// PADの右スティック押し込み
 }
 
 Input::Input() : m_inputData{}, m_lastInputData{}, m_inputTable{}
@@ -260,3 +264,9 @@ void Input::ConsumeBuffer(const char* name)
 	//同じ入力で2回反応しないように、最後に押されたフレーム番号をリセットする
 	lastFrame = std::nullopt;
 }
+
+bool Input::IsRightStickActive() const
+{
+	return GetStickRX() != 0.0f || GetStickRY() != 0.0f;
+}
+

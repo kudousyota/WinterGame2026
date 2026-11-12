@@ -95,7 +95,8 @@ void GameScene::Init()
 
 	//射影(視野角・映る距離)の設定もカメラが行う
 	m_pCamera = std::make_shared<Camera>();
-	m_pCamera->Init(m_pPlayer->GetCameraTarget(),m_pPlayer->GetAngle());
+	//プレイヤーの背中側から見るように、正面の向きを渡す
+	m_pCamera->Init(m_pPlayer->GetCameraTarget(), m_pPlayer->GetForward());
 	//地形とのめり込み判定に使うステージを渡す
 	m_pCamera->SetStageHandle(m_pStage->GetCollisionHandle());
 
@@ -120,7 +121,7 @@ void GameScene::Update()
 	//ヒットストップ中はキャラクターを止めて、カメラ(シェイク)だけ動かす
 	if (Timer::Instance().IsHitStop())
 	{
-		m_pCamera->Update(m_pPlayer->GetCameraTarget(),m_lockOn.GetTargetPos());
+		m_pCamera->Update(m_pPlayer->GetCameraTarget(),m_pPlayer->GetForward(), m_lockOn.GetTargetPos());
 		UpdateDistortion();
 		return;
 	}
@@ -162,7 +163,7 @@ void GameScene::Update()
 	//飛び道具が動き終わってから当たり判定を行う
 	ProcessProjectileHits();
 
-	m_pCamera->Update(m_pPlayer->GetCameraTarget(),m_lockOn.GetTargetPos());
+	m_pCamera->Update(m_pPlayer->GetCameraTarget(), m_pPlayer->GetForward(),m_lockOn.GetTargetPos());
 	//カメラが確定してからEffekseerに同期して更新する
 	EffectManager::Instns().Update();
 	//歪みの中心はプレイヤーの画面上の位置なので、カメラが確定してから決める
