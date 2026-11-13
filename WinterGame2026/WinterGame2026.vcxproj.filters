@@ -356,6 +356,9 @@
     <ClInclude Include="Source\Math\Geometry.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Math\MathUtil.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Game\Damage.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>

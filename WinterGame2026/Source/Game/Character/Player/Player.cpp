@@ -6,6 +6,7 @@
 #include "State/PlayerStateDamage.h"
 #include <cmath>
 #include "../../../System/Input.h"
+#include "../../../Math/MathUtil.h"
 
 namespace
 {
@@ -125,9 +126,7 @@ void Player::Update()
 	float targetAngle = atan2f(m_forward.x, m_forward.z) + DX_PI_F;
 
 	//遠回りして回転しないようにする
-	float diff = targetAngle - m_angle;
-	while (diff > DX_PI_F)  diff -= DX_TWO_PI_F;
-	while (diff < -DX_PI_F) diff += DX_TWO_PI_F;
+	float diff = MathUtil::WrapAngle(targetAngle - m_angle);
 
 	//差の一部だけ回転して、少しずつ目標の向きに近づける
 	m_angle += diff * kRotateRate;

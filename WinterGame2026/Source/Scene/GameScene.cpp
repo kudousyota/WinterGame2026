@@ -121,7 +121,7 @@ void GameScene::Update()
 	//ヒットストップ中はキャラクターを止めて、カメラ(シェイク)だけ動かす
 	if (Timer::Instance().IsHitStop())
 	{
-		m_pCamera->Update(m_pPlayer->GetCameraTarget(),m_pPlayer->GetForward(), m_lockOn.GetTargetPos());
+		m_pCamera->Update(m_pPlayer->GetCameraTarget(),m_pPlayer->GetForward(), m_lockOn.GetTargetPos(), m_lockOn.GetTargetHeight().value_or(0.0f));
 		UpdateDistortion();
 		return;
 	}
@@ -163,7 +163,7 @@ void GameScene::Update()
 	//飛び道具が動き終わってから当たり判定を行う
 	ProcessProjectileHits();
 
-	m_pCamera->Update(m_pPlayer->GetCameraTarget(), m_pPlayer->GetForward(),m_lockOn.GetTargetPos());
+	m_pCamera->Update(m_pPlayer->GetCameraTarget(), m_pPlayer->GetForward(),m_lockOn.GetTargetPos(), m_lockOn.GetTargetHeight().value_or(0.0f));
 	//カメラが確定してからEffekseerに同期して更新する
 	EffectManager::Instns().Update();
 	//歪みの中心はプレイヤーの画面上の位置なので、カメラが確定してから決める

@@ -19,6 +19,8 @@ public:
 	std::shared_ptr<const Character> GetTarget() const { return m_target.lock(); }
 	//狙っている位置
 	std::optional<Vector3> GetTargetPos() const;
+	//狙っている敵の身長(カメラが大きい敵を見上げるのに使う)
+	std::optional<float> GetTargetHeight() const;
 
 	//攻撃で向く敵
 	//inputDir:スティックの方向(倒していなければ長さ0) forward:今向いている方向

@@ -1,8 +1,10 @@
 ﻿#include "Camera.h"
 #include <cmath>
+#include <algorithm>
 #include "DxLib.h"
 #include "../System/StageCollision.h"
 #include "../System/Input.h"
+#include "../Math/MathUtil.h"
 
 namespace
 {
@@ -43,15 +45,48 @@ namespace
 	constexpr float kRecenterSpeed = 0.2f;
 	//目標との差がこれより小さくなったら戻し終わったとみなす(ラジアン)
 	constexpr float kRecenterEndAngle = 0.01f;
-	//カメラリセットで戻す縦の角度(Initと同じ水平)
+	//カメラリセットで戻す縦の角度
 	constexpr float kRecenterPitch = 0.0f;
 	//敵がこれより近いと向きが安定しないので回さない
 	constexpr float kLockOnMindistance = 50.0f;
 
-	//注視点をプレイヤーから敵の方へずらす割合
-	constexpr float kLockOnFocusRate = 0.3f;
-	//ずらす量の上限
-	constexpr float kLockOnFocusMax = 150.0f;
+	//ロックオン中、プレイヤーと敵の中点を見る(0.5で中点)
+	constexpr float kLockOnFocusRate = 0.5f;
+	//ずらす量の上限(敵が遠いとき、プレイヤーが画面の端へ行きすぎないように)
+	constexpr float kLockOnFocusMax = 450.0f;
+
+	//ロックオン中、敵の方向からカメラをずらす角度
+	//大きくしすぎると、スティックの上で敵へまっすぐ向かわなくなる
+	constexpr float kLockOnSideAngle = DX_PI_F / 3.0f;
+	//ロックオン中の縦の角度(マイナスで少し上から見下ろす。0で水平)
+	//ロックオン前にどんな角度でも、この角度にそろえて同じ構図にする
+	constexpr float kLockOnPitch = -0.05f;
+
+	//ロックオン中、注視点から奥に1進むと、画面の横のどこまで入れてよいか
+	//小さいほど2人が画面の中央寄りに収まり、カメラは引く(画面の端ぎりぎりは約1.0)
+	constexpr float kScreenSideRate = 0.45f;
+	//同じく縦(画面は横長なので横より狭い。画面の端ぎりぎりは約0.58)
+	constexpr float kScreenUpRate = 0.3f;
+	//2人を映す距離へ寄る・引く速さ(0～1)
+	constexpr float kFitSpeed = 0.1f;
+
+	//これ以下の身長は普通の敵(見上げない)
+	constexpr float kNormalEnemyHeight = 250.0f;
+	//これ以上の身長は一番見上げる
+	constexpr float kBigEnemyHeight = 1000.0f;
+	//一番見上げるときの縦の角度(プラスで下から見上げる)
+	//大きくしすぎるとカメラが床に当たって急に寄る
+	constexpr float kLockOnBigPitch = 0.15f;
+	//大きい敵のとき、注視点を敵の真ん中の高さへどれだけ近づけるか(0～1)
+	//上げないと、敵を画面に入れるためにカメラが引いて床まで下がってしまう
+	constexpr float kBigEnemyFocusUpRate = 0.5f;
+
+	//敵の大きさを0～1にする(普通の敵は0、一番大きい敵は1)
+	float CalcBigRate(float height)
+	{
+		float rate = (height - kNormalEnemyHeight) / (kBigEnemyHeight - kNormalEnemyHeight);
+		return std::clamp(rate, 0.0f, 1.0f);
+	}
 }
 
 void Camera::Init(const Vector3& focusPos, const Vector3& forward)
@@ -64,18 +99,19 @@ void Camera::Init(const Vector3& focusPos, const Vector3& forward)
 	m_pitch = 0.0f;
 	m_pullOffset = 0.0f;
 	m_focus = focusPos;
+	m_baseDistance = kDistance;
 	m_curDistance = kDistance;
 	m_pos = m_focus - CalcDir() * m_curDistance;
 
 	Apply();
 }
 
-void Camera::Update(const Vector3& focusPos, const Vector3& PlayerForward, const std::optional<Vector3>& lockOnPos)
+void Camera::Update(const Vector3& focusPos, const Vector3& PlayerForward, const std::optional<Vector3>& lockOnPos, float lockOnHeight)
 {
 	//角度を決める
 	if (lockOnPos)
 	{
-		UpdateLockOnAngle(focusPos, *lockOnPos);
+		UpdateLockOnAngle(focusPos, *lockOnPos, lockOnHeight);
 		m_noInputFrame = 0;
 		//ロックオン中は敵の方を向くのが優先なので、カメラリセットはやめる
 		m_isRecentering = false;
@@ -101,6 +137,8 @@ void Camera::Update(const Vector3& focusPos, const Vector3& PlayerForward, const
 		{
 			shift = shift.Normalize() * kLockOnFocusMax;
 		}
+		//大きい敵のときは注視点を敵の真ん中の高さへ近づける(普通の敵は上げない)
+		shift.y = (lockOnPos->y - focusPos.y) * kBigEnemyFocusUpRate * CalcBigRate(lockOnHeight);
 		focusGoal += shift;
 	}
 	m_focus.x += (focusGoal.x - m_focus.x) * kFocusFollow;
@@ -121,9 +159,20 @@ void Camera::Update(const Vector3& focusPos, const Vector3& PlayerForward, const
 	}
 
 	Vector3 dir = CalcDir();
+
+	//ロックオン中は、プレイヤーと敵の両方が画面の内側に入る距離まで下がる
+	float targetDist = kDistance;
+	if (lockOnPos)
+	{
+		targetDist = (std::max)(targetDist, CalcFitDistance(focusPos, dir));
+		targetDist = (std::max)(targetDist, CalcFitDistance(*lockOnPos, dir));
+	}
+	//急に寄ったり引いたりしないように補間する
+	m_baseDistance += (targetDist - m_baseDistance) * kFitSpeed;
+
 	//角度と距離から位置を出し、ステージにめり込まないようにする
-	float idealPos = kDistance + m_pullOffset;
-	float limit = CalcStageDistance(dir, idealPos);
+	float idealDist = m_baseDistance + m_pullOffset;
+	float limit = CalcStageDistance(dir, idealDist);
 	if (limit < m_curDistance)
 	{
 		m_curDistance = limit;
@@ -154,7 +203,7 @@ void Camera::UpdateFreeAngle()
 		m_noInputFrame++;
 	}
 
-	//右スティック押し込みで、背中側へ戻し始める
+	//右スティック押し込みで背中側へ戻し始める
 	if (input.IsTriggered("cameraReset"))
 	{
 		m_isRecentering = true;
@@ -166,16 +215,14 @@ void Camera::UpdateRecenter(const Vector3& playerForward)
 	//戻している途中でなければ何もしない
 	if (!m_isRecentering) return;
 
-	//プレイヤーの正面の角度(背中側から見るときのカメラの角度)
+	//プレイヤーの正面の角度
 	float targetYaw = atan2f(playerForward.x, playerForward.z);
 
 	//遠回りしないように
-	float diffYaw = targetYaw - m_yaw;
-	if (diffYaw > DX_PI_F)  diffYaw -= DX_TWO_PI_F;
-	if (diffYaw < -DX_PI_F) diffYaw += DX_TWO_PI_F;
+	float diffYaw = MathUtil::WrapAngle(targetYaw - m_yaw);
 	float diffPitch = kRecenterPitch - m_pitch;
 
-	//差の一部だけ回す(横も縦も)
+	//差の一部だけ回す
 	m_yaw += diffYaw * kRecenterSpeed;
 	m_pitch += diffPitch * kRecenterSpeed;
 
@@ -186,25 +233,33 @@ void Camera::UpdateRecenter(const Vector3& playerForward)
 	}
 }
 
-void Camera::UpdateLockOnAngle(const Vector3& focusPos, const Vector3& lockOnPos)
+void Camera::UpdateLockOnAngle(const Vector3& focusPos, const Vector3& lockOnPos, float lockOnHeight)
 {
+	//大きい敵ほど下から見上げる角度にする
+	float targetPitch = kLockOnPitch + (kLockOnBigPitch - kLockOnPitch) * CalcBigRate(lockOnHeight);
+
+	//縦の角度は決まった値へ少しずつ寄せる(敵が近くて横を回さないときも寄せる)
+	m_pitch += (targetPitch - m_pitch) * kLockOnRotSpeed;
+
 	//プレイヤーから敵への水平の大きさ
 	Vector3 toEnmey = lockOnPos - focusPos;
 	toEnmey.y = 0.0f;
 
-	//近づくと,少しだけカメラが震えるので回さない
+	//近づくと少しだけカメラが震えるので回さない
 	if (toEnmey.SqMagnitude() < kLockOnMindistance * kLockOnMindistance) return;
 
-	float targetYaw = atan2f(toEnmey.x, toEnmey.z);
+	//敵がいる方向の角度
+	float enemyYaw = atan2f(toEnmey.x, toEnmey.z);
 
-	//遠回りしないように
-	float diff = targetYaw - m_yaw;
-	if (diff > DX_PI_F)  diff -= DX_TWO_PI_F;
-	if (diff < -DX_PI_F) diff += DX_TWO_PI_F;
+	//敵の方向から右と左にずらした角度までの差
+	float diffR = MathUtil::WrapAngle(enemyYaw + kLockOnSideAngle - m_yaw);
+	float diffL = MathUtil::WrapAngle(enemyYaw - kLockOnSideAngle - m_yaw);
+
+	//今のカメラに近い方を目標にする
+	float diff = (fabsf(diffR) < fabsf(diffL)) ? diffR : diffL;
 
 	//差の一部だけ回す
 	m_yaw += diff * kLockOnRotSpeed;
-
 }
 
 void Camera::ClampAngle()
@@ -212,8 +267,7 @@ void Camera::ClampAngle()
 	if (m_pitch > kMaxPitch) m_pitch = kMaxPitch;
 	if (m_pitch < kMinPitch) m_pitch = kMinPitch;
 
-	if (m_yaw > DX_PI_F)  m_yaw -= DX_TWO_PI_F;
-	if (m_yaw < -DX_PI_F) m_yaw += DX_TWO_PI_F;
+	m_yaw = MathUtil::WrapAngle(m_yaw);
 }
 
 void Camera::UpdateDistance()
@@ -235,6 +289,28 @@ Vector3 Camera::CalcDir() const
 		sinf(m_pitch),
 		cosf(m_yaw) * cosf(m_pitch));
 }
+
+float Camera::CalcFitDistance(const Vector3& pos, const Vector3& dir) const
+{
+	//カメラの水平な正面と右
+	//縦の角度はロックオン中ほぼ水平なので、高さは別に見る
+	Vector3 forward(dir.x, 0.0f, dir.z);
+	if (forward.SqMagnitude() <= 0.0f) return 0.0f;
+	forward = forward.Normalize();
+	Vector3 right(forward.z, 0.0f, -forward.x);
+
+	//注視点からposへのずれを、奥・横・高さに分ける
+	Vector3 toPos = pos - m_focus;
+	float depth = toPos.Dot(forward);
+	float side = fabsf(toPos.Dot(right));
+	float up = fabsf(toPos.y);
+
+	//横も高さも画面の内側に収まるまで下がる
+	//奥にあるもの(depthがプラス)はその分カメラから遠いので、少し近くても収まる
+	float need = (std::max)(side / kScreenSideRate, up / kScreenUpRate);
+	return need - depth;
+}
+
 float Camera::CalcStageDistance(const Vector3& dir, float idealDist) const
 {
 	//ステージがなければ位置を変えない

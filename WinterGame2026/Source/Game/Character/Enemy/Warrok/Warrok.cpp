@@ -5,6 +5,7 @@
 #include "../State/EnemyStateCharge.h"
 #include "../../../../Effect/EffectManager.h"
 #include <cmath>
+#include "../../../../Math/MathUtil.h"
 
 namespace
 {
@@ -196,9 +197,7 @@ void Warrok::Update()
 	//モデルは-Z方向に向きを合わせる
 	float targetAngle = atan2f(m_forward.x, m_forward.z) + DX_PI_F;
 	//遠回りして回転しないようにする
-	float diff = targetAngle - m_angle;
-	while (diff > DX_PI_F)  diff -= DX_TWO_PI_F;
-	while (diff < -DX_PI_F) diff += DX_TWO_PI_F;
+	float diff = MathUtil::WrapAngle(targetAngle - m_angle);
 	m_angle += diff * kRotateRate * timeScale;
 }
 

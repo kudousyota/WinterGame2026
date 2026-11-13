@@ -224,6 +224,7 @@
     <ClInclude Include="Source\System\CollisionManager.h" />
     <ClInclude Include="Source\System\StageCollision.h" />
     <ClInclude Include="Source\Math\Geometry.h" />
+    <ClInclude Include="Source\Math\MathUtil.h" />
     <ClInclude Include="Source\Game\Damage.h" />
     <ClInclude Include="Source\System\DebugTool.h" />
     <ClInclude Include="Source\Common\CharacterType.h" />

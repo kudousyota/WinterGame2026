@@ -161,6 +161,16 @@ std::optional<Vector3> LockOnManager::GetTargetPos() const
 	return target->GetCenterPos();
 }
 
+std::optional<float> LockOnManager::GetTargetHeight() const
+{
+	auto target = m_target.lock();
+	if (!target)
+	{
+		return std::nullopt;
+	}
+	return target->GetHeight();
+}
+
 std::shared_ptr<Character> LockOnManager::Search(const Vector3& playerPos, const Vector3& baseDir, const std::vector<std::shared_ptr<Character>>& enemies, float maxDistance, float nearMinDot) const
 {
 	//基準の向きは正規化しておく
