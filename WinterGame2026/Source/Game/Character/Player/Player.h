@@ -51,7 +51,13 @@ public:
 
 	//攻撃を受けたらのけぞる
 	void OnHit(const AttackData& attackData, int damage)override;
+
+	//読み直したステータスとPlayerParam.csvの値を反映する
+	void ReloadStatus()override;
 private:
+	//PlayerParam.csvの値のうちメンバーに持つものを入れる
+	void ApplyParam();
+
 	int m_modelHandle = -1;
 	bool m_isAnimPause = false;
 	//カメラの前方向(XZ平面)

@@ -147,7 +147,7 @@ public:
 	void MarkAttackReceived(const Character* attacker, int attackId);
 
 	//読み直したステータスを反映する(今のHPは残す)
-	void ReloadStatus();
+	virtual void ReloadStatus();
 	//受けるダメージ倍率
 	virtual float GetDamageRate(const Vector3& start, const Vector3& end, float radius)const { return 1.0f; }
 

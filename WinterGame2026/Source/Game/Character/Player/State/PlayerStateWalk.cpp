@@ -1,12 +1,7 @@
 ﻿#include "PlayerStateWalk.h"
 #include "PlayerStateIdle.h"
 #include "PlayerStateJump.h"
-
-namespace
-{
-	//先行入力を覚えておくフレーム数
-	constexpr int kInputBufferFrame = 8;
-}
+#include "../../../../DataLoader/DataManager.h"
 
 void PlayerStateWalk::Update()
 {
@@ -19,7 +14,8 @@ void PlayerStateWalk::Update()
 
 
 	//ジャンプ、回避、攻撃の入力があればそちらにする
-	if (TryGroundAction(kInputBufferFrame))
+	//先行入力を覚えておくフレーム数はPlayerParam.csvに書く
+	if (TryGroundAction(DataManager::GetInstance().GetPlayerParam().inputBufferFrame))
 	{
 		return;
 	}

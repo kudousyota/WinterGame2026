@@ -1,16 +1,9 @@
 ﻿#include "PlayerStateDodge.h"
 #include "PlayerStateIdle.h"
 #include "PlayerStateWalk.h"
+#include "../../../../DataLoader/DataManager.h"
 
-namespace
-{
-	//回避にかかるフレーム数
-	constexpr int kDodgeFrame = 25;
-	//回避中の移動速度の倍率
-	constexpr float kDodgeSpeedScale = 1.25f;
-	//ジャスト回避を受け付けるフレーム数
-	constexpr int kJustDodgeFrame = 13;
-}
+//回避の長さや速さはPlayerParam.csvに書く
 
 void PlayerStateDodge::Enter()
 {
@@ -35,8 +28,10 @@ void PlayerStateDodge::Enter()
 
 void PlayerStateDodge::Update()
 {
+	const auto& param = DataManager::GetInstance().GetPlayerParam();
+
 	//回避が終わったら入力に応じてIdleかWalkにする
-	if (m_frame >= kDodgeFrame)
+	if (m_frame >= param.dodgeFrame)
 	{
 		if (GetMoveInput().SqMagnitude() > 0.0f)
 		{
@@ -51,14 +46,14 @@ void PlayerStateDodge::Update()
 	}
 
 	//回避方向に移動する
-	auto move = m_dir * (m_player.GetSpeed() * kDodgeSpeedScale);
+	auto move = m_dir * (m_player.GetSpeed() * param.dodgeSpeedScale);
 	auto vel = m_player.GetVelocity();
 	m_player.SetVelocity(Vector3(move.x, vel.y, move.z));
 
 	m_frame++;
 
 	//受付時間を過ぎたらジャスト回避は成立しない(無敵は続く)
-	if (m_frame >= kJustDodgeFrame)
+	if (m_frame >= param.justDodgeFrame)
 	{
 		m_player.SetJustDodgeWindow(false);
 	}

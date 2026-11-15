@@ -4,6 +4,7 @@
 #include "StatusData.h"
 #include "AttackTable.h"
 #include "SpawnTable.h"
+#include "PlayerParam.h"
 
 class DataManager
 {
@@ -29,6 +30,9 @@ public:
 	//攻撃データを返す
 	const AttackTable& GetAttackTable() const { return m_attackTable; }
 
+	//プレイヤーの手触りに関わる数値を返す
+	const PlayerParam& GetPlayerParam() const { return m_playerParam; }
+
 private:
 	//コンストラクタを非公開にしてシングルトンを実現
 	DataManager() = default;
@@ -48,6 +52,9 @@ private:
 	//攻撃データをロードする
 	void LoadAttackTable();
 
+	//プレイヤーの数値をロードする
+	void LoadPlayerParam();
+
 	//敵の出現データ
 	SpawnTable m_spawnTable;
 
@@ -56,4 +63,7 @@ private:
 
 	//攻撃データ
 	AttackTable m_attackTable;
+
+	//プレイヤーの数値
+	PlayerParam m_playerParam;
 };

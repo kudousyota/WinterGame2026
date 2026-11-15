@@ -204,6 +204,7 @@
     <ClCompile Include="Source\Scene\GameClearScene.cpp" />
     <ClCompile Include="Source\Scene\GameOverScene.cpp" />
     <ClCompile Include="Source\DataLoader\StatusData.cpp" />
+    <ClCompile Include="Source\DataLoader\PlayerParam.cpp" />
     <ClCompile Include="Source\System\Timer.cpp" />
     <ClCompile Include="Source\DataLoader\SpawnTable.cpp" />
     <ClCompile Include="Source\Effect\ScreenDistortion.cpp" />
@@ -274,6 +275,7 @@
     <ClInclude Include="Source\Scene\GameClearScene.h" />
     <ClInclude Include="Source\Scene\GameOverScene.h" />
     <ClInclude Include="Source\DataLoader\StatusData.h" />
+    <ClInclude Include="Source\DataLoader\PlayerParam.h" />
     <ClInclude Include="Source\System\Timer.h" />
     <ClInclude Include="Source\DataLoader\SpawnTable.h" />
     <ClInclude Include="Source\Effect\ScreenDistortion.h" />

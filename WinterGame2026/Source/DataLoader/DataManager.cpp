@@ -9,6 +9,7 @@ void DataManager::LoadData()
 	LoadSpawnData();
 	LoadStatusData();
 	LoadAttackTable();
+	LoadPlayerParam();
 }
 
 bool DataManager::ReloadData()
@@ -16,6 +17,7 @@ bool DataManager::ReloadData()
 	SpawnTable spawnTable;
 	StatusData statusData;
 	AttackTable attackTable;
+	PlayerParam playerParam;
 	//一旦別の変数に読み込んで、全部成功したときだけ差し替える
 	//編集途中のCSVで数字が読めなくても、今のデータが壊れないようにする
 	try
@@ -25,6 +27,7 @@ bool DataManager::ReloadData()
 		attackTable.Load(LoadCsv("Data/Csv/AttackHit.csv"),
 		                 LoadCsv("Data/Csv/AttackMotion.csv"),
 		                 LoadCsv("Data/Csv/AttackCombo.csv"));
+		playerParam.Load(LoadCsv("Data/Csv/PlayerParam.csv"));
 	}
 	catch (const std::exception&)
 	{
@@ -33,6 +36,7 @@ bool DataManager::ReloadData()
 	m_spawnTable = std::move(spawnTable);
 	m_statusData = std::move(statusData);
 	m_attackTable = std::move(attackTable);
+	m_playerParam = playerParam;
 	return true;
 }
 
@@ -87,4 +91,9 @@ void DataManager::LoadAttackTable()
 	m_attackTable.Load(LoadCsv("Data/Csv/AttackHit.csv"),
 	                   LoadCsv("Data/Csv/AttackMotion.csv"),
 	                   LoadCsv("Data/Csv/AttackCombo.csv"));
+}
+
+void DataManager::LoadPlayerParam()
+{
+	m_playerParam.Load(LoadCsv("Data/Csv/PlayerParam.csv"));
 }

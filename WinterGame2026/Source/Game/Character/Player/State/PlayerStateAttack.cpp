@@ -9,25 +9,17 @@
 
 namespace
 {
-	//攻撃判定を出す位置
-	//ボーンの位置から出すようにしたらCSVで攻撃ごとに指定する
-	constexpr float kHitForwardOffset = 60.0f;
-	constexpr float kHitHeight = 100.0f;
-	//先行入力を覚えておくフレーム数
-	constexpr int kInputBufferFrame = 8;
-	//長押しで撃つ弾
-	constexpr int kShotInterval = 6;
-	constexpr float kBulletSpeed = 30.0f;
-	constexpr int kBulletDamage = 1;
-	constexpr float kBulletRadius = 10.0f;
+	//攻撃判定の位置・先行入力・弾・前進の伸び方はPlayerParam.csvに書く
+	//ここに残すのは見た目だけの数値
+
+	//PlayerParam.csvの値//読み直しがすぐ反映されるように毎回ここから読む
+	const PlayerParam& Param()
+	{
+		return DataManager::GetInstance().GetPlayerParam();
+	}
+
 	//弾を撃つときの魔法陣の拡大率
 	constexpr float kShotCircleScale = 7.0f;
-	//敵が遠いとき前進距離をCSVの値の何倍まで伸ばすか
-	constexpr float kMaxMoveScale = 2.0f;
-	//敵の手前で止まるときに体同士の間に空ける隙間
-	constexpr float kStopMargin = 10.0f;
-	//ウィケッドウィーブを出す位置
-	constexpr float kWitchHandForwardOffset = 150.0f;
 	//ウィケッドウィーブのエフェクトの拡大率
 	constexpr float kWitchHandScale = 40.0f;
 	//エフェクトの原点から拳までの距離
@@ -107,8 +99,8 @@ void PlayerStateAttack::Enter()
 		if (m_info.moveDistance > 0.0f)
 		{
 			//体同士が触れる少し前で止まる
-			float stopDistance = m_player.GetCollisionRadius() + target->GetCollisionRadius() + kStopMargin;
-			float maxDistance = m_info.moveDistance * kMaxMoveScale;
+			float stopDistance = m_player.GetCollisionRadius() + target->GetCollisionRadius() + Param().stopMargin;
+			float maxDistance = m_info.moveDistance * Param().maxMoveScale;
 			//近すぎるときは進まない遠すぎるときは最大距離まで
 			float reach = std::clamp(toTarget.Magnitude() - stopDistance, 0.0f,maxDistance);
 			//敵を運ぶ攻撃は敵を押していくので敵が近くても止まらずにCSVの距離は進む
@@ -136,7 +128,7 @@ void PlayerStateAttack::Update()
 {
 	auto& input = Input::Instance();
 
-	if (input.IsBuffered("Dodge", kInputBufferFrame))
+	if (input.IsBuffered("Dodge", Param().inputBufferFrame))
 	{
 		input.ConsumeBuffer("Dodge");
 		ChangeState<PlayerStateDodge>();
@@ -152,11 +144,11 @@ void PlayerStateAttack::Update()
 		std::optional<int> kickFrame;
 		if (m_info.nextPunch)
 		{
-			punchFrame = input.GetBufferedFrame("Punch", kInputBufferFrame);
+			punchFrame = input.GetBufferedFrame("Punch", Param().inputBufferFrame);
 		}
 		if (m_info.nextKick)
 		{
-			kickFrame = input.GetBufferedFrame("Kick", kInputBufferFrame);
+			kickFrame = input.GetBufferedFrame("Kick", Param().inputBufferFrame);
 		}
 
 		if (punchFrame || kickFrame)
@@ -252,11 +244,11 @@ void PlayerStateAttack::Update()
 		if (m_shotTimer <= 0)
 		{
 			//弾を出す
-			m_shotTimer = kShotInterval;
-			ShotRequest request{AttackData(CharacterType::Player, m_info.type, kBulletDamage,kBulletRadius)};
-			request.speed = kBulletSpeed;
-			request.forwardOffset = kHitForwardOffset;
-			request.height = kHitHeight;
+			m_shotTimer = Param().shotInterval;
+			ShotRequest request{AttackData(CharacterType::Player, m_info.type, Param().bulletDamage, Param().bulletRadius)};
+			request.speed = Param().bulletSpeed;
+			request.forwardOffset = Param().hitForwardOffset;
+			request.height = Param().hitHeight;
 			m_player.RequestShot(request);
 		}
 		//フレームを進めないでボタンを離すと続きから進む
@@ -290,8 +282,8 @@ void PlayerStateAttack::RequestHit()
 	request.data.SetCanKnockdown(m_info.canKnockDown);
 	request.data.SetCarry(m_info.carry);
 	request.attackId = m_attackId;
-	request.forwardOffset = kHitForwardOffset;
-	request.height = kHitHeight;
+	request.forwardOffset = Param().hitForwardOffset;
+	request.height = Param().hitHeight;
 	m_player.RequestAttack(request);
 }
 
@@ -301,7 +293,7 @@ void PlayerStateAttack::SummonStomp()
 	const Vector3 up(0.0f, 1.0f, 0.0f);
 
 	//踏みつける場所
-	const Vector3 hitPos = m_player.GetPos() + forward * kWitchHandForwardOffset + up * kHitHeight;
+	const Vector3 hitPos = m_player.GetPos() + forward * Param().witchHandForwardOffset + up * Param().hitHeight;
 	//衝撃は原点より下に出るので、その分持ち上げて攻撃判定の位置で衝撃が出るようにする
 	const Vector3 pos = hitPos + up * (kStompImpactOffset * kWitchHandScale);
 
@@ -315,7 +307,7 @@ void PlayerStateAttack::OpenShotCircle()
 {
 	const Vector3& forward = m_player.GetForward();
 	//弾が出る位置(ShotRequestと同じ)に出して、魔法陣から弾が出てくるように見せる
-	const Vector3 pos = m_player.GetPos() + forward * kHitForwardOffset + Vector3(0.0f, kHitHeight, 0.0f);
+	const Vector3 pos = m_player.GetPos() + forward * Param().hitForwardOffset + Vector3(0.0f, Param().hitHeight, 0.0f);
 
 	//魔法陣は地面に寝ているので、x軸で90度起こしてから撃つ方向へ向ける
 	Vector3 rot;
@@ -377,7 +369,7 @@ void PlayerStateAttack::SummonWitchHand()
 	const Vector3 up(0.0f, 1.0f, 0.0f);
 
 	//拳の攻撃判定
-	const Vector3 hitPos = m_player.GetPos() + forward * kWitchHandForwardOffset + up * kHitHeight;
+	const Vector3 hitPos = m_player.GetPos() + forward * Param().witchHandForwardOffset + up * Param().hitHeight;
 	//魔法陣を出したい位置から着弾点へ向かう方向に拳を突き出す
 	const Vector3 portalPos = m_player.GetPos() - forward * kWitchHandPortalBack + up * portalHeight + right * kWitchHandPortalSide;
 	const Vector3 punchDir = (hitPos - portalPos).Normalize();
@@ -403,8 +395,8 @@ void PlayerStateAttack::UpdateWitchHand()
 		request.data.SetKnockback(m_witchHandInfo->knockback);
 		request.data.SetCanKnockdown(m_witchHandInfo->canKnockDown);
 		request.attackId = m_witchHandAttackId;
-		request.forwardOffset = kWitchHandForwardOffset;
-		request.height = kHitHeight;
+		request.forwardOffset = Param().witchHandForwardOffset;
+		request.height = Param().hitHeight;
 		m_player.RequestAttack(request);
 	}
 	m_witchHandFrame++;

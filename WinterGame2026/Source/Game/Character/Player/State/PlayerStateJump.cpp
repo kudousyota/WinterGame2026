@@ -2,16 +2,9 @@
 #include "PlayerStateIdle.h"
 #include "PlayerStateWalk.h"
 #include "../../../../System/Input.h"
+#include "../../../../DataLoader/DataManager.h"
 
-namespace
-{
-	//ジャンプ力
-	constexpr float kJumpPower = 12.0f;
-	//空中で動ける速さの倍率
-	constexpr float kAirMoveSpeedScale = 1.0f;
-	//先行入力を覚えておくフレーム数
-	constexpr int kBufferFrame = 8;
-}
+//ジャンプ力や先行入力のフレーム数はPlayerParam.csvに書く
 
 PlayerStateJump::PlayerStateJump(Player& player, bool isJump):
 PlayerStateBase(player)
@@ -27,7 +20,7 @@ void PlayerStateJump::Enter()
 	{
 		//ジャンプ状態になったら上方向に速度を与える
 		auto vel = m_player.GetVelocity();
-		vel.y = kJumpPower;
+		vel.y = DataManager::GetInstance().GetPlayerParam().jumpPower;
 		m_player.SetVelocity(vel);
 	}
 	else
@@ -40,6 +33,7 @@ void PlayerStateJump::Enter()
 void PlayerStateJump::Update()
 {
 	auto& input = Input::Instance();
+	const auto& param = DataManager::GetInstance().GetPlayerParam();
 
 	//着地したら入力に応じてIdleかWalkにする
 	if (m_player.IsGround())
@@ -56,7 +50,7 @@ void PlayerStateJump::Update()
 	}
 
 	//パンチボタンが押されたらパンチコンボの1段目を出す
-	if (input.IsBuffered("Punch", kBufferFrame))
+	if (input.IsBuffered("Punch", param.inputBufferFrame))
 	{
 		//1段目に使った入力を消して、2段目が勝手に出ないようにする
 		input.ConsumeBuffer("Punch");
@@ -64,14 +58,14 @@ void PlayerStateJump::Update()
 		return;
 	}
 	//キックボタンが押されたらキックコンボの1段目を出す
-	if (input.IsBuffered("Kick", kBufferFrame))
+	if (input.IsBuffered("Kick", param.inputBufferFrame))
 	{
 		//1段目に使った入力を消して、2段目が勝手に出ないようにする
 		input.ConsumeBuffer("Kick");
 		ChangeAttackState(AttackType::AirSkyKick, "Kick");
 		return;
 	}
-	if (input.IsBuffered("Jump", kBufferFrame) && m_player.CanDobuleJump())
+	if (input.IsBuffered("Jump", param.inputBufferFrame) && m_player.CanDobuleJump())
 	{
 		//1段目に使った入力を消して、2段目が勝手に出ないようにする
 		input.ConsumeBuffer("Jump");
@@ -79,11 +73,11 @@ void PlayerStateJump::Update()
 		m_player.UseDoubuleJump();
 		//上方向に速度を与えなおす
 		auto vel = m_player.GetVelocity();
-		vel.y = kJumpPower;
+		vel.y = param.jumpPower;
 		m_player.SetVelocity(vel);
 		//アニメーションの再生
 		m_player.GetAnim().ChangeAnim("Player|Jump", false);
 	}
 	//空中でも移動できる
-	Move(kAirMoveSpeedScale);
+	Move(param.airMoveSpeedScale);
 }

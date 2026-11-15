@@ -45,6 +45,9 @@
     <ClCompile Include="Source\DataLoader\StatusData.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Source\DataLoader\PlayerParam.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
     <ClCompile Include="Source\DataLoader\DataManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -231,6 +234,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Source\DataLoader\StatusData.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DataLoader\PlayerParam.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Source\DataLoader\DataManager.h">

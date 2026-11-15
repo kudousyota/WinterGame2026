@@ -3,12 +3,9 @@
 #include "PlayerStateJump.h"
 #include "PlayerStateDodge.h"
 #include "../../../../System/Input.h"
+#include "../../../../DataLoader/DataManager.h"
 
-namespace
-{
-	constexpr int kAccelFrame = 6;
-	constexpr int kDecelFrame = 4;
-}
+//加速と減速のフレーム数はPlayerParam.csvに書く
 
 Vector3 PlayerStateBase::GetMoveInput() const
 {
@@ -29,16 +26,17 @@ void PlayerStateBase::MoveSmooth(float speedScale)
 	//今の水平方向の速度
 	Vector3 vel = m_player.GetVelocity();
 	Vector3 current(vel.x, 0.0f, vel.z);
+	const auto& param = DataManager::GetInstance().GetPlayerParam();
 	float step = 0.0f;
 	//目標の方が遅いなら減速
 	if (target.SqMagnitude() < current.SqMagnitude())
 	{
-		step = m_player.GetSpeed() / kDecelFrame;
+		step = m_player.GetSpeed() / param.decelFrame;
 	}
 	//ちがったら加速
 	else
 	{
-		step = m_player.GetSpeed() / kAccelFrame;
+		step = m_player.GetSpeed() / param.accelFrame;
 	}
 }
 

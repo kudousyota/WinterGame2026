@@ -7,16 +7,13 @@
 #include <cmath>
 #include "../../../System/Input.h"
 #include "../../../Math/MathUtil.h"
+#include "../../../DataLoader/DataManager.h"
 
 namespace
 {
 	const Vector3 kPlayerToTarget = Vector3(0.0f, 200.0f, 0.0f);
 
-	//重力
-	constexpr float kGravity = 0.5f;
-
-	//回転の補完
-	constexpr float kRotateRate = 0.2f;
+	//重力や回転などの手触りに関わる数値はPlayerParam.csvに書く
 
 	//アニメション
 	const char* const kIdleAnimName = "Player|Idle";
@@ -26,18 +23,7 @@ namespace
 	constexpr float kHeight = 180.0f;
 	//当たり判定のカプセルの半径
 	constexpr float kCollisionRadius = 30.0f;
-	//ジャスト回避判定の半径
-	constexpr float kJustDodgeRadius = 100.0f;
 
-	//ウィッチタイム
-	//敵の時間の倍率
-	constexpr float kWitchTimeScale = 0.2f;
-	//続くフレーム数
-	constexpr int kWitchTimeFrame = 300;
-
-	//被弾
-	//被弾後の無敵フレーム数
-	constexpr int kHitInvincibleFrame = 60;
 	//被弾後の無敵中に点滅する間隔
 	constexpr int kBlinkInterval = 4;
 }
@@ -67,11 +53,11 @@ void Player::Init()
 	m_forward = Vector3(0.0f, 0.0f, 1.0f);
 	m_angle = atan2f(m_forward.x, m_forward.z) + DX_PI_F;
 	
-	m_gravity = kGravity;
 	//体の大きさ
 	m_height = kHeight;
 	m_collisionRadius = kCollisionRadius;
-	m_justDodgeRadius = kJustDodgeRadius;
+	//重力とジャスト回避の半径はCSVから入れる
+	ApplyParam();
 	MV1SetPosition(m_modelHandle, m_pos);
 	//向きもすぐ反映する
 	MV1SetRotationXYZ(m_modelHandle, VGet(0.0f, m_angle, 0.0f));
@@ -129,7 +115,22 @@ void Player::Update()
 	float diff = MathUtil::WrapAngle(targetAngle - m_angle);
 
 	//差の一部だけ回転して、少しずつ目標の向きに近づける
-	m_angle += diff * kRotateRate;
+	m_angle += diff * DataManager::GetInstance().GetPlayerParam().rotateRate;
+}
+
+void Player::ReloadStatus()
+{
+	//HPと速度はキャラクター共通の読み直しで反映する
+	Character::ReloadStatus();
+	//メンバーに持っているCSVの値も入れ直す
+	ApplyParam();
+}
+
+void Player::ApplyParam()
+{
+	const auto& param = DataManager::GetInstance().GetPlayerParam();
+	m_gravity = param.gravity;
+	m_justDodgeRadius = param.justDodgeRadius;
 }
 
 void Player::LateUpdate()
@@ -155,14 +156,15 @@ void Player::OnHit(const AttackData& attackData, int damage)
 	if (m_hp <= 0) return;
 
 	//しばらく無敵にして、多段攻撃で動けなくならないようにする
-	m_hitInvincibleFrame = kHitInvincibleFrame;
+	m_hitInvincibleFrame = DataManager::GetInstance().GetPlayerParam().hitInvincibleFrame;
 	ChangeState(std::make_unique<PlayerStateDamage>(*this));
 }
 
 void Player::OnJustDodge()
 {
 	//敵だけ時間を遅くする
-	Timer::Instance().SetEnemyTimeScaleForFrames(kWitchTimeScale, kWitchTimeFrame);
+	const auto& param = DataManager::GetInstance().GetPlayerParam();
+	Timer::Instance().SetEnemyTimeScaleForFrames(param.witchTimeScale, param.witchTimeFrame);
 }
 
 Vector3 Player::GetCameraTarget()
