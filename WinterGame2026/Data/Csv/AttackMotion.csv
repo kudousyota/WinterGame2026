@@ -1,5 +1,5 @@
 #name,totalFrame,comboStartFrame,cancelFrame,animName,moveStartFrame,moveEndFrame,moveDistance,fallSpeed,riseSpeed,windupFrame,windupAnimScale
-Punch,62,30,44,Player|Punch,18,30,60,0,0,0,1
+Punch,45,15,27,Player|Punch,9,15,60,0,0,17,2
 Punching,62,30,44,Player|Punching,18,30,60,0,0,0,1
 Kick,86,24,40,Player|Kick,12,24,80,0,0,0,1
 MmaKick,122,50,68,Player|MmaKick,36,50,100,0,0,0,1
@@ -11,7 +11,7 @@ JumpKick,90,50,90,Player|FlyingKick,0,0,0,0,0,0,1
 Kicking,136,100,136,Player|Kicking,46,90,100,0,0,0,1
 LegSweep,124,104,124,Player|LegSweep,48,60,40,0,0,0,1
 MeleeKick,86,30,52,Player|StandingMeleeKick,18,30,70,0,0,0,1
-Rush,66,58,66,Player|Punchrush,0,12,60,0,0,0,1
+Rush,82,58,66,Player|Punchrush,0,12,60,0,0,0,1
 AirPunch,62,30,44,Player|AirPunch,18,30,30,0,0,0,1
 AirPunching,62,30,44,Player|AirPunching,18,30,30,0,0,0,1
 AirRush,66,58,66,Player|AirPunchrush,0,12,30,0,0,0,1

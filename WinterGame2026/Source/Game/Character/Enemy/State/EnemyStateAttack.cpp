@@ -10,6 +10,9 @@ namespace
 {
 	//予兆エフェクトの拡大率
 	constexpr float kTelegraphScale = 20.0f;
+	//ブレスエフェクトの拡大率
+	//Effekseerで長さ20に作ってあるので、50倍でCSVの長さ1000になる
+	constexpr float kBreathEffectScale = 50.0f;
 }
 
 EnemyStateAttack::EnemyStateAttack(Enemy& enemy) :
@@ -69,6 +72,12 @@ void EnemyStateAttack::Update()
 		StopTelegraph();
 	}
 
+	//ブレス攻撃は判定が出た瞬間にエフェクトを出す
+	if (m_info.type == AttackType::Breath && IsHitActive() && !m_isBreathPlayed)
+	{
+		PlayBreathEffect();
+	}
+
 	//多段ヒットの攻撃は、間隔ごとに新しい番号にして同じ相手にもう一度当たるようにする
 	if (m_info.hitInterval > 0 && m_frame >= m_nextHitFrame)
 	{
@@ -97,6 +106,8 @@ void EnemyStateAttack::Exit()
 	//攻撃の途中でのけぞったときも予兆が出っぱなしにならないようにする
 	m_enemy.SetWarning(false);
 	StopTelegraph();
+	//のけぞって途中で止まったときは、出ている煙をフェードさせて消す
+	EffectManager::Instns().FadeOutEffect(m_breathHandle);
 	//攻撃が終わったので、ほかの敵が攻撃できるようにする
 	m_enemy.ReleaseAttackToken();
 }
@@ -105,6 +116,20 @@ void EnemyStateAttack::StopTelegraph()
 {
 	//再生していないときや再生が終わっているときは、EffectManagerの方で何もしない
 	EffectManager::Instns().StopEffect(m_telegraphHandle);
+}
+
+void EnemyStateAttack::PlayBreathEffect()
+{
+	m_isBreathPlayed = true;
+
+	//予兆エフェクトと同じ口の位置から出す
+	const Vector3& forward = m_enemy.GetForward();
+	const Vector3 mouthPos = m_enemy.GetPos() + forward * m_enemy.GetHitForwardOffset() + Vector3(0.0f, m_enemy.GetHitHeight(), 0.0f);
+	//当たり判定と同じ狙った方向に向ける//xで下向きの傾き、yで水平の向き
+	Vector3 rot;
+	rot.x = asinf(m_aimDir.y);
+	rot.y = atan2f(-m_aimDir.x, -m_aimDir.z);
+	m_breathHandle = EffectManager::Instns().PlayEffect(EffectType::AlienBreath, mouthPos, rot, kBreathEffectScale);
 }
 
 #ifdef _DEBUG

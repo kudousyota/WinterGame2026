@@ -3,9 +3,9 @@
 namespace
 {
 	//各CSVの列の数(足りない行は読まない)
-	constexpr int kHitColumnNum = 11;
+	constexpr int kHitColumnNum = 14;
 	constexpr int kMotionColumnNum = 12;
-	constexpr int kComboColumnNum = 5;
+	constexpr int kComboColumnNum = 6;
 
 	//CSVに書いた名前をAttackTypeに変換する
 	AttackType NameToAttackType(const std::string& name)
@@ -82,6 +82,10 @@ void AttackTable::Load(const Rows& hitRows, const Rows& motionRows, const Rows& 
 		info.length = std::stof(row[8]);
 		info.carry = std::stoi(row[9]) != 0;
 		info.growSpeed = std::stof(row[10]);
+		//当たったときの手応え
+		info.hitStopFrame = std::stoi(row[11]);
+		info.shakePower = std::stof(row[12]);
+		info.shakeFrame = std::stoi(row[13]);
 	}
 
 	//動き(AttackHitにない名前ならat()が例外を投げるので書き忘れに気づける)
@@ -120,6 +124,8 @@ void AttackTable::Load(const Rows& hitRows, const Rows& motionRows, const Rows& 
 		info.witchHand = NameToOptionalAttackType(row[3]);
 		//終わったら自動で出す攻撃
 		info.autoNext = NameToOptionalAttackType(row[4]);
+		//ウィケッドウィーブを呼び出すフレーム//0なら攻撃判定が出たフレーム
+		info.witchHandFrame = std::stoi(row[5]);
 	}
 }
 

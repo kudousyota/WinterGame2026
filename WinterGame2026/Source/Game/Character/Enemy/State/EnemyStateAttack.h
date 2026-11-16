@@ -27,6 +27,8 @@ private:
 	float CalcHitLength() const;
 	//予兆エフェクトを止める
 	void StopTelegraph();
+	//ブレスのエフェクトを口から狙った方向へ出す
+	void PlayBreathEffect();
 
 	//今の攻撃のデータ(CSVを読み直しても攻撃の途中で中身が消えないようにコピーで持つ)
 	AttackTable::AttackInfo m_info;
@@ -40,4 +42,8 @@ private:
 	Vector3 m_aimDir = Vector3(0.0f, 0.0f, 0.0f);
 	//再生中の予兆エフェクトのハンドル
 	int m_telegraphHandle = -1;
+	//再生中のブレスエフェクトのハンドル
+	int m_breathHandle = -1;
+	//ブレスのエフェクトを出したか//1回の攻撃で1回だけ出す
+	bool m_isBreathPlayed = false;
 };

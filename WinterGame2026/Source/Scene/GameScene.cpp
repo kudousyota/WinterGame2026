@@ -21,12 +21,7 @@
 
 namespace
 {
-	//ヒットストップフレーム
-	constexpr int kHitStopFrame = 5;
-	//カメラシェイクの強さ
-	constexpr float kShakePower = 8.0f;
-	//カメラシェイクのフレーム数
-	constexpr int kShakeFrame = 12;
+	//ヒットストップとカメラシェイクの値は攻撃ごとにAttackHit.csvに書く
 	//ウィッチタイム中に画面に重ねる色の濃さ
 	constexpr int kWitchTimeOverlayAlpha = 128;
 	//勝ち負けが決まってから画面を切り替えるまでのフレーム数
@@ -436,8 +431,16 @@ void GameScene::ApplyAttackHit(Character& attacker, const AttackRequest& request
 	target.OnHit(request.data, Damage::Calc(request.data, attacker, target,start,end));
 
 	//ヒットストップ、カメラシェイク
-	Timer::Instance().RequestHitStop(kHitStopFrame);
-	m_pCamera->Shake(kShakePower, kShakeFrame);
+	//強さは攻撃ごとに変える//多段ヒットは軽く、締めの技は重くできる
+	const auto& info = DataManager::GetInstance().GetAttackTable().GetInfo(request.data.GetAttackType());
+	if (info.hitStopFrame > 0)
+	{
+		Timer::Instance().RequestHitStop(info.hitStopFrame);
+	}
+	if (info.shakeFrame > 0)
+	{
+		m_pCamera->Shake(info.shakePower, info.shakeFrame);
+	}
 }
 
 std::vector<Enemy*> GameScene::GetEnemyList()const

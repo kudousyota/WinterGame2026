@@ -119,7 +119,9 @@ void PlayerStateAttack::Enter()
 	}
 	//攻撃中はその場で止まる
 	StopMove();
-	m_player.GetAnim().ChangeAnim(m_info.animName, false);
+	//振りかぶりがある攻撃は、最初だけ早回しにして腕が伸びきるまでを短くする
+	const float animScale = (m_info.windupFrame > 0) ? m_info.windupAnimScale : 1.0f;
+	m_player.GetAnim().ChangeAnim(m_info.animName, false, animScale);
 	//攻撃ごとに新しい番号をもらう
 	m_attackId = m_player.IssueAttackId();
 }
@@ -127,6 +129,13 @@ void PlayerStateAttack::Enter()
 void PlayerStateAttack::Update()
 {
 	auto& input = Input::Instance();
+
+	//振りかぶりが終わったら普通の速さに戻す
+	//長押しや落下で途中returnしても戻し忘れないように最初に見る
+	if (m_info.windupFrame > 0 && m_frame >= m_info.windupFrame)
+	{
+		m_player.GetAnim().SetAnimTimeScale(1.0f);
+	}
 
 	if (input.IsBuffered("Dodge", Param().inputBufferFrame))
 	{
@@ -219,9 +228,11 @@ void PlayerStateAttack::Update()
 		m_attackId = m_player.IssueAttackId();
 	}
 
-	//コンボの締めは、攻撃判定が出た瞬間にウィケッドウィーブを呼び出す
+	//コンボの締めは、CSVで決めたフレームでウィケッドウィーブを呼び出す
+	//witchHandFrameが0なら攻撃判定が出た瞬間に呼び出す
 	//地面まで落ちる攻撃は、上でフレームを止めているので着地した瞬間に呼び出される
-	if (m_info.witchHand && !m_witchHandInfo && m_frame == m_info.hitStartFrame)
+	const int witchHandFrame = (m_info.witchHandFrame > 0) ? m_info.witchHandFrame : m_info.hitStartFrame;
+	if (m_info.witchHand && !m_witchHandInfo && m_frame == witchHandFrame)
 	{
 		SummonWitchHand();
 	}

@@ -23,6 +23,8 @@ enum class EffectType
 	WeakPoint,
 	//ボスのジャンプ攻撃の衝撃波(止めるまで残る。大きさはコードで半径に合わせる)
 	Shockwave,
+	//エイリアンのブレス//Effekseerの+Z方向に伸びるので攻撃の向きに回して出す
+	AlienBreath,
 	Max
 };
 class Effect;

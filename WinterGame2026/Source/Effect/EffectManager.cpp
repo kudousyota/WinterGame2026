@@ -54,6 +54,8 @@ void EffectManager::Init()
     m_resourceHandles[static_cast<int>(EffectType::WeakPoint)] = LoadEffekseerEffect("Data/Effect/WeakPoint.efk");
     //ボスの衝撃波
     m_resourceHandles[static_cast<int>(EffectType::Shockwave)] = LoadEffekseerEffect("Data/Effect/Shockwave.efk");
+    //エイリアンのブレス
+    m_resourceHandles[static_cast<int>(EffectType::AlienBreath)] = LoadEffekseerEffect("Data/Effect/AlienBreath.efk");
 }
 
 void EffectManager::Update()
