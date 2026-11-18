@@ -26,7 +26,7 @@ void Effect::Update()
 	if (m_playingHandle == -1) return;
 
 	//終了判定にする
-	if (IsEffekseer3DEffectPlaying(m_playingHandle) != 1)
+	if (IsEffekseer3DEffectPlaying(m_playingHandle) != 0)
 	{
 		m_playingHandle = -1;
 	}
@@ -35,5 +35,5 @@ void Effect::Update()
 bool Effect::IsPlaying() const
 {
 	//再生中のときだけtrue
-	return (m_playingHandle != -1) && (IsEffekseer3DEffectPlaying(m_playingHandle) == 1);
+	return (m_playingHandle != -1) && (IsEffekseer3DEffectPlaying(m_playingHandle) == 0);
 }

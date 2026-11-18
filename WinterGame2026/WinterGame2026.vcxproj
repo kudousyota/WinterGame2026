@@ -178,6 +178,9 @@
     <ClCompile Include="Source\Game\Character\Player\State\PlayerStateAttack.cpp" />
     <ClCompile Include="Source\System\Projectile.cpp" />
     <ClCompile Include="Source\System\ProjectileManager.cpp" />
+    <ClCompile Include="Source\System\BattleSystem.cpp" />
+    <ClCompile Include="Source\Game\GameManager.cpp" />
+    <ClCompile Include="Source\Game\Character\Enemy\Dummy\Dummy.cpp" />
     <ClCompile Include="Source\System\Animation.cpp" />
     <ClCompile Include="Source\Game\Camera.cpp" />
     <ClCompile Include="Source\Game\Stage.cpp" />
@@ -240,6 +243,9 @@
     <ClInclude Include="Source\Game\Character\Player\State\PlayerStateAttack.h" />
     <ClInclude Include="Source\System\Projectile.h" />
     <ClInclude Include="Source\System\ProjectileManager.h" />
+    <ClInclude Include="Source\System\BattleSystem.h" />
+    <ClInclude Include="Source\Game\GameManager.h" />
+    <ClInclude Include="Source\Game\Character\Enemy\Dummy\Dummy.h" />
     <ClInclude Include="Source\System\Animation.h" />
     <ClInclude Include="Source\Game\Camera.h" />
     <ClInclude Include="Source\Game\Stage.h" />

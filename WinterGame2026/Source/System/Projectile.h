@@ -32,6 +32,9 @@ public:
 	//isJustDodgeがtrueならジャスト回避された
 	//標準は弾と同じように消える。消えずに残る飛び道具はこれを上書きする
 	virtual void OnHitTarget(bool isJustDodge);
+	//何番の攻撃か//近接攻撃と同じ番号の付け方で、同じ番号は二度と出ない
+	int GetAttackId()const { return m_attackId; }
+	void SetAttackId(int attackId) { m_attackId = attackId; }
 #ifdef _DEBUG
 	//当たり範囲などを描く
 	virtual void DrawDebug()const {}
@@ -60,4 +63,6 @@ protected:
 	bool m_isDead;
 	//アタックデータ
 	AttackData m_attackData;
+	//攻撃番号
+	int m_attackId = 0;
 };

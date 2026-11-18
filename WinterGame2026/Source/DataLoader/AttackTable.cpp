@@ -36,6 +36,7 @@ namespace
 			{ "WarrokJumpAttack",	AttackType::WarrokJumpAttack },
 			{ "WarrokCharge",	AttackType::WarrokCharge },
 			{ "GoblinAttack",	AttackType::GoblinAttack },
+			{ "DummyAttack",	AttackType::DummyAttack },
 			{ "WitchHand",	AttackType::WitchHand },
 			{ "WitchLeg",	AttackType::WitchLeg },
 			{ "WitchStomp",	AttackType::WitchStomp },

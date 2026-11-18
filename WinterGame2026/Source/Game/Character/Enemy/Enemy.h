@@ -16,7 +16,7 @@ public:
 	CharacterType GetCharacterType()const override { return CharacterType::Enemy; }
 
 	//攻撃を受けたらのけぞる
-	void OnHit(const AttackData& attackData, int damage)override;
+	HitResult OnHit(const AttackData& attackData, int damage)override;
 
 	//狙う相手を設定する
 	void SetTarget(const Character* target) { m_pTarget = target; }
@@ -69,6 +69,9 @@ public:
 	//決めた攻撃に合ったステートを作る
 	//標準は普通の攻撃ステート。ジャンプ攻撃など動きが違う攻撃を持つ敵は上書きする
 	virtual std::unique_ptr<StateBase> CreateAttackState();
+	//攻撃が終わったあとのステートを作る
+	//標準はプレイヤーから離れる。その場から動かない敵は上書きする
+	virtual std::unique_ptr<StateBase> CreateAfterAttackState();
 	//浮いている高さ(地面から足元まで)
 	float GetHoverHeight()const { return m_hoverHeight; }
 	//ターゲットから離れる(Y方向の速度は維持)
@@ -117,8 +120,6 @@ protected:
 	void CheckDeath();
 	//攻撃範囲に入ったときにどの攻撃を使うか
 	virtual AttackType SelectAttack();
-	//攻撃が終わったときの次のステート
-	virtual void OnAttackFinished();
 #ifdef _DEBUG
 	//範囲や向きを描く中心(プレイヤーの足元の高さに合わせた自分の位置)
 	Vector3 GetDebugGroundCenter()const;

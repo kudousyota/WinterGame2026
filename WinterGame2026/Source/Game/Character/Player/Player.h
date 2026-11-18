@@ -50,7 +50,7 @@ public:
 	void UseDoubuleJump();
 
 	//攻撃を受けたらのけぞる
-	void OnHit(const AttackData& attackData, int damage)override;
+	HitResult OnHit(const AttackData& attackData, int damage)override;
 
 	//読み直したステータスとPlayerParam.csvの値を反映する
 	void ReloadStatus()override;

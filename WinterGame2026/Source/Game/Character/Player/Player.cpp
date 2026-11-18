@@ -145,19 +145,19 @@ void Player::Draw()
 	MV1DrawModel(m_modelHandle);
 }
 
-void Player::OnHit(const AttackData& attackData, int damage)
+HitResult Player::OnHit(const AttackData& attackData, int damage)
 {
 	//無敵中と死亡中は当たっていないのでのけぞらない
-	if (!CanBeHit()) return;
-
-	Character::OnHit(attackData, damage);
+	if (!CanBeHit()) return HitResult::Ignored;
 
 	//このダメージで倒れた時はのけぞらない
-	if (m_hp <= 0) return;
+	HitResult result = Character::OnHit(attackData, damage);
+	if (result == HitResult::Killed) return result;
 
 	//しばらく無敵にして、多段攻撃で動けなくならないようにする
 	m_hitInvincibleFrame = DataManager::GetInstance().GetPlayerParam().hitInvincibleFrame;
 	ChangeState(std::make_unique<PlayerStateDamage>(*this));
+	return HitResult::Flinch;
 }
 
 void Player::OnJustDodge()

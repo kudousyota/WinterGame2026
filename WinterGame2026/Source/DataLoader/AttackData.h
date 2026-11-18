@@ -28,6 +28,7 @@ enum class AttackType
 	WarrokJumpAttack,//跳び上がって着地で押しつぶす。着地で衝撃波も出す
 	WarrokCharge,//溜めてからまっすぐ突進する。走り終わると隙ができる
 	GoblinAttack,
+	DummyAttack,//チュートリアルのダミーの攻撃。回避の練習用
 	WitchHand,
 	WitchLeg,
 	WitchStomp,//真上から踏みつける足

@@ -51,10 +51,10 @@ void EnemyStateAttack::Update()
 {
 	m_enemy.StopMove();
 
-	//攻撃が終わったらプレイヤーから離れる
+	//攻撃が終わったら次のステートへ//標準はプレイヤーから離れる
 	if (m_frame >= m_info.totalFrame)
 	{
-		ChangeState<EnemyStateRetreat>();
+		m_enemy.ChangeState(m_enemy.CreateAfterAttackState());
 		return;
 	}
 

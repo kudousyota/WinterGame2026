@@ -30,11 +30,13 @@ void Character::Damage(int damage)
 	m_hp -= damage;
 }
 
-void Character::OnHit(const AttackData& attackData, int damage)
+HitResult Character::OnHit(const AttackData& attackData, int damage)
 {
 	//無敵中・死亡中はダメージを受けない
-	if (!CanBeHit()) return;
+	if (!CanBeHit()) return HitResult::Ignored;
 	Damage(damage);
+	if (m_hp <= 0) return HitResult::Killed;
+	return HitResult::DamageOnly;
 }
 
 std::vector<AttackRequest> Character::TakeAttackRequests()

@@ -4,6 +4,7 @@
 #include "State/EnemyStateDeath.h"
 #include "State/EnemyStateKnockdown.h"
 #include "State/EnemyStateAttack.h"
+#include "State/EnemyStateRetreat.h"
 #include <cfloat>
 #include "DxLib.h"
 #include "EnemyManager.h"
@@ -42,15 +43,14 @@ void Enemy::Draw()
 
 }
 
-void Enemy::OnHit(const AttackData& attackData, int damage)
+HitResult Enemy::OnHit(const AttackData& attackData, int damage)
 {
 	//無敵中・死亡中は当たっていないのでのけぞらない
-	if (!CanBeHit()) return;
-
-	Character::OnHit(attackData, damage);
+	if (!CanBeHit()) return HitResult::Ignored;
 
 	//このダメージで倒れた時はのけぞらない(死亡はUpdateで処理する)
-	if (m_hp <= 0) return;
+	HitResult result = Character::OnHit(attackData, damage);
+	if (result == HitResult::Killed) return result;
 
 	//このフレームにもう予約されているステートがあればそちらで判断する
 	//(同じフレームに叩き落としと通常の攻撃が当たっても、叩き落としが消えないようにする)
@@ -59,21 +59,22 @@ void Enemy::OnHit(const AttackData& attackData, int damage)
 	{
 		auto kind = state->GetKind();
 		//倒れている間・起き上がり中はダメージだけ受ける(追い打ちはできる)
-		if (kind == StateBase::StateKind::Down || kind == StateBase::StateKind::GetUp) return;
+		if (kind == StateBase::StateKind::Down || kind == StateBase::StateKind::GetUp) return HitResult::DamageOnly;
 	}
 
 	//叩き落とせる攻撃は、浮いている敵を地面に落とす
 	if (attackData.CanKnockdown() && !m_knockdownAnimName.empty())
 	{
 		ChangeState(std::make_unique<EnemyStateKnockdown>(*this, attackData.GetKnockback()));
-		return;
+		return HitResult::Knockdown;
 	}
 
 	//攻撃中でも割り込んでのけぞる。のけぞり中に当たったら最初からのけぞり直す
 	//吹っ飛ぶ攻撃(knockbackが0より大きい)なら、のけぞりながら後ろへ下がる
-	if (m_damageAnimName.empty()) return;
+	if (m_damageAnimName.empty()) return HitResult::DamageOnly;
 	//運ぶ攻撃なら、のけぞっている間は攻撃してきた相手の目の前についていく
 	ChangeState(std::make_unique<EnemyStateDamage>(*this, attackData.GetKnockback(), attackData.IsCarry()));
+	return HitResult::Flinch;
 }
 
 void Enemy::CheckDeath()
@@ -106,8 +107,9 @@ AttackType Enemy::SelectAttack()
 	return m_attackType;
 }
 
-void Enemy::OnAttackFinished()
+std::unique_ptr<StateBase> Enemy::CreateAfterAttackState()
 {
+	return std::make_unique<EnemyStateRetreat>(*this);
 }
 
 float Enemy::GetTargetDistance() const

@@ -47,6 +47,22 @@ struct ShotRequest
 	float height = 0.0f;
 };
 
+//攻撃を受けた結果
+//BattleSystemがイベントに入れて、チュートリアルやスコアで使う
+enum class HitResult
+{
+	//無敵中か死亡中で当たっていない
+	Ignored,
+	//ダメージだけ受けた//倒れている間の追い打ちなど
+	DamageOnly,
+	//怯んだか吹っ飛んだ
+	Flinch,
+	//浮いているところを叩き落とされた
+	Knockdown,
+	//このダメージで倒れた
+	Killed,
+};
+
 class Character
 {
 public:
@@ -119,8 +135,11 @@ public:
 
 	//攻撃を受けられる状態か(無敵中・被弾後の無敵中・死亡中は受けない)
 	bool CanBeHit()const { return !m_isInvincible && m_hitInvincibleFrame <= 0 && !m_isDead; }
+	//無敵中か//今は回避中だけ無敵になる//被弾後の無敵は含まない
+	bool IsInvincible()const { return m_isInvincible && !m_isDead; }
 	//攻撃を受けたときに呼ばれる(damageは補正を計算した後の最終ダメージ)
-	virtual void OnHit(const AttackData& attackData, int damage);
+	//どうなったかを返す
+	virtual HitResult OnHit(const AttackData& attackData, int damage);
 	//ジャスト回避に成功したときに呼ばれる
 	virtual void OnJustDodge() {}
 
@@ -204,7 +223,6 @@ protected:
 	std::vector<ShotRequest> m_shotRequests;
 	//攻撃してきた相手ごとに、最近受けた攻撃番号を覚えておく
 	std::unordered_map<const Character*, std::vector<int>> m_receivedAttackIds;
-
 	//状態
 	//今地面にいるか
 	bool m_isGround = false;
