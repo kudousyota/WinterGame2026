@@ -4,6 +4,7 @@
 //チュートリアルで使う死なない練習相手
 //見た目と動きはゴブリンを使い回す
 //段階が変わるときは消して別のモードで出し直す
+//吹っ飛ばされたら、倒れたあと消えて、最初に出た場所に戻ってくる
 class Dummy : public Enemy
 {
 public:
@@ -27,6 +28,8 @@ public:
 
 	//HPが0になりそうなら最大まで戻して死なないようにする
 	void Damage(int damage)override;
+	//吹っ飛ぶ攻撃を受けたら、止まったあとに消えて戻ってくるようにする
+	HitResult OnHit(const AttackData& attackData, int damage)override;
 
 	//Attackモードのときだけ攻撃する
 	bool CanStartAttack(float distance)const override;
@@ -34,6 +37,34 @@ public:
 	std::unique_ptr<StateBase> CreateAfterAttackState()override;
 
 private:
+	//消えて戻ってくる流れ
+	enum class RespawnPhase
+	{
+		//普通に動いている
+		None,
+		//吹っ飛んで止まったので、薄くなって消えている
+		FadeOut,
+		//最初の場所に戻って、濃くなって出てきている
+		FadeIn,
+	};
+
+	//吹っ飛ばされて、もう動きが止まったか
+	bool IsBlownAwayFinished()const;
+	//消えて戻ってくる流れを進める//ステートを止めておくならtrueを返す
+	bool UpdateRespawn(float timeScale);
+	//最初に出た場所に戻して、待機から始め直す
+	void Respawn();
+
 	Mode m_mode;
 	int m_modelHandle = -1;
+
+	//最初に出た場所//吹っ飛ばされたらここに戻る
+	Vector3 m_homePos;
+	//m_homePosを覚えたか//出す位置はInitの後にSpawnEnemyで決まるので、最初の更新で覚える
+	bool m_hasHomePos = false;
+	//吹っ飛ぶ攻撃を受けて、まだ戻っていないか
+	bool m_isBlownAway = false;
+	RespawnPhase m_respawnPhase = RespawnPhase::None;
+	//今の段階になってから経ったフレーム数
+	float m_respawnFrame = 0.0f;
 };

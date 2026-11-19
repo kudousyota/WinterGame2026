@@ -1,7 +1,7 @@
 ﻿#include "TitleScene.h"
 #include "DxLib.h"
 #include "SceneController.h"
-#include "GameScene.h"
+#include "SelectScene.h"
 #include "../System/Input.h"
 #include "../Common/FontManager.h"
 #include "../Game.h"
@@ -36,7 +36,7 @@ void TitleScene::Update()
 
 	if (Input::Instance().IsTriggered("ok"))
 	{
-		m_controller.ChangeScene(std::make_shared<GameScene>(m_controller));
+		m_controller.ChangeScene(std::make_shared<SelectScene>(m_controller));
 	}
 }
 

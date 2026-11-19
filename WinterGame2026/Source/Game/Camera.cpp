@@ -137,7 +137,7 @@ void Camera::Update(const Vector3& focusPos, const Vector3& PlayerForward, const
 		{
 			shift = shift.Normalize() * kLockOnFocusMax;
 		}
-		//大きい敵のときは注視点を敵の真ん中の高さへ近づける(普通の敵は上げない)
+		//大きい敵のときは注視点を敵の真ん中の高さへ近づける
 		shift.y = (lockOnPos->y - focusPos.y) * kBigEnemyFocusUpRate * CalcBigRate(lockOnHeight);
 		focusGoal += shift;
 	}
@@ -195,7 +195,7 @@ void Camera::UpdateFreeAngle()
 	if (input.IsRightStickActive())
 	{
 		m_noInputFrame = 0;
-		//自分で動かし始めたら、カメラリセットより操作を優先する
+		//自分で動かし始めたらカメラリセットより操作を優先する
 		m_isRecentering = false;
 	}
 	else

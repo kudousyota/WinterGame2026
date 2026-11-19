@@ -5,10 +5,19 @@
 class Stage
 {
 public:
+	//どのステージを読み込むか
+	enum class Type
+	{
+		//本編の神殿(広場→通路→神殿→ボス広場)
+		Temple,
+		//チュートリアルの部屋(神殿の大広間から柱を抜いたもの。外には出られない)
+		Tutorial,
+	};
+
 	Stage();
 	~Stage();
 
-	void Init();
+	void Init(Type type);
 	void Draw();
 
 	//当たり判定に使うモデルのハンドル

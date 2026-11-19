@@ -7,7 +7,6 @@
 #include "../Effect/ScreenDistortion.h"
 
 //本編のシーン
-//ゲームの中身はGameManagerに任せて、本編の進め方と見た目の演出だけを行う
 class GameScene : public Scene
 {
 public:
@@ -19,15 +18,15 @@ public:
 	void Draw() override;
 private:
 	void DrawGrid();
-	//戦闘で起きたことを受け取って、歪みなどの演出を出す
+	//戦闘で起きたことを受け取って歪みなどの演出を出す
 	void HandleBattleEvents();
-	//ウェーブを進めて、出す敵をGameManagerに渡す
+	//ウェーブを進めて出す敵をGameManagerに渡す
 	void UpdateSpawn();
-	//勝ち負けが決まっていたら、少し待ってからクリア・ゲームオーバーに切り替える
+	//勝ち負けが決まっていたら少し待ってからクリアゲームオーバーに切り替える
 	void CheckGameEnd();
 	//ジャスト回避の歪みを最初から始める
 	void StartJustDodgeDistortion();
-	//歪みを進めて、シェーダーに渡す値を決める(カメラが確定してから呼ぶ)
+	//歪みを進めてシェーダーに渡す値を決める
 	void UpdateDistortion();
 
 private:
@@ -49,7 +48,7 @@ private:
 	float m_waveTime = 0.0f;
 
 #ifdef _DEBUG
-	//デバッグ機能(一時停止・表示切り替え・CSVの読み直し)
+	//デバッグ機能
 	DebugTool m_debug;
 #endif // _DEBUG
 };

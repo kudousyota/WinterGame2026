@@ -2,7 +2,7 @@
 #include "Scene.h"
 
 //タイトル画面
-//決定ボタンでゲームを始める
+//決定ボタンでセレクト画面へ進む
 class TitleScene : public Scene
 {
 public:

@@ -11,9 +11,6 @@
 
 namespace
 {
-	//ヒットストップとカメラシェイクの値は攻撃ごとにAttackHit.csvに書く
-	//ウィッチタイム中に画面に重ねる色の濃さ
-	constexpr int kWitchTimeOverlayAlpha = 128;
 	//勝ち負けが決まってから画面を切り替えるまでのフレーム数
 	constexpr int kGameEndWaitFrame = 120;
 	//ジャスト回避の歪みが画面の端まで広がるフレーム数
@@ -54,7 +51,7 @@ void GameScene::Init()
 
 	//ステージ、プレイヤー、カメラ、ゲートを用意する
 	const auto& spawnTable = DataManager::GetInstance().GetSpawnTable();
-	m_game.Init(spawnTable.GetMaxGateNum());
+	m_game.Init(Stage::Type::Temple, spawnTable.GetMaxGateNum());
 
 	//敵はプレイヤーを狙うのでプレイヤーの後に準備する
 	m_spawner.Init(spawnTable);
@@ -71,32 +68,21 @@ void GameScene::Update()
 	if (!m_debug.ShouldUpdateGame()) return;
 #endif // _DEBUG
 
-	//タイマーの更新
-	//一時停止とスロー中に進めると先行入力やヒットストップの時間がずれるからゲームが進むときだけ更新する
-	Timer::Instance().Update();
+	//タイマーキャラクター攻撃判定カメラエフェクト消えた敵の片付けまで
+	const bool isAdvanced = m_game.Update();
 
-	//ヒットストップ中はキャラクターを止めてカメラシェイクだけ動かす
-	if (Timer::Instance().IsHitStop())
-	{
-		m_game.UpdateCamera();
-		UpdateDistortion();
-		return;
-	}
+	//このフレームの戦闘で起きたことを演出に使う//ジャスト回避の歪みをこのフレームから始めるので歪みの更新より前
+	//ヒットストップ中はキャラクターが止まっていてイベントは出ないので毎フレーム受け取る
+	HandleBattleEvents();
+	//歪みの中心はプレイヤーの画面上の位置なのでカメラが確定してから決める
+	//ヒットストップ中も揺らぎは動かす
+	UpdateDistortion();
+
+	//ヒットストップ中は進行も止める
+	if (!isAdvanced) return;
 
 	m_frameCount++;
 
-	//キャラクターの更新から攻撃判定とカメラまで
-	m_game.Update();
-	//敵が消える前に受け取る
-	HandleBattleEvents();
-
-	//カメラが確定してからEffekseerに同期して更新する
-	EffectManager::Instns().Update();
-	//歪みの中心はプレイヤーの画面上の位置でカメラが確定してから決める
-	UpdateDistortion();
-
-	//このフレームの処理が全部終わってから消す
-	m_game.RemoveVanishedEnemies();
 	//消えた敵を外した後だから残っている敵の数で次のウェーブを決められる
 	UpdateSpawn();
 	//勝ち負けの判定
@@ -108,21 +94,8 @@ void GameScene::Draw()
 	//ここからエフェクトまでを歪みの対象にする
 	m_distortion.BeginCapture();
 
-	//ステージは背景として扱うので、紫を重ねる前に描く
-	m_game.DrawStage();
-
-	//ウィッチタイム中は背景を紫にする(キャラクターより先に描いて、キャラクターには色を乗せない)
-	if (Timer::Instance().IsEnemySlow())
-	{
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, kWitchTimeOverlayAlpha);
-		DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(125, 0, 185), true);
-		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-	}
-
-	//プレイヤー、敵、飛び道具
-	m_game.DrawObjects();
-	//エフェクトの描画
-	EffectManager::Instns().Draw();
+	//ステージ・ウィッチタイムの色・キャラクター・エフェクト
+	m_game.Draw();
 
 	//歪ませて画面に出す
 	m_distortion.EndCapture();
@@ -180,7 +153,7 @@ void GameScene::UpdateDistortion()
 {
 	ScreenDistortion::Param param = m_distortion.GetParam();
 
-	//ウィッチタイム中は揺らぎを強くして、終わったら弱くする
+	//ウィッチタイム中は揺らぎを強くして終わったら弱くする
 	const float waveStep = kWaveStrength / kWaveFadeFrame;
 	if (Timer::Instance().IsEnemySlow())
 	{

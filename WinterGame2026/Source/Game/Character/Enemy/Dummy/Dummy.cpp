@@ -2,6 +2,7 @@
 #include "../../../../Common/Model.h"
 #include "../State/EnemyStateIdle.h"
 #include <cmath>
+#include <algorithm>
 #include "../../../../Math/MathUtil.h"
 
 namespace
@@ -37,6 +38,11 @@ namespace
 
 	//回転の補完
 	constexpr float kRotateRate = 0.15f;
+
+	//吹っ飛んで止まってから消えきるまでのフレーム数
+	constexpr float kFadeOutFrame = 30.0f;
+	//戻ってきてから見えきるまでのフレーム数
+	constexpr float kFadeInFrame = 30.0f;
 }
 
 Dummy::Dummy(Mode mode) :
@@ -92,11 +98,21 @@ void Dummy::Update()
 {
 	//死なないので死亡の確認はしない
 
+	//出す位置はInitの後にSpawnEnemyで決まるので、最初の更新で覚える
+	if (!m_hasHomePos)
+	{
+		m_homePos = m_pos;
+		m_hasHomePos = true;
+	}
+
 	//ゲーム全体の時間倍率に敵専用の倍率を掛ける
 	float timeScale = GetTimeScale();
 
+	//消えている間は倒れた姿のまま止めておく
+	const bool isFrozen = UpdateRespawn(timeScale);
+
 	//ステートの更新
-	UpdateState();
+	if (!isFrozen) UpdateState();
 	//アニメーションの更新
 	if (!m_isAnimPause)
 	{
@@ -134,6 +150,85 @@ void Dummy::Damage(int damage)
 	{
 		m_hp = m_maxhp;
 	}
+}
+
+HitResult Dummy::OnHit(const AttackData& attackData, int damage)
+{
+	HitResult result = Enemy::OnHit(attackData, damage);
+	//叩き落とされた、または後ろへ下がるほど強く飛ばされた
+	const bool isKnockdown = (result == HitResult::Knockdown);
+	const bool isKnockback = (result == HitResult::Flinch && attackData.GetKnockback() > 0.0f);
+	if (isKnockdown || isKnockback)
+	{
+		m_isBlownAway = true;
+	}
+	return result;
+}
+
+bool Dummy::IsBlownAwayFinished() const
+{
+	//当たったフレームはのけぞり・倒れるステートが予約されているだけで、まだ切り替わっていない
+	if (m_pNextState) return false;
+	//叩き落とされたときは、地面に倒れきってアニメーションが止まったら
+	if (GetStateKind() == StateBase::StateKind::Down) return m_isAnimPause;
+	//後ろへ飛ばされたときは、のけぞりが終わったら
+	return GetStateKind() != StateBase::StateKind::Damage;
+}
+
+bool Dummy::UpdateRespawn(float timeScale)
+{
+	switch (m_respawnPhase)
+	{
+	case RespawnPhase::None:
+		if (m_isBlownAway && IsBlownAwayFinished())
+		{
+			//消えている間に追い打ちされないようにする
+			SetInvincible(true);
+			StopMove();
+			m_respawnPhase = RespawnPhase::FadeOut;
+			m_respawnFrame = 0.0f;
+			return true;
+		}
+		return false;
+
+	case RespawnPhase::FadeOut:
+		m_respawnFrame += timeScale;
+		m_opacity = (std::max)(1.0f - m_respawnFrame / kFadeOutFrame, 0.0f);
+		if (m_respawnFrame >= kFadeOutFrame)
+		{
+			Respawn();
+		}
+		return true;
+
+	case RespawnPhase::FadeIn:
+		m_respawnFrame += timeScale;
+		m_opacity = (std::min)(m_respawnFrame / kFadeInFrame, 1.0f);
+		if (m_respawnFrame >= kFadeInFrame)
+		{
+			m_opacity = 1.0f;
+			SetInvincible(false);
+			m_respawnPhase = RespawnPhase::None;
+		}
+		//出てくる間は待機のまま動かす
+		return false;
+	}
+	return false;
+}
+
+void Dummy::Respawn()
+{
+	SetPosition(m_homePos);
+	StopMove();
+	//戻ってきたらプレイヤーの方を向いて立っている
+	FaceTarget();
+	m_angle = atan2f(m_forward.x, m_forward.z) + DX_PI_F;
+	//倒れている途中のステートから待機に戻す(倒れたままのアニメーションの停止はステートを抜けるときに解除される)
+	ChangeState(std::make_unique<EnemyStateIdle>(*this));
+
+	m_isBlownAway = false;
+	m_opacity = 0.0f;
+	m_respawnPhase = RespawnPhase::FadeIn;
+	m_respawnFrame = 0.0f;
 }
 
 bool Dummy::CanStartAttack(float distance) const

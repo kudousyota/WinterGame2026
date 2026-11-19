@@ -14,8 +14,6 @@
 #include "../System/DebugTool.h"
 
 //本編とチュートリアルで共通のゲームの中身をまとめて持つ
-//ステージ・プレイヤー・カメラ・敵・当たり判定・飛び道具・戦闘・ロックオン・ゲート
-//どう進めるかと見た目の演出は持たない//それはシーンが決める
 class GameManager
 {
 public:
@@ -26,23 +24,18 @@ public:
 	GameManager& operator=(const GameManager&) = delete;
 
 	//ステージ・プレイヤー・カメラを作る
-	//maxGateNumはゲートの最大数//ゲートがないなら0
-	void Init(int maxGateNum);
+	//stageTypeは読み込むステージ//maxGateNumはゲートの最大数。ゲートがないなら0
+	void Init(Stage::Type stageType, int maxGateNum);
 
-	//キャラクターの更新から攻撃判定・カメラまで1フレーム分進める
-	//ヒットストップ中は呼ばずにUpdateCameraだけ呼ぶ
-	void Update();
-	//カメラだけ進める//ヒットストップ中もシェイクは動かす
-	void UpdateCamera();
+	//1フレーム分進める
+	//タイマーキャラクター攻撃判定カメラエフェクト消えた敵の片付け
+	//ヒットストップで止まっていたらfalseゲームが進んだらtrueを返す
+	bool Update();
 
 	//このフレームの戦闘で起きたことを受け取る//受け取ったら中身は空になる
 	//カメラの揺れはもう出してあるので、シーンは歪みなどの演出に使う
-	//キャラクターのポインタはRemoveVanishedEnemiesより前だけ使える
+	//消えた敵はUpdateの中で片付け済みなので、シーンではattacker・targetのポインタを使わない
 	std::vector<BattleEvent> TakeBattleEvents();
-
-	//死亡演出が終わって消えた敵を、当たり判定から外してから消す
-	//シーンが戦闘のイベントを使い終わってから呼ぶ
-	void RemoveVanishedEnemies();
 
 	//名前から敵を作って出す
 	//groundPosは地面の位置//高さが違う床に合わせ、浮いている敵はその分上に置く
@@ -51,10 +44,8 @@ public:
 	//戦闘中だけゲートを閉じる
 	void UpdateGate(bool shouldClose, const std::vector<SpawnTable::GateInfo>& gates);
 
-	//ステージを描く//ウィッチタイムの色を重ねる前に描くので分けている
-	void DrawStage();
-	//プレイヤー・敵・飛び道具を描く
-	void DrawObjects();
+	//ステージ→ウィッチタイムの色→プレイヤー・敵・飛び道具→エフェクトの順に描く
+	void Draw();
 #ifdef _DEBUG
 	//当たり判定やロックオン範囲などを、DebugToolの設定に合わせて描く
 	void DrawDebug(const DebugTool& debug)const;
@@ -68,8 +59,18 @@ public:
 	int GetEnemyCount()const;
 	//全部の敵が消えたか
 	bool AreAllEnemiesVanished()const;
+	//ロックオンしているか
+	bool IsLockedOn()const;
 
 private:
+	//キャラクターの更新から攻撃判定・カメラまで進める
+	void UpdateWorld();
+	//カメラだけ進める//ヒットストップ中もシェイクは動かす
+	void UpdateCamera();
+	//死亡演出が終わって消えた敵を、当たり判定から外してから消す
+	//このフレームの処理が全部終わってから呼ぶ
+	void RemoveVanishedEnemies();
+
 	//敵の一覧//その場で使うだけの処理用。フレームをまたいで持たない
 	std::vector<Enemy*> GetEnemyList()const;
 	//敵の一覧//ロックオンなど、weak_ptrで敵を覚えておく処理用

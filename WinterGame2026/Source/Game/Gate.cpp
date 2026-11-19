@@ -3,6 +3,7 @@
 #include <algorithm>
 #include "../System/StageCollision.h"
 #include "../Effect/EffectManager.h"
+#include "TutorialGuide.h"
 
 namespace
 {
@@ -28,6 +29,7 @@ void Gate::Init(int maxNum)
 		m_handles.push_back(handle);
 	}
 }
+
 
 void Gate::Close(const std::vector<SpawnTable::GateInfo>& gates)
 {

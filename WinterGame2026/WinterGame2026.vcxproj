@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Scene\SelectScene.cpp" />
     <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateCharge.cpp" />
     <ClCompile Include="Source\Game\Gate.cpp" />
     <ClCompile Include="Source\Game\Character\Enemy\EnemySpawner.cpp" />
@@ -211,8 +212,11 @@
     <ClCompile Include="Source\System\Timer.cpp" />
     <ClCompile Include="Source\DataLoader\SpawnTable.cpp" />
     <ClCompile Include="Source\Effect\ScreenDistortion.cpp" />
+    <ClCompile Include="Source\Scene\TutorialScene.cpp" />
+    <ClCompile Include="Source\Game\TutorialGuide.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Scene\SelectScene.h" />
     <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateCharge.h" />
     <ClInclude Include="Source\Game\Gate.h" />
     <ClInclude Include="Source\Game\Character\Enemy\EnemySpawner.h" />
@@ -285,6 +289,8 @@
     <ClInclude Include="Source\System\Timer.h" />
     <ClInclude Include="Source\DataLoader\SpawnTable.h" />
     <ClInclude Include="Source\Effect\ScreenDistortion.h" />
+    <ClInclude Include="Source\Scene\TutorialScene.h" />
+    <ClInclude Include="Source\Game\TutorialGuide.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\Shader\DistortionPS.hlsl">

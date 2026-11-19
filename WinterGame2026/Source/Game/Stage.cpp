@@ -3,12 +3,35 @@
 
 namespace
 {
-	//ステージのモデル(描画用)
-	const char* const kModelPath = "Data/Model/TempleStage.mv1";
-	//ステージの当たり判定用モデル(描画しない)
-	const char* const kCollModelPath = "Data/Model/TempleStage_Coll.mv1";
-	//遠景のモデル(浮島・雲海・空の光輪など。遠くまであるので当たり判定には入れない)
-	const char* const kBgModelPath = "Data/Model/GothicStage_BG.mv1";
+	//ステージごとに読み込むファイル
+	struct StageFiles
+	{
+		//描画用のモデル
+		const char* modelPath;
+		//当たり判定用のモデル(描画しない)
+		const char* collModelPath;
+		//遠景のモデル(浮島・雲海・空の光輪など。遠くまであるので当たり判定には入れない)//ないならnullptr
+		const char* bgModelPath;
+		//当たり判定用に空間を分割する数(X,Y,Z)
+		//細かくするほど判定するポリゴンを絞り込めるが、その分メモリを使う
+		int collDivX;
+		int collDivY;
+		int collDivZ;
+	};
+
+	StageFiles GetStageFiles(Stage::Type type)
+	{
+		switch (type)
+		{
+		case Stage::Type::Tutorial:
+			//部屋の中だけなので遠景はいらない//部屋は幅約19m・奥行約30mと小さいので分割も少なくする
+			return { "Data/Model/TutorialStage.mv1", "Data/Model/TutorialStage_Coll.mv1", nullptr, 4, 2, 4 };
+		case Stage::Type::Temple:
+		default:
+			//ステージは奥(Z)に長い(幅約50m・奥行約190m)ので、Zを細かく分ける
+			return { "Data/Model/TempleStage.mv1", "Data/Model/TempleStage_Coll.mv1", "Data/Model/GothicStage_BG.mv1", 8, 4, 64 };
+		}
+	}
 
 	//遠景を描くときだけ使う、映る一番遠い距離
 	//遠景は400m先まであるので、通常のカメラの距離では切れてしまう
@@ -21,13 +44,6 @@ namespace
 	constexpr unsigned char kSkyBottom[3] = { 255, 120, 60 };
 	//地平線の色にする高さ(画面の上からの割合)
 	constexpr float kSkyHorizonRate = 0.55f;
-
-	//当たり判定用に空間を分割する数(X,Y,Z)
-	//細かくするほど判定するポリゴンを絞り込めるが、その分メモリを使う
-	//ステージは奥(Z)に長い(幅約50m・奥行約190m)ので、Zを細かく分ける
-	constexpr int kCollDivX = 8;
-	constexpr int kCollDivY = 4;
-	constexpr int kCollDivZ = 64;
 }
 
 Stage::Stage()
@@ -42,10 +58,12 @@ Stage::~Stage()
 	if (m_bgHandle != -1) MV1DeleteModel(m_bgHandle);
 }
 
-void Stage::Init()
+void Stage::Init(Type type)
 {
+	const StageFiles files = GetStageFiles(type);
+
 	//ステージは1つしか使わないので、複製せずに直接読み込む
-	m_modelHandle = MV1LoadModel(kModelPath);
+	m_modelHandle = MV1LoadModel(files.modelPath);
 
 	//環境光の色をマテリアルの色に合わせる
 	//Blenderから書き出したモデルは環境光の色が黒になっていて、ライトが当たらない面が真っ黒になる
@@ -59,11 +77,12 @@ void Stage::Init()
 	//当たり判定の情報は、当たり判定用のモデルにだけ作る
 	//これを呼んでおかないとMV1CollCheck系の関数が当たらない
 	//ステージは動かないので、最初に1回だけ作ればいい
-	m_collHandle = MV1LoadModel(kCollModelPath);
-	MV1SetupCollInfo(m_collHandle, -1, kCollDivX, kCollDivY, kCollDivZ);
+	m_collHandle = MV1LoadModel(files.collModelPath);
+	MV1SetupCollInfo(m_collHandle, -1, files.collDivX, files.collDivY, files.collDivZ);
 
 	//遠景は見た目だけなので当たり判定は作らない
-	m_bgHandle = MV1LoadModel(kBgModelPath);
+	if (files.bgModelPath == nullptr) return;
+	m_bgHandle = MV1LoadModel(files.bgModelPath);
 	if (m_bgHandle != -1)
 	{
 		int bgMaterialNum = MV1GetMaterialNum(m_bgHandle);

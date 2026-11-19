@@ -5,10 +5,17 @@
 #include "Character/Enemy/Dummy/Dummy.h"
 #include "../System/StageCollision.h"
 #include "../System/Timer.h"
+#include "../Effect/EffectManager.h"
+#include "../Game.h"
+#include "DxLib.h"
 #include <cassert>
 
 namespace
 {
+	//ヒットストップとカメラシェイクの値は攻撃ごとにAttackHit.csvに書く
+	//ウィッチタイム中に画面に重ねる色の濃さ
+	constexpr int kWitchTimeOverlayAlpha = 128;
+
 	//CSVの名前から敵を作る
 	std::shared_ptr<Enemy> CreateEnemy(const std::string& name)
 	{
@@ -29,11 +36,11 @@ GameManager::GameManager() :
 {
 }
 
-void GameManager::Init(int maxGateNum)
+void GameManager::Init(Stage::Type stageType, int maxGateNum)
 {
 	//ステージの生成
 	m_pStage = std::make_shared<Stage>();
-	m_pStage->Init();
+	m_pStage->Init(stageType);
 
 	//先にプレイヤーを生成
 	m_pPlayer = std::make_shared<Player>();
@@ -53,7 +60,31 @@ void GameManager::Init(int maxGateNum)
 	m_pCamera->SetStageHandle(m_pStage->GetCollisionHandle());
 }
 
-void GameManager::Update()
+bool GameManager::Update()
+{
+	//タイマーの更新
+	//一時停止とスロー中に進めると先行入力やヒットストップの時間がずれるのでゲームが進むときだけ更新する
+	Timer::Instance().Update();
+
+	//ヒットストップ中はキャラクターを止めてカメラシェイクだけ動かす
+	if (Timer::Instance().IsHitStop())
+	{
+		UpdateCamera();
+		return false;
+	}
+
+	//キャラクターの更新から攻撃判定とカメラまで
+	UpdateWorld();
+
+	//カメラが確定してからEffekseerに同期して更新する
+	EffectManager::Instns().Update();
+
+	//このフレームの処理が全部終わってから消す
+	RemoveVanishedEnemies();
+	return true;
+}
+
+void GameManager::UpdateWorld()
 {
 	m_collision.BeginFrame();
 	//カメラ基準で移動させるためにカメラの向きを渡す
@@ -160,17 +191,26 @@ void GameManager::UpdateGate(bool shouldClose, const std::vector<SpawnTable::Gat
 	m_gate.Update(shouldClose, gates);
 }
 
-void GameManager::DrawStage()
+void GameManager::Draw()
 {
+	//ステージは背景として扱うので、紫を重ねる前に描く
 	m_pStage->Draw();
-}
 
-void GameManager::DrawObjects()
-{
+	//ウィッチタイム中は背景を紫にする(キャラクターより先に描いて、キャラクターには色を乗せない)
+	if (Timer::Instance().IsEnemySlow())
+	{
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, kWitchTimeOverlayAlpha);
+		DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(125, 0, 185), true);
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	}
+
+	//プレイヤー、敵、飛び道具
 	m_pPlayer->Draw();
 	m_enemyManager.Draw();
-	//飛び道具の描画
 	m_projectiles.Draw();
+
+	//エフェクトの描画
+	EffectManager::Instns().Draw();
 }
 
 #ifdef _DEBUG
@@ -224,6 +264,12 @@ bool GameManager::AreAllEnemiesVanished() const
 		if (!enemy->IsVanished()) return false;
 	}
 	return true;
+}
+
+bool GameManager::IsLockedOn() const
+{
+	//ロックオンしている敵がいればロックオン中
+	return m_lockOn.GetTarget() != nullptr;
 }
 
 std::vector<Enemy*> GameManager::GetEnemyList() const

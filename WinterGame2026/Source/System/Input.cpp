@@ -29,7 +29,9 @@ void Input::InitializeInputTable()
 {
 	m_inputTable["ok"] = { { PeripheralType::keyboard,KEY_INPUT_RETURN},
 					  { PeripheralType::pad1,PAD_INPUT_A } };	// PADのAボタン
-	m_inputTable["pause"] = { { PeripheralType::keyboard,KEY_INPUT_P},
+	m_inputTable["cancel"] = { { PeripheralType::keyboard,KEY_INPUT_BACK},
+						{ PeripheralType::pad1,PAD_INPUT_2 } };	// PADのBボタン
+	m_inputTable["pause"] ={ { PeripheralType::keyboard,KEY_INPUT_P},
 					   { PeripheralType::pad1,PAD_INPUT_START } };	// PADのSTARTボタン
 
 	m_inputTable["Punch"] = { { PeripheralType::keyboard,KEY_INPUT_Z},
@@ -52,7 +54,7 @@ void Input::InitializeInputTable()
 						  { PeripheralType::pad1,PAD_INPUT_RIGHT } };
 	m_inputTable["target"] = { { PeripheralType::keyboard,KEY_INPUT_SPACE},
 							{ PeripheralType::pad1,PAD_INPUT_5 } };	// PADのLBボタン
-	//ロックオン対象の切り替え(右スティックをはじいた分はUpdateで足す)
+	//ロックオン対象の切り替え
 	m_inputTable["targetRight"] = { {PeripheralType::keyboard,KEY_INPUT_E} };
 	m_inputTable["targetLeft"] = { {PeripheralType::keyboard,KEY_INPUT_Q} };
 	//カメラを背中側へ戻す
