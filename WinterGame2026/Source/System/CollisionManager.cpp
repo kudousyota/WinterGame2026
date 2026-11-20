@@ -7,31 +7,16 @@
 #include "Geometry.h"
 #include "../Game/Gate.h"
 
-//当たり判定対象のキャラクターを登録
-void CollisionManager::Register(Character* character)
-{
-	m_pCharacters.push_back(character);
-}
-//登録済みのキャラクターを削除
-void CollisionManager::Unregister(Character* character)
-{
-	//登録済みキャラクターの中から対象を探す
-	auto iterator = std::find(m_pCharacters.begin(), m_pCharacters.end(), character);
-	//見つかったら登録リストから削除
-	if (iterator != m_pCharacters.end())
-	{
-		m_pCharacters.erase(iterator);
-	}
-}
-
 //フレームの最初に呼ぶ
-void CollisionManager::BeginFrame()
+void CollisionManager::BeginFrame(const std::vector<Character*>& characters)
 {
+	//このフレームで判定するキャラクターに入れかえる
+	m_pCharacters = characters;
 	//前のフレームに判定した攻撃の形を消す
 	m_debugAttackShapes.clear();
 }
 
-//登録済みキャラクター同士の重なりをまとめて解消する
+//キャラクター同士の重なりをまとめて解消する
 void CollisionManager::ResolveAll()
 {
 	//同じ組み合わせを2回判定しないように、自分より後ろのキャラクターとだけ判定する
@@ -194,9 +179,9 @@ std::vector<CollisionManager::AttackHit> CollisionManager::CheckAttackRing(const
 }
 
 //キャラクターの体とジャスト回避の判定を描画する
-void CollisionManager::DrawDebugBody()const
+void CollisionManager::DrawDebugBody(const std::vector<Character*>& characters)const
 {
-	for (auto character : m_pCharacters)
+	for (auto character : characters)
 	{
 		//当たり判定
 		Geometry::Capsule capsule = character->GetCollisionCapsule();

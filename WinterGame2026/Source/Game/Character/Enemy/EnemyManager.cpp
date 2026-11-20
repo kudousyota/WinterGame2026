@@ -45,6 +45,13 @@ void EnemyManager::RemoveVanished()
 		});
 }
 
+void EnemyManager::Clear()
+{
+	m_enemies.clear();
+	//攻撃の途中で消えた敵は枠を返せないので、ここで空にしておく
+	m_attackerCount = 0;
+}
+
 bool EnemyManager::TryTakeAttackToken()
 {
 	//枠が埋まっていたら攻撃できない

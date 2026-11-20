@@ -34,12 +34,15 @@ public:
 
 	//このフレームの戦闘で起きたことを受け取る//受け取ったら中身は空になる
 	//カメラの揺れはもう出してあるので、シーンは歪みなどの演出に使う
-	//消えた敵はUpdateの中で片付け済みなので、シーンではattacker・targetのポインタを使わない
+	//消えた敵はUpdateの中で片付け済みなので、シーンではattacker、targetのポインタを使わない
 	std::vector<BattleEvent> TakeBattleEvents();
 
 	//名前から敵を作って出す
 	//groundPosは地面の位置//高さが違う床に合わせ、浮いている敵はその分上に置く
 	void SpawnEnemy(const std::string& name, const Vector3& groundPos);
+	//全部の敵をすぐに消す//死亡演出は出さない
+	//チュートリアルでステップが変わったときに使う
+	void ClearEnemies();
 
 	//戦闘中だけゲートを閉じる
 	void UpdateGate(bool shouldClose, const std::vector<SpawnTable::GateInfo>& gates);
@@ -67,7 +70,7 @@ private:
 	void UpdateWorld();
 	//カメラだけ進める//ヒットストップ中もシェイクは動かす
 	void UpdateCamera();
-	//死亡演出が終わって消えた敵を、当たり判定から外してから消す
+	//死亡演出が終わって消えた敵を消す
 	//このフレームの処理が全部終わってから呼ぶ
 	void RemoveVanishedEnemies();
 

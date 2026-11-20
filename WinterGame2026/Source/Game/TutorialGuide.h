@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include"../System/BattleSystem.h"
+#include <vector>
 
 //チュートリアルの達成条件の種類
 enum class TutorialGoal
@@ -6,7 +8,32 @@ enum class TutorialGoal
 	//歩く
 	Move,
 	//ロックオンする
-	LockOn
+	LockOn,
+	//決めた攻撃を当てた回数
+	HitAttack,
+	//コンボの何段目まで当てたか
+	Combo,
+	//叩き落とし
+	Knockdown,
+	//ジャスト回避
+	JustDodge
+};
+
+//ステップで数える攻撃
+struct TutorialAttack
+{
+	AttackType type;
+	//多段ヒットの何段目が当たったらできたことにするか
+	int hitIndex = 1;
+};
+
+//ステップで出す敵
+struct TutorialEnemy
+{
+	//SpawnEnemyに渡す名前
+	const char* name;
+	//地面の位置
+	Vector3 groundPos;
 };
 
 //チュートリアルの1ステップ分のデータ
@@ -18,6 +45,10 @@ struct TutorialStep
 	TutorialGoal goal;
 	//何回で達成か
 	int requiredCount;
+	//数える攻撃//Comboのときはコンボの順番に並べる
+	std::vector<TutorialAttack> attacks;
+	//このステップで出す敵//ステップが変わると前の敵は消えて出し直す
+	std::vector<TutorialEnemy> enemies;
 };
 
 //シーンから渡す、このフレームに起きたこと
@@ -27,10 +58,12 @@ struct TutorialInfo
 	bool isMoving = false;
 	//ロックオンしたか
 	bool isLockedOn = false;
+	//このフレームに起きた戦闘イベント
+	std::vector<BattleEvent> events;
+	
 };
 
-//チュートリアルの進行役
-//今どのステップか・何回できたかを数えて、達成したら次のステップへ進める
+//今どのステップか何回できたかを数えて達成したら次のステップへ進める
 class TutorialGuide
 {
 public:

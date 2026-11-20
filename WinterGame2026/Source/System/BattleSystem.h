@@ -32,6 +32,9 @@ struct BattleEvent
 	int shakeFrame = 0;
 	//攻撃された側がどうなったか//Hitのときだけ使う
 	HitResult result = HitResult::Ignored;
+	//多段ヒットの何段目か//Hitのときだけ使う//飛び道具は1
+	//イベントは値を順番に並べて作っているので、増やすときは一番下に足す
+	int hitIndex = 1;
 };
 
 class BattleSystem

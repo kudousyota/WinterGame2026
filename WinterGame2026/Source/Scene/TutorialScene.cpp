@@ -8,27 +8,6 @@
 
 namespace
 {
-	//置いておくダミー
-	//TutorialGuideができたらステップごとに出し直す形にしてそちらへ移す
-	struct DummyPlacement
-	{
-		//SpawnEnemyに渡す名前
-		const char* name;
-		//地面の位置
-		Vector3 groundPos;
-	};
-	//吹っ飛ばされて消えたダミーは、ここに書いた場所に戻ってくる
-	//攻撃してくるダミーは攻撃範囲に入らないと攻撃しないので間を空けておく
-	const DummyPlacement kDummies[] =
-	{
-		//棒立ち//攻撃の練習用
-		{ "Dummy", Vector3(0.0f, 0.0f, 600.0f) },
-		//攻撃してくる//回避とジャスト回避の練習用
-		{ "DummyAttack", Vector3(-500.0f, 0.0f, 1000.0f) },
-		//浮いている//空中攻撃・叩き落としの練習用
-		{ "DummyFloat", Vector3(500.0f, 0.0f, 1000.0f) },
-	};
-
 	//画面上のTUTORIALの表示
 	constexpr int kLabelFontSize = 32;
 	constexpr int kLabelPosY = 40;
@@ -62,14 +41,11 @@ void TutorialScene::Init()
 	//チュートリアルの部屋、プレイヤー、カメラを用意する//部屋から出られないのでゲートはいらない
 	m_game.Init(Stage::Type::Tutorial, 0);
 
-	//敵はプレイヤーを狙うのでプレイヤーの後に出す
-	for (const DummyPlacement& dummy : kDummies)
-	{
-		m_game.SpawnEnemy(dummy.name, dummy.groundPos);
-	}
-
 	//最初のステップから始める
 	m_guide.Init(0);
+
+	//最初のステップの敵を出す//敵はプレイヤーを狙うのでプレイヤーの後に出す
+	UpdateStepEnemies();
 }
 
 void TutorialScene::Update()
@@ -83,19 +59,35 @@ void TutorialScene::Update()
 	//タイマーキャラクター攻撃判定カメラエフェクト消えた敵の片付けまで
 	const bool isAdvanced = m_game.Update();
 
-	//戦闘のイベントはまだ使わないが溜まり続けないように受け取っておく
-	//パンチやキックのステップを足したら、TutorialInfoに入れて達成の判定に使う
-	m_game.TakeBattleEvents();
+	 std::vector<BattleEvent> events = m_game.TakeBattleEvents();
+	 if (!isAdvanced)return;
+	 m_frameCount++;
+	 //このフレームに起きたことをまとめてチュートリアルの進行役に渡す
+	 TutorialInfo info;
+	 info.isMoving = m_game.GetPlayer().GetMoveInput().SqMagnitude() > 0.0f;
+	 info.isLockedOn = m_game.IsLockedOn();
+	 info.events = events;
+	 m_guide.Update(info);
 
-	//ヒットストップ中は止まっているので数えない
-	if (!isAdvanced) return;
-	m_frameCount++;
+	 //次のステップへ進んでいたら敵を出し直す
+	 UpdateStepEnemies();
+}
 
-	//このフレームに起きたことをまとめてチュートリアルの進行役に渡す
-	TutorialInfo info;
-	info.isMoving = m_game.GetPlayer().GetMoveInput().SqMagnitude() > 0.0f;
-	info.isLockedOn = m_game.IsLockedOn();
-	m_guide.Update(info);
+void TutorialScene::UpdateStepEnemies()
+{
+	//全部終わったら敵はそのまま残しておく
+	const TutorialStep* step = m_guide.GetCurrentStep();
+	if (step == nullptr) return;
+	//同じステップの敵はもう出してある
+	if (step == m_spawnedStep) return;
+
+	//前のステップの敵を消してから、このステップの敵を出す
+	m_game.ClearEnemies();
+	for (const TutorialEnemy& enemy : step->enemies)
+	{
+		m_game.SpawnEnemy(enemy.name, enemy.groundPos);
+	}
+	m_spawnedStep = step;
 }
 
 void TutorialScene::Draw()

@@ -124,6 +124,7 @@ void PlayerStateAttack::Enter()
 	m_player.GetAnim().ChangeAnim(m_info.animName, false, animScale);
 	//攻撃ごとに新しい番号をもらう
 	m_attackId = m_player.IssueAttackId();
+	m_hitIndex = 1;
 }
 
 void PlayerStateAttack::Update()
@@ -225,7 +226,9 @@ void PlayerStateAttack::Update()
 		m_player.SetAnimPause(false);
 		m_player.SetGravityScale(1.0f);
 		//落ちている間に当たった相手にも、着地の一撃をもう一度当てる
+		//着地の一撃は2段目として数える
 		m_attackId = m_player.IssueAttackId();
+		m_hitIndex++;
 	}
 
 	//コンボの締めは、CSVで決めたフレームでウィケッドウィーブを呼び出す
@@ -276,6 +279,7 @@ void PlayerStateAttack::Update()
 		(m_frame - m_info.hitStartFrame) % m_info.hitInterval == 0)
 	{
 		m_attackId = m_player.IssueAttackId();
+		m_hitIndex++;
 	}
 
 	if (IsHitActive())
@@ -293,6 +297,7 @@ void PlayerStateAttack::RequestHit()
 	request.data.SetCanKnockdown(m_info.canKnockDown);
 	request.data.SetCarry(m_info.carry);
 	request.attackId = m_attackId;
+	request.hitIndex = m_hitIndex;
 	request.forwardOffset = Param().hitForwardOffset;
 	request.height = Param().hitHeight;
 	m_player.RequestAttack(request);
@@ -344,8 +349,8 @@ void PlayerStateAttack::Exit()
 std::string PlayerStateAttack::GetDebugInfo() const
 {
 	char buf[160];
-	sprintf_s(buf, "%s  Frame:%d/%d  Hit:%s  Id:%d  Move:%.0f",
-		m_info.animName.c_str(), m_frame, m_info.totalFrame, IsHitActive() ? "ON" : "OFF", m_attackId, m_moveDistance);
+	sprintf_s(buf, "%s  Frame:%d/%d  Hit:%s  Id:%d  HitIndex:%d  Move:%.0f",
+		m_info.animName.c_str(), m_frame, m_info.totalFrame, IsHitActive() ? "ON" : "OFF", m_attackId, m_hitIndex, m_moveDistance);
 	return buf;
 }
 #endif

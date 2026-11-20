@@ -46,9 +46,6 @@ void GameManager::Init(Stage::Type stageType, int maxGateNum)
 	m_pPlayer = std::make_shared<Player>();
 	m_pPlayer->Init();
 
-	//当たり判定に登録//登録と解除はGameManagerだけが行う
-	m_collision.Register(m_pPlayer.get());
-
 	//ゲートの初期化
 	m_gate.Init(maxGateNum);
 
@@ -86,7 +83,8 @@ bool GameManager::Update()
 
 void GameManager::UpdateWorld()
 {
-	m_collision.BeginFrame();
+	//当たり判定はこのフレームにいるキャラクターで行う//消えた敵はもう入っていない
+	m_collision.BeginFrame(GetAllCharacters());
 	//カメラ基準で移動させるためにカメラの向きを渡す
 	//ロックオンの方向もカメラ基準なので、ロックオンより先に渡す
 	m_pPlayer->SetCameraAxis(m_pCamera->GetForward(), m_pCamera->GetRight());
@@ -148,15 +146,14 @@ std::vector<BattleEvent> GameManager::TakeBattleEvents()
 
 void GameManager::RemoveVanishedEnemies()
 {
-	//当たり判定は生ポインタで持っているので、消す前に必ず外す
-	for (Enemy* enemy : GetEnemyList())
-	{
-		if (enemy->IsVanished())
-		{
-			m_collision.Unregister(enemy);
-		}
-	}
+	//当たり判定は毎フレーム一覧をもらうので、ここで外す必要はない
 	m_enemyManager.RemoveVanished();
+}
+
+void GameManager::ClearEnemies()
+{
+	//当たり判定は毎フレーム一覧をもらい、ロックオンはweak_ptrで覚えているので、消すだけでよい
+	m_enemyManager.Clear();
 }
 
 void GameManager::SpawnEnemy(const std::string& name, const Vector3& groundPos)
@@ -182,7 +179,7 @@ void GameManager::SpawnEnemy(const std::string& name, const Vector3& groundPos)
 	//攻撃の枠をもらうためにまとめて持っている人を教えておく
 	enemy->SetManager(&m_enemyManager);
 
-	m_collision.Register(enemy.get());
+	//当たり判定には次のフレームのBeginFrameから入る
 	m_enemyManager.Add(enemy);
 }
 
@@ -218,7 +215,7 @@ void GameManager::DrawDebug(const DebugTool& debug) const
 {
 	using Show = DebugTool::Show;
 	//キャラクターの当たり判定のカプセルを表示
-	if (debug.IsShow(Show::Collision)) m_collision.DrawDebugBody();
+	if (debug.IsShow(Show::Collision)) m_collision.DrawDebugBody(GetAllCharacters());
 	//攻撃判定を表示//このフレームの攻撃とブレス
 	if (debug.IsShow(Show::AttackHit))
 	{

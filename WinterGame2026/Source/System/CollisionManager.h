@@ -4,8 +4,9 @@
 class Character;
 class AttackData;
 
-//登録されたキャラクター同士の当たり判定を管理する
-//GameSceneが所有し、全員の更新が終わった後にまとめて判定する
+//キャラクター同士の当たり判定を管理する
+//GameManagerが所有し、全員の更新が終わった後にまとめて判定する
+//キャラクターは登録せず、BeginFrameで毎フレーム一覧をもらう(消えた敵を外し忘れて触らないようにする)
 class CollisionManager
 {
 public:
@@ -18,13 +19,11 @@ public:
 		bool isJustDodge = false;
 	};
 
-	void Register(Character* character);
-	void Unregister(Character* character);
+	//フレームの最初に呼ぶ
+	//このフレームで判定するキャラクターをもらい、デバッグ表示用の記録を消す
+	void BeginFrame(const std::vector<Character*>& characters);
 
-	//フレームの最初に呼ぶ(デバッグ表示用の記録を消す)
-	void BeginFrame();
-
-	//登録済みキャラクター同士の重なりをまとめて解消する
+	//キャラクター同士の重なりをまとめて解消する
 	void ResolveAll();
 
 	//攻撃用の球判定
@@ -38,7 +37,8 @@ public:
 	std::vector<AttackHit> CheckAttackRing(const AttackData& attackdata, const Vector3& center, float innerRadius, float outerRadius, float height);
 
 	//キャラクターの体とジャスト回避の判定を描画する(デバッグ用)
-	void DrawDebugBody()const;
+	//Updateの後に敵が消えていることがあるので、描画のときに作った一覧をもらう
+	void DrawDebugBody(const std::vector<Character*>& characters)const;
 	//このフレームに判定した攻撃を描画する(デバッグ用)
 	void DrawDebugAttack()const;
 
@@ -49,7 +49,8 @@ private:
 	void ResolveCharacterCollision(Character* characterA, Character* characterB);
 
 private:
-	//判定対象のキャラクター(所有はしない)
+	//このフレームで判定するキャラクター(所有はしない)
+	//BeginFrameで毎回入れかえる//フレームの外では消えた敵が残っていることがあるので使わない
 	std::vector<Character*> m_pCharacters;
 
 	//デバッグ表示用に、このフレームに判定した攻撃の形を覚えておく

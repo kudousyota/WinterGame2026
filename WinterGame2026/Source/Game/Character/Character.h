@@ -19,6 +19,8 @@ struct AttackRequest
 	AttackData data;
 	//攻撃1回ごとの番号(同じ攻撃が何度も当たらないようにするのに使う)
 	int attackId = 0;
+	//多段ヒットの何段目か//1から数える//書かなければ1段目
+	int hitIndex = 1;
 	//足元からキャラクターの前方への距離
 	float forwardOffset = 0.0f;
 	//足元からの高さ

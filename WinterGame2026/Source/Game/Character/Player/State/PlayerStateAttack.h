@@ -47,6 +47,8 @@ private:
 	int m_shotCircleHandle = -1;
 	//この攻撃の番号(コンボの次の攻撃は別の番号になる)
 	int m_attackId = 0;
+	//多段ヒットの何段目か//攻撃番号を新しくするたびに増える
+	int m_hitIndex = 1;
 	//攻撃でどのくらい進むか
 	float m_moveDistance = 0.0f;
 	//予約した攻撃を出したボタンの名前

@@ -172,7 +172,7 @@ void BattleSystem::ApplyAttackHit(Character& attacker, const AttackRequest& requ
 	{
 		Timer::Instance().RequestHitStop(info.hitStopFrame);
 	}
-	m_events.push_back({ BattleEvent::Type::Hit, &attacker, &target, request.data.GetAttackType(), info.shakePower, info.shakeFrame, result });
+	m_events.push_back({ BattleEvent::Type::Hit, &attacker, &target, request.data.GetAttackType(), info.shakePower, info.shakeFrame, result, request.hitIndex });
 }
 
 void BattleSystem::CheckDodge(Character* attacker, Character& target, int attackId, AttackType attackType)

@@ -10,7 +10,7 @@
 class EnemyManager
 {
 public:
-	//敵をリストに加える//Init、位置の設定、当たり判定への登録は呼ぶ側で先に行う
+	//敵をリストに加える//Initと位置の設定は呼ぶ側で先に行う
 	void Add(const std::shared_ptr<Enemy>& enemy);
 
 	void Update();
@@ -19,8 +19,9 @@ public:
 	void Draw();
 
 	//死亡演出が終わって消えた敵をリストから外す
-	//当たり判定の登録解除は、これより先に呼ぶ側で行う
 	void RemoveVanished();
+	//全部の敵をリストから外す
+	void Clear();
 
 	//攻撃していいか
 	bool TryTakeAttackToken();
