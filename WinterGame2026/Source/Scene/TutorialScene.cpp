@@ -4,10 +4,18 @@
 #include "../Effect/EffectManager.h"
 #include "../Common/FontManager.h"
 #include "../Game.h"
+#include "SceneController.h"
+#include "PauseScene.h"
+#include "../System/Input.h"
 #include <string>
+#include <utility>
 
 namespace
 {
+	//完了と見せてから完了メニューを出すまでのフレーム数
+	//最後の課題のボタン連打がそのままメニューの決定にならないように間をあける
+	constexpr int kFinishMenuWaitFrame = 90;
+
 	//画面上のTUTORIALの表示
 	constexpr int kLabelFontSize = 32;
 	constexpr int kLabelPosY = 40;
@@ -56,6 +64,13 @@ void TutorialScene::Update()
 	if (!m_debug.ShouldUpdateGame()) return;
 #endif // _DEBUG
 
+	//ポーズはゲームを進める前に見る//積んだメニューが閉じるまでこのシーンは更新されない
+	if (Input::Instance().IsTriggered("pause"))
+	{
+		OpenPauseMenu();
+		return;
+	}
+
 	//タイマーキャラクター攻撃判定カメラエフェクト消えた敵の片付けまで
 	const bool isAdvanced = m_game.Update();
 
@@ -71,6 +86,42 @@ void TutorialScene::Update()
 
 	 //次のステップへ進んでいたら敵を出し直す
 	 UpdateStepEnemies();
+
+	 UpdateFinishMenu();
+}
+
+void TutorialScene::UpdateFinishMenu()
+{
+	//まだ課題が残っているか、もうメニューを出したあと
+	if (!m_guide.IsFinished() || m_isFreePractice) return;
+
+	//完了の文字を少し見せてから出す
+	m_finishFrame++;
+	if (m_finishFrame < kFinishMenuWaitFrame) return;
+
+	//戻ってきたら自由練習にする//メニューを出すのはこの一度だけ
+	m_isFreePractice = true;
+	m_controller.PushScene(std::make_shared<PauseScene>(m_controller, "チュートリアル完了",
+		std::vector<PauseScene::Item>{
+			{ "ステージ1へ", PauseScene::Action::Stage1 },
+			{ "練習を続ける", PauseScene::Action::Resume },
+			{ "セレクトに戻る", PauseScene::Action::Select },
+		}, 0));
+}
+
+void TutorialScene::OpenPauseMenu()
+{
+	std::vector<PauseScene::Item> items;
+	items.push_back({ "続ける", PauseScene::Action::Resume });
+	//課題を飛ばして本編へ行けないように、全部終わるまでは出さない
+	if (m_guide.IsFinished())
+	{
+		items.push_back({ "ステージ1へ", PauseScene::Action::Stage1 });
+	}
+	items.push_back({ "セレクトに戻る", PauseScene::Action::Select });
+
+	//続けるを選んでおく//うっかり決定しても戻るだけで済む
+	m_controller.PushScene(std::make_shared<PauseScene>(m_controller, "PAUSE", std::move(items), 0));
 }
 
 void TutorialScene::UpdateStepEnemies()
@@ -103,7 +154,12 @@ void TutorialScene::Draw()
 	font.DrawCenteredText(centerX, kLabelPosY, "TUTORIAL", GetColor(200, 120, 255), kLabelFontSize, edgeColor);
 
 	//画面下の課題
-	if (m_guide.IsFinished())
+	if (m_isFreePractice)
+	{
+		//ポーズからメニューを開けることを伝える
+		font.DrawCenteredText(centerX, kGuidePosY, "自由に練習しよう　ポーズでメニュー", GetColor(255, 255, 255), kGuideFontSize, edgeColor);
+	}
+	else if (m_guide.IsFinished())
 	{
 		font.DrawCenteredText(centerX, kGuidePosY, "チュートリアル完了", GetColor(255, 255, 255), kGuideFontSize, edgeColor);
 	}

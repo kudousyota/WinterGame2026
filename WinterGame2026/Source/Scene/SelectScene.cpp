@@ -8,6 +8,7 @@
 #include "../System/Input.h"
 #include "../Common/FontManager.h"
 #include "../Game.h"
+#include "PauseScene.h"
 
 namespace
 {
@@ -90,6 +91,8 @@ void SelectScene::Update()
 	MoveCursor(GetMoveDir());
 }
 
+
+
 int SelectScene::GetMoveDir()const
 {
 	auto& input = Input::Instance();
@@ -105,7 +108,7 @@ void SelectScene::MoveCursor(int dir)
 	if (dir == 0) return;
 	//別の項目に移ったら揺れは止める
 	m_shakeFrame = 0;
-	//-1 % 3が-1になるので、項目の数を足してからあまりを取る
+	//-1%3が-1の項目の数を足してからあまりを取る
 	m_cursor = (m_cursor + dir + kItemNum) % kItemNum;
 }
 
@@ -139,7 +142,7 @@ void SelectScene::Draw()
 	auto& font = FontManager::Instance();
 	const int centerX = Game::kScreenWidth / 2;
 
-	//GetColorはDxLibの初期化後に呼ぶ必要があるので、ここで作る
+	//色
 	const unsigned int kSelectedColor = GetColor(200, 120, 255);
 	const unsigned int kNormalColor = GetColor(255, 255, 255);
 	const unsigned int kLockedColor = GetColor(120, 120, 120);
@@ -175,7 +178,7 @@ void SelectScene::Draw()
 			x += static_cast<int>(std::sin(m_shakeFrame * kShakeSpeed) * kShakeAmplitude * rate);
 		}
 
-		//選んでいる項目は大きくして、左に三角を付ける(色だけに頼らない)
+		//選んでいる項目は大きくして左に三角を付ける
 		font.DrawCenteredExtendText(x, y, info.label, color, kItemFontSize, kEdgeColor, kSelectedScale);
 		const int cursorX = x - kCursorOffsetX;
 		DrawTriangle(cursorX - kCursorSize, y - kCursorSize,

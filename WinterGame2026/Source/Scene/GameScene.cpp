@@ -6,7 +6,10 @@
 #include "SceneController.h"
 #include "GameClearScene.h"
 #include "GameOverScene.h"
+#include "PauseScene.h"
+#include "../System/Input.h"
 #include <algorithm>
+#include <vector>
 #include "../DataLoader/DataManager.h"
 
 namespace
@@ -67,6 +70,14 @@ void GameScene::Update()
 	//一時停止スロー中はゲームを進めない
 	if (!m_debug.ShouldUpdateGame()) return;
 #endif // _DEBUG
+
+	//ポーズはゲームを進める前に見る//積んだメニューが閉じるまでこのシーンは更新されない
+	//勝ち負けが決まった後は切り替えを待つだけなので開かない
+	if (m_gameEndFrame == 0 && Input::Instance().IsTriggered("pause"))
+	{
+		OpenPauseMenu();
+		return;
+	}
 
 	//タイマーキャラクター攻撃判定カメラエフェクト消えた敵の片付けまで
 	const bool isAdvanced = m_game.Update();
@@ -215,6 +226,18 @@ void GameScene::CheckGameEnd()
 	{
 		m_controller.ChangeScene(std::make_shared<GameClearScene>(m_controller));
 	}
+}
+
+void GameScene::OpenPauseMenu()
+{
+	//やり直すはステージ1を最初から始めるのと同じなのでStage1を使う
+	//続けるを選んでおく//うっかり決定しても戻るだけで済む
+	m_controller.PushScene(std::make_shared<PauseScene>(m_controller, "PAUSE",
+		std::vector<PauseScene::Item>{
+			{ "続ける", PauseScene::Action::Resume },
+			{ "やり直す", PauseScene::Action::Stage1 },
+			{ "セレクトに戻る", PauseScene::Action::Select },
+		}, 0));
 }
 
 void GameScene::DrawGrid()

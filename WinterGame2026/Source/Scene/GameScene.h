@@ -28,6 +28,8 @@ private:
 	void StartJustDodgeDistortion();
 	//歪みを進めてシェーダーに渡す値を決める
 	void UpdateDistortion();
+	//ポーズメニューを積む
+	void OpenPauseMenu();
 
 private:
 	int m_frameCount;

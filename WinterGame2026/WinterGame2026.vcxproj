@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Scene\PauseScene.cpp" />
     <ClCompile Include="Source\Scene\SelectScene.cpp" />
     <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateCharge.cpp" />
     <ClCompile Include="Source\Game\Gate.cpp" />
@@ -216,6 +217,7 @@
     <ClCompile Include="Source\Game\TutorialGuide.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Scene\PauseScene.h" />
     <ClInclude Include="Source\Scene\SelectScene.h" />
     <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateCharge.h" />
     <ClInclude Include="Source\Game\Gate.h" />
