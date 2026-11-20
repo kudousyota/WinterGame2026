@@ -1,11 +1,6 @@
 ﻿#pragma once
 #include "EnemyStateBase.h"
 
-//敵の被弾状態(のけぞり・吹っ飛び)
-//被弾アニメーションが終わるまで動かず、終わったら待機に戻る
-//吹っ飛ぶ攻撃のときは、のけぞりながら後ろへ下がる
-//のけぞり中にもう一度当たると、最初からのけぞり直す
-//運ぶ攻撃(竜巻旋風脚など)のときは、のけぞっている間ずっと攻撃してきた相手の目の前についていく
 class EnemyStateDamage : public EnemyStateBase
 {
 public:

@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include "EnemyStateBase.h"
 
-//様子見の状態
-//プレイヤーの方を向いたまま横に回り、しばらくしたら待機に戻って次の行動を決める
 class EnemyStateObserve : public EnemyStateBase
 {
 public:

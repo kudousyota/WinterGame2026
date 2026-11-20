@@ -14,7 +14,7 @@ namespace
 }
 
 
-//プログラムは WinMain から始まります
+//プログラムはWinMainから始まる
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	auto& app = Application::GetInstance();

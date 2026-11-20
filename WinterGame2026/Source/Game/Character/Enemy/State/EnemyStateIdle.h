@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include "EnemyStateBase.h"
 
-//敵の待機状態
-//攻撃の後の隙も兼ねていて、一定フレーム待ってから次の行動を決める
 class EnemyStateIdle : public EnemyStateBase
 {
 public:

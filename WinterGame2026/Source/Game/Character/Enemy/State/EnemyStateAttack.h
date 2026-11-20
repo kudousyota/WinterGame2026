@@ -2,9 +2,6 @@
 #include "EnemyStateBase.h"
 #include "../../../../DataLoader/AttackTable.h"
 
-//敵の攻撃状態
-//攻撃の中身はプレイヤーと同じくAttackHit.csvとAttackMotion.csvのデータで表す
-//判定が出るまでが予兆で、プレイヤーにとっての回避のタイミングになる
 class EnemyStateAttack : public EnemyStateBase
 {
 public:

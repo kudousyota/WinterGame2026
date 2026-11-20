@@ -37,7 +37,7 @@ public:
 
 	void SetGravityScale(float scale) { m_gravityScale = scale; }
 
-	//向く相手(いない、またはもう消えていれば空を返す。その場で使うだけにする)
+	//向く相手
 	std::shared_ptr<const Character> GetAttackTarget()const { return m_attackTarget.lock(); }
 	//空中で浮ける権利が残っているか
 	bool CanAirHover()const { return m_canAirHover; }
@@ -60,14 +60,14 @@ private:
 
 	int m_modelHandle = -1;
 	bool m_isAnimPause = false;
-	//カメラの前方向(XZ平面)
+	//カメラの前方向
 	Vector3 m_cameraForward = Vector3(0.0f, 0.0f, 1.0f);
-	//カメラの右方向(XZ平面)
+	//カメラの右方向
 	Vector3 m_cameraRight = Vector3(1.0f, 0.0f, 0.0f);
 	float m_gravityScale = 1.0f;
 	bool m_canAirHover = false;
 	bool m_canDoubleJump = false;
-	//所有せず、シーンから向く相手を指定してもらう
+	//所有せずシーンから向く相手を指定してもらう
 	//敵が消えても触らないようにweak_ptrで持つ
 	std::weak_ptr<const Character> m_attackTarget;
 };

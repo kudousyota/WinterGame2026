@@ -49,7 +49,7 @@ void GameManager::Init(Stage::Type stageType, int maxGateNum)
 	//ゲートの初期化
 	m_gate.Init(maxGateNum);
 
-	//射影//視野角・映る距離の設定もカメラが行う
+	//射影//視野角と映る距離の設定もカメラが行う
 	m_pCamera = std::make_shared<Camera>();
 	//プレイヤーの背中側から見るように、正面の向きを渡す
 	m_pCamera->Init(m_pPlayer->GetCameraTarget(), m_pPlayer->GetForward());
@@ -60,7 +60,7 @@ void GameManager::Init(Stage::Type stageType, int maxGateNum)
 bool GameManager::Update()
 {
 	//タイマーの更新
-	//一時停止とスロー中に進めると先行入力やヒットストップの時間がずれるのでゲームが進むときだけ更新する
+	//一時停止中やスロー中に進めると先行入力やヒットストップの時間がずれるからゲームが進むときだけ更新する
 	Timer::Instance().Update();
 
 	//ヒットストップ中はキャラクターを止めてカメラシェイクだけ動かす
@@ -86,9 +86,9 @@ void GameManager::UpdateWorld()
 	//当たり判定はこのフレームにいるキャラクターで行う//消えた敵はもう入っていない
 	m_collision.BeginFrame(GetAllCharacters());
 	//カメラ基準で移動させるためにカメラの向きを渡す
-	//ロックオンの方向もカメラ基準なので、ロックオンより先に渡す
+	//ロックオンの方向もカメラ基準だからロックオンより先に渡す
 	m_pPlayer->SetCameraAxis(m_pCamera->GetForward(), m_pCamera->GetRight());
-	//プレイヤーが攻撃の向きに使うので、プレイヤーより先にロックオンを更新する
+	//プレイヤーが攻撃の向きに使うからプレイヤーより先にロックオンを更新する
 	//敵の一覧は作り直しになるので1回だけ作る
 	auto enemies = GetEnemies();
 	m_lockOn.Update(m_pPlayer->GetPos(), m_pCamera->GetForward(), enemies);
@@ -138,7 +138,7 @@ void GameManager::UpdateCamera()
 
 std::vector<BattleEvent> GameManager::TakeBattleEvents()
 {
-	//中身を渡して、こちらは空にする
+	//中身を渡してこれは空にする
 	std::vector<BattleEvent> events;
 	events.swap(m_battleEvents);
 	return events;
@@ -146,13 +146,13 @@ std::vector<BattleEvent> GameManager::TakeBattleEvents()
 
 void GameManager::RemoveVanishedEnemies()
 {
-	//当たり判定は毎フレーム一覧をもらうので、ここで外す必要はない
+	//当たり判定は毎フレーム一覧をもらうからここで外す必要はない
 	m_enemyManager.RemoveVanished();
 }
 
 void GameManager::ClearEnemies()
 {
-	//当たり判定は毎フレーム一覧をもらい、ロックオンはweak_ptrで覚えているので、消すだけでよい
+	//当たり判定は毎フレーム一覧をもらいロックオンはweak_ptrで覚えているから消すだけ
 	m_enemyManager.Clear();
 }
 
@@ -161,7 +161,7 @@ void GameManager::SpawnEnemy(const std::string& name, const Vector3& groundPos)
 	auto enemy = CreateEnemy(name);
 	if (!enemy) return;
 
-	//神殿の床のように高さが違う場所もあるので、地面の高さに合わせる
+	//神殿の床のように高さが違う場所もあるから地面の高さに合わせる
 	Vector3 pos = groundPos;
 	float groundY = 0.0f;
 	if (StageCollision::FindGroundY(m_pStage->GetCollisionHandle(), pos.x, pos.z, pos.y, groundY))
@@ -169,10 +169,10 @@ void GameManager::SpawnEnemy(const std::string& name, const Vector3& groundPos)
 		pos.y = groundY;
 	}
 
-	//Initで最初の位置が入るので、位置はInitの後に決める
+	//Initで最初の位置が入るから位置はInitの後に決める
 	enemy->Init();
 	enemy->SetPosition(pos + Vector3(0.0f, enemy->GetHoverHeight(), 0.0f));
-	//最初のフレームから正しい位置に描かれるよう、モデルにも反映しておく
+	//最初のフレームから正しい位置に描かれるようモデルにも反映しておく
 	enemy->LateUpdate();
 	//敵はプレイヤーを狙う
 	enemy->SetTarget(m_pPlayer.get());
@@ -190,10 +190,10 @@ void GameManager::UpdateGate(bool shouldClose, const std::vector<SpawnTable::Gat
 
 void GameManager::Draw()
 {
-	//ステージは背景として扱うので、紫を重ねる前に描く
+	//ステージは背景として扱うから紫を重ねる前に描く
 	m_pStage->Draw();
 
-	//ウィッチタイム中は背景を紫にする(キャラクターより先に描いて、キャラクターには色を乗せない)
+	//ウィッチタイム中は背景を紫にする(キャラクターより先に描いてキャラクターには色を乗せない)
 	if (Timer::Instance().IsEnemySlow())
 	{
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, kWitchTimeOverlayAlpha);
@@ -224,7 +224,7 @@ void GameManager::DrawDebug(const DebugTool& debug) const
 	}
 	//ロックオンできる範囲を表示
 	if (debug.IsShow(Show::LockOn)) m_lockOn.DrawDebug(m_pPlayer->GetPos(), m_pCamera->GetForward());
-	//敵の範囲・向き・攻撃枠を表示
+	//敵の範囲、向き、攻撃枠を表示
 	for (const Enemy* enemy : GetEnemyList())
 	{
 		if (enemy->IsVanished()) continue;

@@ -10,7 +10,7 @@ namespace
 		const char* modelPath;
 		//当たり判定用のモデル(描画しない)
 		const char* collModelPath;
-		//遠景のモデル(浮島・雲海・空の光輪など。遠くまであるので当たり判定には入れない)//ないならnullptr
+		//遠景のモデル(浮島、雲海、空の光輪など。遠くまであるので当たり判定には入れない)//ないならnullptr
 		const char* bgModelPath;
 		//当たり判定用に空間を分割する数(X,Y,Z)
 		//細かくするほど判定するポリゴンを絞り込めるが、その分メモリを使う
@@ -24,25 +24,25 @@ namespace
 		switch (type)
 		{
 		case Stage::Type::Tutorial:
-			//部屋の中だけなので遠景はいらない//部屋は幅約19m・奥行約30mと小さいので分割も少なくする
+			//部屋の中だけなので遠景はいらない
 			return { "Data/Model/TutorialStage.mv1", "Data/Model/TutorialStage_Coll.mv1", nullptr, 4, 2, 4 };
 		case Stage::Type::Temple:
 		default:
-			//ステージは奥(Z)に長い(幅約50m・奥行約190m)ので、Zを細かく分ける
+			//ステージは奥に長い
 			return { "Data/Model/TempleStage.mv1", "Data/Model/TempleStage_Coll.mv1", "Data/Model/GothicStage_BG.mv1", 8, 4, 64 };
 		}
 	}
 
-	//遠景を描くときだけ使う、映る一番遠い距離
-	//遠景は400m先まであるので、通常のカメラの距離では切れてしまう
+	//遠景を描くときだけ使う映る一番遠い距離
+	//遠景は通常のカメラの距離では切れてしまう
 	constexpr float kBgFar = 60000.0f;
 
-	//空の色(上・地平線・下)
-	//Blenderの空の色はmv1に入らないので、画面に直接グラデーションを描く
+	//空の色
+	//Blenderの空の色はmv1に入らないので画面に直接グラデーションを描く
 	constexpr unsigned char kSkyTop[3] = { 40, 50, 110 };
 	constexpr unsigned char kSkyHorizon[3] = { 245, 175, 110 };
 	constexpr unsigned char kSkyBottom[3] = { 255, 120, 60 };
-	//地平線の色にする高さ(画面の上からの割合)
+	//地平線の色にする高さ
 	constexpr float kSkyHorizonRate = 0.55f;
 }
 
@@ -52,7 +52,7 @@ Stage::Stage()
 
 Stage::~Stage()
 {
-	//モデルの解放(当たり判定の情報も一緒に解放される)
+	//モデルの解放
 	if (m_modelHandle != -1) MV1DeleteModel(m_modelHandle);
 	if (m_collHandle != -1) MV1DeleteModel(m_collHandle);
 	if (m_bgHandle != -1) MV1DeleteModel(m_bgHandle);
@@ -66,8 +66,8 @@ void Stage::Init(Type type)
 	m_modelHandle = MV1LoadModel(files.modelPath);
 
 	//環境光の色をマテリアルの色に合わせる
-	//Blenderから書き出したモデルは環境光の色が黒になっていて、ライトが当たらない面が真っ黒になる
-	//ライトはカメラの向きに合わせているので、カメラが水平だと床にライトが当たらない
+	//Blenderから書き出したモデルは環境光の色が黒になっていてライトが当たらない面が真っ黒になる
+	//ライトはカメラの向きに合わせているのでカメラが水平だと床にライトが当たらない
 	int materialNum = MV1GetMaterialNum(m_modelHandle);
 	for (int i = 0; i < materialNum; i++)
 	{
@@ -75,8 +75,6 @@ void Stage::Init(Type type)
 	}
 
 	//当たり判定の情報は、当たり判定用のモデルにだけ作る
-	//これを呼んでおかないとMV1CollCheck系の関数が当たらない
-	//ステージは動かないので、最初に1回だけ作ればいい
 	m_collHandle = MV1LoadModel(files.collModelPath);
 	MV1SetupCollInfo(m_collHandle, -1, files.collDivX, files.collDivY, files.collDivZ);
 
@@ -98,9 +96,8 @@ void Stage::Draw()
 	//空は全部の後ろなので一番最初に描く
 	DrawSky();
 
-	//遠景は空の次に奥にあるので、空の後に描く
-	//映る距離を一時的に伸ばして描き、元に戻してから奥行きの情報を消す
-	//(消さないと、距離の設定が違う遠景の奥行きでステージやキャラクターが隠れてしまう)
+	//遠景は空の次に奥にあるので空の後に描く
+	//映る距離を一時的に伸ばして描き元に戻してから奥行きの情報を消す
 	if (m_bgHandle != -1)
 	{
 		float cameraNear = GetCameraNear();
@@ -121,7 +118,7 @@ void Stage::DrawSky() const
 	GetDrawScreenSize(&width, &height);
 	float horizonY = height * kSkyHorizonRate;
 
-	//上・地平線・下の3段の頂点を左右に置き、間の色は自動で混ざる
+	//上、地平線、下の3段の頂点を左右に置き、間の色は自動で混ざる
 	const float ys[3] = { 0.0f, horizonY, static_cast<float>(height) };
 	const unsigned char* colors[3] = { kSkyTop, kSkyHorizon, kSkyBottom };
 

@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include "PlayerStateBase.h"
 
-//プレイヤーの回避状態
-//一定フレームの間、決まった方向へ素早く移動する
 class PlayerStateDodge : public PlayerStateBase
 {
 public:

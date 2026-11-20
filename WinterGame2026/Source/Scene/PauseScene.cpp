@@ -22,15 +22,6 @@ namespace
 	constexpr int kItemSpacing = 80;
 	//選んでいる項目の拡大率
 	constexpr float kSelectedScale = 1.2f;
-
-	//カーソルの画像
-	const char* const kCursorPath = "Data/Image/menu_cursor.png";
-	//カーソル画像の大きさ//元の画像は256x512
-	constexpr double kCursorScale = 0.2;
-	//縦向きの画像を倒して先が右を向くようにする
-	constexpr double kCursorAngle = DX_PI / 2;
-	//文字の中心からカーソルの中心までの距離
-	constexpr int kCursorOffsetX = 230;
 }
 
 PauseScene::PauseScene(SceneController& controller, const char* title, std::vector<Item> items, int firstCursor):
@@ -41,21 +32,16 @@ PauseScene::PauseScene(SceneController& controller, const char* title, std::vect
 {
 }
 
-PauseScene::~PauseScene()
-{
-	//メニューは開くたびに作り直すので、閉じるときに画像を手放す
-	DeleteGraph(m_cursorHandle);
-}
-
 void PauseScene::Init()
 {
 	//カーソルの位置はコンストラクタで受け取ったままにする
-	m_cursorHandle = LoadGraph(kCursorPath);
+	m_cursorUI.Init();
 }
 
 void PauseScene::Update()
 {
 	auto& input = Input::Instance();
+	m_cursorUI.Update(input);
 
 	//決定を先に見る//画面で見ていた項目が選ばれるようにする
 	if (input.IsTriggered("ok"))
@@ -140,12 +126,9 @@ void PauseScene::Draw()
 			continue;
 		}
 
-		//選んでいる項目は大きくして左にカーソルを付ける//色だけに頼らない
+		//選んでいる項目は大きくして左に矢印を付ける//色だけに頼らない
 		font.DrawCenteredExtendText(centerX, y, m_items[i].name, kSelectedColor, kItemFontSize, kEdgeColor, kSelectedScale);
-
-		//細い線がガタガタにならないように、縮めるときはなめらかに描く
-		SetDrawMode(DX_DRAWMODE_BILINEAR);
-		DrawRotaGraph(centerX - kCursorOffsetX, y, kCursorScale, kCursorAngle, m_cursorHandle, true);
-		SetDrawMode(DX_DRAWMODE_NEAREST);
+		m_cursorUI.SetItemPos(centerX, y);
+		m_cursorUI.Draw();
 	}
 }

@@ -48,10 +48,6 @@ namespace
 	constexpr int kDescFontSize = 24;
 	constexpr int kDescPosY = 620;
 
-	//カーソルの三角形
-	constexpr int kCursorOffsetX = 200;
-	constexpr int kCursorSize = 14;
-
 	//ロック中を決定したときの揺れ
 	constexpr int kShakeFrame = 20;
 	constexpr float kShakeAmplitude = 8.0f;
@@ -68,6 +64,7 @@ void SelectScene::Init()
 	//ステージ1から始める
 	m_cursor = static_cast<int>(Item::Stage1);
 	m_shakeFrame = 0;
+	m_cursorUI.Init();
 }
 
 void SelectScene::Update()
@@ -75,6 +72,7 @@ void SelectScene::Update()
 	if (m_shakeFrame > 0) m_shakeFrame--;
 
 	auto& input = Input::Instance();
+	m_cursorUI.Update(input);
 
 	//決定を先に見る//画面で見ていた項目が選ばれるようにする
 	if (input.IsTriggered("ok"))
@@ -178,13 +176,10 @@ void SelectScene::Draw()
 			x += static_cast<int>(std::sin(m_shakeFrame * kShakeSpeed) * kShakeAmplitude * rate);
 		}
 
-		//選んでいる項目は大きくして左に三角を付ける
+		//選んでいる項目は大きくして左に矢印を付ける//矢印も一緒に揺らす
 		font.DrawCenteredExtendText(x, y, info.label, color, kItemFontSize, kEdgeColor, kSelectedScale);
-		const int cursorX = x - kCursorOffsetX;
-		DrawTriangle(cursorX - kCursorSize, y - kCursorSize,
-			cursorX + kCursorSize, y,
-			cursorX - kCursorSize, y + kCursorSize,
-			color, true);
+		m_cursorUI.SetItemPos(x, y);
+		m_cursorUI.Draw();
 	}
 
 	//選んでいる項目の説明

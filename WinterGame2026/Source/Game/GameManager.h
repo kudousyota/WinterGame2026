@@ -23,13 +23,13 @@ public:
 	GameManager(const GameManager&) = delete;
 	GameManager& operator=(const GameManager&) = delete;
 
-	//ステージ・プレイヤー・カメラを作る
+	//ステージ、プレイヤー、カメラを作る
 	//stageTypeは読み込むステージ//maxGateNumはゲートの最大数。ゲートがないなら0
 	void Init(Stage::Type stageType, int maxGateNum);
 
 	//1フレーム分進める
-	//タイマーキャラクター攻撃判定カメラエフェクト消えた敵の片付け
-	//ヒットストップで止まっていたらfalseゲームが進んだらtrueを返す
+	//タイマー、キャラクター、攻撃判定、カメラ、エフェクト、消えた敵の片付け
+	//ヒットストップで止まっていたらfalse、ゲームが進んだらtrueを返す
 	bool Update();
 
 	//このフレームの戦闘で起きたことを受け取る//受け取ったら中身は空になる
@@ -47,7 +47,7 @@ public:
 	//戦闘中だけゲートを閉じる
 	void UpdateGate(bool shouldClose, const std::vector<SpawnTable::GateInfo>& gates);
 
-	//ステージ→ウィッチタイムの色→プレイヤー・敵・飛び道具→エフェクトの順に描く
+	//ステージ→ウィッチタイムの色→プレイヤー、敵、飛び道具→エフェクトの順に描く
 	void Draw();
 #ifdef _DEBUG
 	//当たり判定やロックオン範囲などを、DebugToolの設定に合わせて描く
@@ -66,7 +66,7 @@ public:
 	bool IsLockedOn()const;
 
 private:
-	//キャラクターの更新から攻撃判定・カメラまで進める
+	//キャラクターの更新から攻撃判定とカメラまで進める
 	void UpdateWorld();
 	//カメラだけ進める//ヒットストップ中もシェイクは動かす
 	void UpdateCamera();

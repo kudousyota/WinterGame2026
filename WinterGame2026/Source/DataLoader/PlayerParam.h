@@ -2,10 +2,6 @@
 #include <vector>
 #include <string>
 
-//プレイヤーの手触りに関わる数値
-//PlayerParam.csvから読む
-//使う側はメンバーにコピーせず、使う場所で毎回DataManagerから読む
-//そうするとデバッグの読み直しがすぐ反映される
 struct PlayerParam
 {
 	//CSVの行データを受け取る

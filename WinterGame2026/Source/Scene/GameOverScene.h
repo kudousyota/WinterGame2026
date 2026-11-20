@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include "Scene.h"
 
-//ゲームオーバー画面
-//決定ボタンでタイトルに戻る
 class GameOverScene : public Scene
 {
 public:

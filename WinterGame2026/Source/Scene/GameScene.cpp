@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <vector>
 #include "../DataLoader/DataManager.h"
+#include "../UI/WitchTimeNeedleUI.h"
 
 namespace
 {
@@ -38,36 +39,40 @@ m_frameCount(0)
 
 GameScene::~GameScene()
 {
-	//エフェクトとスロー・ヒットストップは次のシーンに持ち越さない
+	//エフェクトとスロー、ヒットストップは次のシーンに持ち越さない
 	EffectManager::Instns().StopAll();
 	Timer::Instance().Reset();
 }
 
 void GameScene::Init()
 {
-	//前のゲームのスロー・ヒットストップが残らないようにする
+	//前のスローとヒットストップが残らないようにする
 	Timer::Instance().Reset();
 
 	//Zバッファの設定
-	SetUseZBuffer3D(true);//Zバッファを使います
+	SetUseZBuffer3D(true);//Zバッファを使う
 	SetWriteZBuffer3D(true);//描画する物体はZバッファにも距離を書き込む
 
 	//ステージ、プレイヤー、カメラ、ゲートを用意する
 	const auto& spawnTable = DataManager::GetInstance().GetSpawnTable();
 	m_game.Init(Stage::Type::Temple, spawnTable.GetMaxGateNum());
 
-	//敵はプレイヤーを狙うのでプレイヤーの後に準備する
+	//敵はプレイヤーを狙うからプレイヤーの後に準備する
 	m_spawner.Init(spawnTable);
 
 	//画面の歪み
 	m_distortion.Init();
+
+	//UIを登録してからまとめて初期化する
+	m_uiManager.Add(std::make_unique<WitchTimeNeedleUI>());
+	m_uiManager.Init();
 }
 
 void GameScene::Update()
 {
 #ifdef _DEBUG
 	m_debug.Update(m_game.GetDebugTargets());
-	//一時停止スロー中はゲームを進めない
+	//一時停止中とスロー中はゲームを進めない
 	if (!m_debug.ShouldUpdateGame()) return;
 #endif // _DEBUG
 
@@ -79,15 +84,18 @@ void GameScene::Update()
 		return;
 	}
 
-	//タイマーキャラクター攻撃判定カメラエフェクト消えた敵の片付けまで
+	//タイマー、キャラクター、攻撃判定、カメラ、エフェクト、消えた敵の片付けまで
 	const bool isAdvanced = m_game.Update();
 
 	//このフレームの戦闘で起きたことを演出に使う//ジャスト回避の歪みをこのフレームから始めるので歪みの更新より前
 	//ヒットストップ中はキャラクターが止まっていてイベントは出ないので毎フレーム受け取る
 	HandleBattleEvents();
-	//歪みの中心はプレイヤーの画面上の位置なのでカメラが確定してから決める
+	//歪みの中心はプレイヤーの画面上の位置だからカメラが確定してから決める
 	//ヒットストップ中も揺らぎは動かす
 	UpdateDistortion();
+	//ウィッチタイムの状態はゲームを進めた後に決まるのでその後に見る
+	//ヒットストップ中もUIの演出は動かす
+	m_uiManager.Update(Input::Instance());
 
 	//ヒットストップ中は進行も止める
 	if (!isAdvanced) return;
@@ -105,11 +113,14 @@ void GameScene::Draw()
 	//ここからエフェクトまでを歪みの対象にする
 	m_distortion.BeginCapture();
 
-	//ステージ・ウィッチタイムの色・キャラクター・エフェクト
+	//ステージ、ウィッチタイムの色、キャラクター、エフェクト
 	m_game.Draw();
 
 	//歪ませて画面に出す
 	m_distortion.EndCapture();
+
+	//UIは歪ませたくないから歪みの後に一番手前に描く
+	m_uiManager.Draw();
 #ifdef _DEBUG
 	//どれを出すかはDebugToolのメニューやFキーで切り替える
 	if (m_debug.IsShow(DebugTool::Show::Grid)) DrawGrid();

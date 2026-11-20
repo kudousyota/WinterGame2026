@@ -1,9 +1,6 @@
 ﻿#pragma once
 #include "EnemyStateBase.h"
 
-//敵の死亡状態
-//倒れるアニメーション → 少し倒れたまま見せる → だんだん透明にして消す
-//消えたら敵のIsVanishedがtrueになる(ゲームクリアの判定に使う)
 class EnemyStateDeath : public EnemyStateBase
 {
 public:

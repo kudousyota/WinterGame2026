@@ -82,7 +82,7 @@ void DebugTool::Update(const std::vector<Target>& targets)
 	//敵を全部倒す
 	if (IsKeyTriggered(KEY_INPUT_K)) KillEnemies(targets);
 
-	//一時停止・スロー
+	//一時停止とスロー
 	if (IsKeyTriggered(KEY_INPUT_F6)) m_isPaused = !m_isPaused;
 	if (IsKeyTriggered(KEY_INPUT_F8))
 	{
@@ -93,7 +93,7 @@ void DebugTool::Update(const std::vector<Target>& targets)
 	//このフレームにゲームを更新するか決める
 	if (m_isMenuOpen)
 	{
-		//メニューの操作(矢印キー・Enter)がゲームに伝わらないように止める
+		//メニューの操作(矢印キーとEnter)がゲームに伝わらないように止める
 		m_shouldUpdateGame = false;
 	}
 	else if (m_isPaused)
@@ -143,7 +143,7 @@ void DebugTool::UpdateMenu()
 	//上下で選ぶ(端まで行ったら反対側へ回る)
 	if (IsKeyTriggered(KEY_INPUT_UP))   m_menuCursor = (m_menuCursor + num - 1) % num;
 	if (IsKeyTriggered(KEY_INPUT_DOWN)) m_menuCursor = (m_menuCursor + 1) % num;
-	//決定・左右で切り替える
+	//Enterか左右キーで切り替える
 	if (IsKeyTriggered(KEY_INPUT_RETURN) || IsKeyTriggered(KEY_INPUT_LEFT) || IsKeyTriggered(KEY_INPUT_RIGHT))
 	{
 		Toggle(static_cast<Show>(m_menuCursor));
@@ -193,7 +193,7 @@ void DebugTool::DrawInfoText(const std::vector<Target>& targets, const Camera& c
 	DrawString(0, y, "TAB:Menu F1:Collision F2:Text F3:Grid F4:LockOn F9:Enemy F5:Reload F6:Pause F7:Step F8:Slow F11:CopySpawnPos K:KillEnemies", white);
 	y += kLineHeight;
 
-	//フレーム数と一時停止・スローの状態
+	//フレーム数と、一時停止やスローの状態
 	DrawFormatString(0, y, white, "FRAME:%d", frameCount);
 	if (m_isPaused) DrawString(120, y, "PAUSE", yellow);
 	if (m_isSlow) DrawFormatString(180, y, yellow, "SLOW x1/%d", kSlowInterval);

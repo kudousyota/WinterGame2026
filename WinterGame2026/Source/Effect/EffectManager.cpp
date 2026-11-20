@@ -60,10 +60,9 @@ void EffectManager::Init()
 
 void EffectManager::Update()
 {
-    //DXLibのカメラ・ライト情報をEffekseer側に同期
+    //DXLibのカメラとライトの情報をEffekseer側に同期
     Effekseer_Sync3DSetting();
     //再生中のエフェクトを更新し、再生終了したものはリストから削除
-    //it = イテレータ
     for (auto it = m_effects.begin(); it != m_effects.end();)
     {
         (*it)->Update();
@@ -99,7 +98,7 @@ int EffectManager::PlayEffect(EffectType type, const Vector3& pos, const Vector3
     //再生中のエフェクトのハンドルを返す
     int handle = effect->GetPlayingHandle();
 
-    //管理リストに追加して更新・削除の対象にする
+    //管理リストに追加して更新と削除の対象にする
     m_effects.push_back(std::move(effect));
 
     return handle;

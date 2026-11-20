@@ -28,7 +28,7 @@ void EnemyStateIdle::Update()
 	if (!target || target->IsDead()) return;
 
 	float distance = m_enemy.GetTargetDistance();
-	//近すぎたら離れる(近距離の攻撃は持っていない)
+	//近すぎたら離れる
 	if (distance < m_enemy.GetTooCloseDistance())
 	{
 		ChangeState<EnemyStateRetreat>();
@@ -37,10 +37,10 @@ void EnemyStateIdle::Update()
 	//攻撃できる距離にいれば攻撃する
 	if (m_enemy.CanStartAttack(distance))
 	{
-		//ほかの敵が攻撃中なら、横に回って順番を待つ
+		//ほかの敵が攻撃中なら横に回って順番を待つ
 		if (m_enemy.TryTakeAttackToken())
 		{
-			//攻撃ステートは作られたときに攻撃のデータを読むので、先に攻撃を決める
+			//攻撃ステートは作られたときに攻撃のデータを読むので先に攻撃を決める
 			m_enemy.DecideAttack();
 			//どのステートで攻撃するかは敵ごとに決める
 			m_enemy.ChangeState(m_enemy.CreateAttackState());

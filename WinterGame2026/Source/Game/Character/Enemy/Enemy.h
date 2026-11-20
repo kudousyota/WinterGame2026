@@ -30,7 +30,7 @@ public:
 	void FaceTarget();
 
 	//敵の時間の倍率(ゲーム全体の倍率×敵専用の倍率。ウィッチタイム中は遅くなる)
-	//敵のステートのフレーム数・移動・アニメーションはすべてこれを掛けて進める
+	//敵のステートのフレーム数、移動、アニメーションはすべてこれを掛けて進める
 	float GetTimeScale()const;
 
 	//索敵範囲
@@ -81,7 +81,7 @@ public:
 	//狙う相手
 	const Character* GetTarget()const { return m_pTarget; }
 
-	//攻撃判定を出す位置(足元から前へ・上へ)
+	//攻撃判定を出す位置(足元から前と上へずらす)
 	float GetHitForwardOffset()const { return m_hitForwardOffset; }
 	float GetHitHeight()const { return m_hitHeight; }
 
@@ -105,7 +105,7 @@ public:
 	void ReleaseAttackToken();
 
 #ifdef _DEBUG
-	//索敵・攻撃などの範囲の円を描く
+	//索敵や攻撃などの範囲の円を描く
 	void DrawDebugRange()const;
 	//向いている方向(視線)の線を描く
 	void DrawDebugForward()const;
@@ -148,7 +148,7 @@ protected:
 	std::string m_getUpAnimName;
 	//突進中の走りのアニメーション(空なら移動のアニメーションを使う)
 	std::string m_chargeRunAnimName;
-	//吹っ飛びのアニメーションのタイミング(初期値はAlienのFlyingBack・全92フレーム、27フレーム目で着地)
+	//吹っ飛びのアニメーションのタイミング(初期値はAlienのFlyingBackで全92フレーム、27フレーム目で着地)
 	float m_knockdownFlyEndRate = 0.29f;
 	float m_knockdownLieDownRate = 0.9f;
 
@@ -162,7 +162,7 @@ protected:
 	float m_tooCloseDistance = 0.0f;
 	//攻撃の後に離れる距離
 	float m_keepDistance = 0.0f;
-	//攻撃判定を出す位置(足元から前へ・上へ)。体の大きい敵は派生クラスで大きくする
+	//攻撃判定を出す位置(足元から前と上へずらす)。体の大きい敵は派生クラスで大きくする
 	float m_hitForwardOffset = 50.0f;
 	float m_hitHeight = 120.0f;
 	//攻撃の予兆中か

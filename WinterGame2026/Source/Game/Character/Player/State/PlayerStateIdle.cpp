@@ -11,7 +11,7 @@ void PlayerStateIdle::Update()
 		return;
 	}
 
-	//ジャンプ・回避・攻撃の入力があればそちらにする
+	//ジャンプ、回避、攻撃の入力があればそちらにする
 	//先行入力を覚えておくフレーム数はPlayerParam.csvに書く
 	if (TryGroundAction(DataManager::GetInstance().GetPlayerParam().inputBufferFrame))
 	{

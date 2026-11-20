@@ -9,9 +9,6 @@
 
 namespace
 {
-	//攻撃判定の位置・先行入力・弾・前進の伸び方はPlayerParam.csvに書く
-	//ここに残すのは見た目だけの数値
-
 	//PlayerParam.csvの値//読み直しがすぐ反映されるように毎回ここから読む
 	const PlayerParam& Param()
 	{
@@ -101,7 +98,7 @@ void PlayerStateAttack::Enter()
 			//体同士が触れる少し前で止まる
 			float stopDistance = m_player.GetCollisionRadius() + target->GetCollisionRadius() + Param().stopMargin;
 			float maxDistance = m_info.moveDistance * Param().maxMoveScale;
-			//近すぎるときは進まない遠すぎるときは最大距離まで
+			//近すぎるときは進まず、遠すぎるときは最大距離まで
 			float reach = std::clamp(toTarget.Magnitude() - stopDistance, 0.0f,maxDistance);
 			//敵を運ぶ攻撃は敵を押していくので敵が近くても止まらずにCSVの距離は進む
 			m_moveDistance = m_info.carry ? (std::max)(reach, m_info.moveDistance) : reach;
@@ -119,7 +116,7 @@ void PlayerStateAttack::Enter()
 	}
 	//攻撃中はその場で止まる
 	StopMove();
-	//振りかぶりがある攻撃は、最初だけ早回しにして腕が伸びきるまでを短くする
+	//振りかぶりがある攻撃は最初だけ早回しにして腕が伸びきるまでを短くする
 	const float animScale = (m_info.windupFrame > 0) ? m_info.windupAnimScale : 1.0f;
 	m_player.GetAnim().ChangeAnim(m_info.animName, false, animScale);
 	//攻撃ごとに新しい番号をもらう
@@ -148,7 +145,7 @@ void PlayerStateAttack::Update()
 	//受付フレームを過ぎたら次の攻撃の入力と回避キャンセルを受け付ける
 	if (m_frame >= m_info.comboStartFrame)
 	{
-		//押したボタンによって次の攻撃が変わる(後から押した方を優先)
+		//押したボタンによって次の攻撃が変わる
 		//次の攻撃がないボタンは押されていない扱いにする
 		std::optional<int> punchFrame;
 		std::optional<int> kickFrame;
@@ -163,7 +160,7 @@ void PlayerStateAttack::Update()
 
 		if (punchFrame || kickFrame)
 		{
-			//押したフレームが新しい方を選ぶ(同時押しはキックを優先)
+			//押したフレームが新しい方を選ぶ
 			if (kickFrame && (!punchFrame || *kickFrame >= *punchFrame))
 			{
 				m_reservedNext = m_info.nextKick;
@@ -174,13 +171,13 @@ void PlayerStateAttack::Update()
 				m_reservedNext = m_info.nextPunch;
 				m_reservedButton = "Punch";
 			}
-			//負けた方も消費しないと、次のフレームで予約が上書きされてしまう
+			//負けた方も消費しないと次のフレームで予約が上書きされてしまう
 			input.ConsumeBuffer("Punch");
 			input.ConsumeBuffer("Kick");
 		}
 	}
 
-	//次の攻撃が予約されていたら、構えに戻るモーションを待たずに次の攻撃にする
+	//次の攻撃が予約されていたら構えに戻るモーションを待たずに次の攻撃にする
 	if (m_reservedNext && m_frame >= m_info.cancelFrame)
 	{
 		ChangeAttackState(*m_reservedNext, m_reservedButton);
@@ -207,12 +204,12 @@ void PlayerStateAttack::Update()
 		return;
 	}
 
-	//地面まで落ちる攻撃は、攻撃判定が出るフレームで止めて着地するまで落ち続ける
+	//地面まで落ちる攻撃は攻撃判定が出るフレームで止めて着地するまで落ち続ける
 	if (m_isFalling && m_frame >= m_info.hitStartFrame)
 	{
 		if (!m_player.IsGround())
 		{
-			//振り上げた形のまま、真下に一定の速さで落ちる
+			//振り上げた形のまま真下に一定の速さで落ちる
 			m_player.SetAnimPause(true);
 			m_player.SetVelocity(Vector3(0.0f, -m_info.fallSpeed, 0.0f));
 			//落ちている間も当たる
@@ -231,9 +228,9 @@ void PlayerStateAttack::Update()
 		m_hitIndex++;
 	}
 
-	//コンボの締めは、CSVで決めたフレームでウィケッドウィーブを呼び出す
+	//コンボの締めはCSVで決めたフレームでウィケッドウィーブを呼び出す
 	//witchHandFrameが0なら攻撃判定が出た瞬間に呼び出す
-	//地面まで落ちる攻撃は、上でフレームを止めているので着地した瞬間に呼び出される
+	//地面まで落ちる攻撃は上でフレームを止めているので着地した瞬間に呼び出される
 	const int witchHandFrame = (m_info.witchHandFrame > 0) ? m_info.witchHandFrame : m_info.hitStartFrame;
 	if (m_info.witchHand && !m_witchHandInfo && m_frame == witchHandFrame)
 	{
@@ -249,7 +246,7 @@ void PlayerStateAttack::Update()
 	{
 		//長押しは前進も止める
 		StopMove();
-		//撃ち始めに魔法陣を出す(撃っている間は出したまま)
+		//撃ち始めに魔法陣を出す
 		if (m_shotCircleHandle == -1)
 		{
 			OpenShotCircle();

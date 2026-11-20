@@ -15,7 +15,7 @@ namespace
 	const char* const kChargeRunAnimName = "Warrok|ChargeRun";
 	//死亡のアニメーション
 	const char* const kDeathAnimName = "Warrok|FlyingBackDeath";
-	//被弾・叩き落とし・起き上がりのアニメーションはまだ無いので空のまま
+	//被弾、叩き落とし、起き上がりのアニメーションはまだ無いので空のまま
 
 	//地上の敵なので浮かない
 	constexpr float kHoverHeight = 0.0f;

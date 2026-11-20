@@ -5,8 +5,6 @@
 #include "../../../../System/Input.h"
 #include "../../../../DataLoader/DataManager.h"
 
-//加速と減速のフレーム数はPlayerParam.csvに書く
-
 Vector3 PlayerStateBase::GetMoveInput() const
 {
 	return m_player.GetMoveInput();
@@ -84,7 +82,7 @@ bool PlayerStateBase::TryGroundAction(int bufferFrame)
 	//キックボタンが押されたらキックコンボの1段目を出す
 	if (input.IsBuffered("Kick", bufferFrame))
 	{
-		//1段目に使った入力を消して、2段目が勝手に出ないようにする
+		//1段目に使った入力を消して2段目が勝手に出ないようにする
 		input.ConsumeBuffer("Kick");
 		ChangeAttackState(AttackType::Kick,"Kick");
 		return true;

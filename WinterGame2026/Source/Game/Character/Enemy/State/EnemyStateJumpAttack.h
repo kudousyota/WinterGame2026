@@ -2,15 +2,6 @@
 #include "EnemyStateBase.h"
 #include "../../../../DataLoader/AttackTable.h"
 
-//敵のジャンプ攻撃
-//その場で跳んで、着地で攻撃判定と衝撃波を出す
-//近づいてはこないので、離れたプレイヤーには衝撃波で攻撃する
-//溜め、跳ぶ、着地、硬直の順に進む
-//CSVの値の使い方
-//  windupFrame・windupAnimScale:溜めをゆっくり再生する
-//  moveStartFrame:跳ぶフレーム。ここまではプレイヤーの方を向き続ける
-//  moveEndFrame:着地するフレーム。デバッグ表示に使う
-//  hitStartFrame・hitEndFrame:着地の攻撃判定。足元を中心にした球
 class EnemyStateJumpAttack : public EnemyStateBase
 {
 public:

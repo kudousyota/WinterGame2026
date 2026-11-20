@@ -121,7 +121,7 @@ void BattleSystem::ProcessProjectileHits()
 				break;
 			}
 
-			//無敵中死亡中は受けない弾は消さずに通り抜ける
+			//無敵中と死亡中は受けない//弾は消さずに通り抜ける
 			if (!target.CanBeHit())
 			{
 				CheckDodge(nullptr, target, projectile->GetAttackId(), data.GetAttackType());

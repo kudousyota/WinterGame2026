@@ -12,7 +12,7 @@ public:
 
 	//ベクトルの大きさを返す
 	float Magnitude()const;
-	//ベクトルの大きさの2乗を返します
+	//ベクトルの大きさの2乗を返す
 	float SqMagnitude()const;
 
 	//正規化する

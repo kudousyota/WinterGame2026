@@ -11,7 +11,7 @@ namespace
 
 void PlayerStateDamage::Enter()
 {
-	//のけぞり中はその場で止まる(落下の速度は残す)
+	//のけぞり中はその場で止まる
 	StopMove();
 	m_player.GetAnim().ChangeAnim(kDamageAnimName, false);
 }

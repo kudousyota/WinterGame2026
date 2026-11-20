@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include "EnemyStateBase.h"
 
-//プレイヤーから離れる状態
-//体はプレイヤーに向けたまま後ろへ下がり、保つ距離まで離れたら様子見に移る
 class EnemyStateRetreat : public EnemyStateBase
 {
 public:

@@ -31,7 +31,7 @@ namespace
 
 	//引いたときに足す距離
 	constexpr float kPullDistance = 150.0f;
-	//引く・戻る速さ(0～1)
+	//引くときと戻るときの速さ(0～1)
 	constexpr float kPullSpeed = 0.3f;
 
 	//ステージに当たったとき、壁から離す距離
@@ -67,7 +67,7 @@ namespace
 	constexpr float kScreenSideRate = 0.45f;
 	//同じく縦(画面は横長なので横より狭い。画面の端ぎりぎりは約0.58)
 	constexpr float kScreenUpRate = 0.3f;
-	//2人を映す距離へ寄る・引く速さ(0～1)
+	//2人を映す距離へ寄るときと引くときの速さ(0～1)
 	constexpr float kFitSpeed = 0.1f;
 
 	//これ以下の身長は普通の敵(見上げない)
@@ -299,7 +299,7 @@ float Camera::CalcFitDistance(const Vector3& pos, const Vector3& dir) const
 	forward = forward.Normalize();
 	Vector3 right(forward.z, 0.0f, -forward.x);
 
-	//注視点からposへのずれを、奥・横・高さに分ける
+	//注視点からposへのずれを、奥、横、高さに分ける
 	Vector3 toPos = pos - m_focus;
 	float depth = toPos.Dot(forward);
 	float side = fabsf(toPos.Dot(right));

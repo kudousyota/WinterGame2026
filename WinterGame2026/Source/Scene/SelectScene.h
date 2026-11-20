@@ -1,8 +1,9 @@
 ﻿#pragma once
 #include "Scene.h"
+#include "../UI/MenuCursorUI.h"
 
 //タイトルの次の画面
-//チュートリアル・ステージを選んで始める
+//チュートリアルかステージを選んで始める
 class SelectScene : public Scene
 {
 public:
@@ -35,4 +36,6 @@ private:
 	int m_cursor = 0;
 	//ロック中の項目を決定したときに揺らす残りフレーム数
 	int m_shakeFrame = 0;
+	//選んでいる項目を指す矢印
+	MenuCursorUI m_cursorUI;
 };

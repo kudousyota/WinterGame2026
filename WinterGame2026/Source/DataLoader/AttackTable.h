@@ -5,7 +5,6 @@
 #include <optional>
 #include "AttackData.h"
 
-//攻撃ごとのパラメータ(フレームやダメージ)をCSVから読み込んで持っておくクラス
 class AttackTable
 {
 public:
@@ -37,13 +36,13 @@ public:
 		float moveDistance = 0.0f;
 		//落ちるスピード
 		float fallSpeed = 0.0f;
-		//吹っ飛ぶ距離(敵が後ろへ下がる距離。0ならその場でのけぞる)
+		//吹っ飛ぶ距離
 		float knockback = 0.0f;
 		//浮いている敵を叩き落とせるか
 		bool canKnockDown = false;
 		//攻撃判定の長さ(0なら球で0より大きかったらカプセル状に延びていく)
 		float length = 0.0f;
-		//攻撃判定が1フレームに伸びる長さ(0なら最初からlengthの長さで出る)
+		//攻撃判定が1フレームに伸びる長さ
 		float growSpeed = 0.0f;
 		//アニメーションの名前
 		std::string animName;
@@ -76,10 +75,6 @@ public:
 	//CSVの行データ
 	using Rows = std::vector<std::vector<std::string>>;
 
-	//CSVの行データを受け取る
-	//hitRows:攻撃判定(AttackHit.csv。全部の攻撃を書く)
-	//motionRows:動き(AttackMotion.csv)
-	//comboRows:コンボのつながり(AttackCombo.csv。プレイヤーだけ)
 	void Load(const Rows& hitRows, const Rows& motionRows, const Rows& comboRows);
 
 	//攻撃の種類からパラメータを取得

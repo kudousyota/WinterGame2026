@@ -4,7 +4,6 @@
 #include "../Player.h"
 #include "../../../../DataLoader/AttackData.h"
 
-//プレイヤー用ステートの基底クラス
 class PlayerStateBase : public StateBase
 {
 public:
@@ -14,7 +13,7 @@ public:
 
 protected:
 	//ステートを遷移する
-	//テンプレートだと関数一個で済むif文対策
+	//テンプレートだと関数一個で済む
 	template<class Type>
 	void ChangeState()
 	{

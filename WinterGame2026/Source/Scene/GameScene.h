@@ -5,8 +5,8 @@
 #include "Scene.h"
 #include "../Game/Character/Enemy/EnemySpawner.h"
 #include "../Effect/ScreenDistortion.h"
+#include "../UI/UIManager.h"
 
-//本編のシーン
 class GameScene : public Scene
 {
 public:
@@ -48,6 +48,8 @@ private:
 	float m_waveStrength = 0.0f;
 	//揺らぎを動かす時間
 	float m_waveTime = 0.0f;
+	//画面に出すUIをまとめて持つ
+	UIManager m_uiManager;
 
 #ifdef _DEBUG
 	//デバッグ機能

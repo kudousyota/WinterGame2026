@@ -100,7 +100,7 @@ void Input::Update(int nowFrame)
 		//InputStateのvectorを回す
 		for (const auto& state : inputInfo.second)
 		{
-			//このループをInputState配列のループなので、まず入力種別をチェックします
+			//InputState配列のループなので、まず入力の種類を確認する
 			switch (state.type)
 			{
 			case PeripheralType::keyboard://キーボードだったら
@@ -160,7 +160,7 @@ void Input::Update(int nowFrame)
 
 bool Input::IsPressed(const char* name)const
 {
-	//もしイベントを送られるとクラッシュします
+	//登録されていないイベントが送られるとクラッシュする
 	return m_inputData.at(name);//const関数内部なので[]ではなくatを使用してる
 }
 

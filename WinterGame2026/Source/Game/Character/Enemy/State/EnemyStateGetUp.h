@@ -1,8 +1,6 @@
 ﻿#pragma once
 #include "EnemyStateBase.h"
 
-//敵が倒れた状態から起き上がる
-//起き上がりのアニメーションが終わったら待機に戻る(待機のアニメーションへ切り替わるときに浮き上がる)
 class EnemyStateGetUp : public EnemyStateBase
 {
 public:

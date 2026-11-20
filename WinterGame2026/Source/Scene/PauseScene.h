@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "Scene.h"
 #include <vector>
+#include "../UI/MenuCursorUI.h"
 
 class PauseScene : public Scene
 {
@@ -29,7 +30,6 @@ public:
 	/// <param name="items">上から順に並べる項目</param>
 	/// <param name="firstCursor">最初に選んでおく項目の番号//0が一番上</param>
 	PauseScene(SceneController& controller, const char* title,std::vector<Item> items, int firstCursor);
-	~PauseScene();
 
 	void Init() override;
 	void Update() override;
@@ -49,6 +49,6 @@ private:
 	std::vector<Item> m_items;
 	//選んでいる項目の番号
 	int m_cursor = 0;
-	//カーソルの画像
-	int m_cursorHandle = -1;
+	//選んでいる項目を指す矢印
+	MenuCursorUI m_cursorUI;
 };

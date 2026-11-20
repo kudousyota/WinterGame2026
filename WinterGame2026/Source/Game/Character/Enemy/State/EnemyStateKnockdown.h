@@ -1,10 +1,6 @@
 ﻿#pragma once
 #include "EnemyStateBase.h"
 
-//敵が叩き落とされた状態
-//攻撃してきた相手から離れる方向へ吹っ飛びながら、今いる高さから地面へ落ちる(運ばれて高い所にいても地面まで落ちる)
-//地面に倒れたらしばらくそのまま(追い打ちの時間)、その後起き上がりに移る
-//アニメーションは移動を消してあるので、宙に浮いている間だけコードで後ろへ動かす
 class EnemyStateKnockdown : public EnemyStateBase
 {
 public:

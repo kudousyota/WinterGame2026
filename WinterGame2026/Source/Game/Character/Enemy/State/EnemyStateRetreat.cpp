@@ -3,9 +3,9 @@
 
 namespace
 {
-	//離れる速さ(移動速度に掛ける倍率)
+	//離れる速さ
 	constexpr float kRetreatSpeedScale = 1.2f;
-	//これ以上たったら離れきれなくても様子見に移る(壁際で止まり続けないようにする)
+	//これ以上たったら離れきれなくても様子見に移る
 	constexpr float kMaxRetreatFrame = 90.0f;
 }
 
@@ -18,7 +18,7 @@ void EnemyStateRetreat::Update()
 {
 	m_frame += m_enemy.GetTimeScale();
 
-	//保つ距離まで離れたか、時間切れなら様子見へ
+	//保つ距離まで離れたか時間切れなら様子見へ
 	if (m_enemy.GetTargetDistance() >= m_enemy.GetKeepDistance() || m_frame >= kMaxRetreatFrame)
 	{
 		ChangeState<EnemyStateObserve>();

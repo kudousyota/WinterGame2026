@@ -15,7 +15,7 @@
 //判定はGameSceneが全員の移動が終わった後にまとめて行う
 struct AttackRequest
 {
-	//ダメージ・半径・誰の攻撃か
+	//ダメージ、半径、誰の攻撃か
 	AttackData data;
 	//攻撃1回ごとの番号(同じ攻撃が何度も当たらないようにするのに使う)
 	int attackId = 0;
@@ -74,7 +74,7 @@ public:
 	virtual void Init();
 	virtual void Update();
 	//当たり判定の押し出しなどが終わった後に呼ばれる
-	//確定した位置・向きをモデルに反映する
+	//確定した位置と向きをモデルに反映する
 	virtual void LateUpdate() {}
 	virtual void Draw();
 
@@ -135,7 +135,7 @@ public:
 	//ジャスト回避の受付中か
 	bool IsJustDodgeWindow()const { return m_isJustDodgeWindow; }
 
-	//攻撃を受けられる状態か(無敵中・被弾後の無敵中・死亡中は受けない)
+	//攻撃を受けられる状態か(無敵中、被弾後の無敵中、死亡中は受けない)
 	bool CanBeHit()const { return !m_isInvincible && m_hitInvincibleFrame <= 0 && !m_isDead; }
 	//無敵中か//今は回避中だけ無敵になる//被弾後の無敵は含まない
 	bool IsInvincible()const { return m_isInvincible && !m_isDead; }

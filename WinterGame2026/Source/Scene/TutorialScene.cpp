@@ -32,18 +32,18 @@ TutorialScene::TutorialScene(SceneController& controller) :
 
 TutorialScene::~TutorialScene()
 {
-	//エフェクトとスローヒットストップは次のシーンに持ち越さない
+	//エフェクトとスロー、ヒットストップは次のシーンに持ち越さない
 	EffectManager::Instns().StopAll();
 	Timer::Instance().Reset();
 }
 
 void TutorialScene::Init()
 {
-	//前のゲームのスローヒットストップが残らないようにする
+	//前のゲームのスローとヒットストップが残らないようにする
 	Timer::Instance().Reset();
 
 	//Zバッファの設定
-	SetUseZBuffer3D(true);//Zバッファを使います
+	SetUseZBuffer3D(true);//Zバッファを使う
 	SetWriteZBuffer3D(true);//描画する物体はZバッファにも距離を書き込む
 
 	//チュートリアルの部屋、プレイヤー、カメラを用意する//部屋から出られないのでゲートはいらない
@@ -60,7 +60,7 @@ void TutorialScene::Update()
 {
 #ifdef _DEBUG
 	m_debug.Update(m_game.GetDebugTargets());
-	//一時停止スロー中はゲームを進めない
+	//一時停止中とスロー中はゲームを進めない
 	if (!m_debug.ShouldUpdateGame()) return;
 #endif // _DEBUG
 
@@ -71,7 +71,7 @@ void TutorialScene::Update()
 		return;
 	}
 
-	//タイマーキャラクター攻撃判定カメラエフェクト消えた敵の片付けまで
+	//タイマー、キャラクター、攻撃判定、カメラ、エフェクト、消えた敵の片付けまで
 	const bool isAdvanced = m_game.Update();
 
 	 std::vector<BattleEvent> events = m_game.TakeBattleEvents();

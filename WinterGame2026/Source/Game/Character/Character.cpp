@@ -32,7 +32,7 @@ void Character::Damage(int damage)
 
 HitResult Character::OnHit(const AttackData& attackData, int damage)
 {
-	//無敵中・死亡中はダメージを受けない
+	//無敵中と死亡中はダメージを受けない
 	if (!CanBeHit()) return HitResult::Ignored;
 	Damage(damage);
 	if (m_hp <= 0) return HitResult::Killed;
@@ -90,7 +90,7 @@ bool Character::HasReceivedAttack(const Character* attacker, int attackId) const
 {
 	auto it = m_receivedAttackIds.find(attacker);
 	if (it == m_receivedAttackIds.end()) return false;
-	//番号ごとに覚えておくので、足技・ウィケッドウィーブ・多段ヒットの各段が
+	//番号ごとに覚えておくので、足技、ウィケッドウィーブ、多段ヒットの各段が
 	//同時に出ていても、それぞれ1回ずつ当たる
 	const auto& ids = it->second;
 	return std::find(ids.begin(), ids.end(), attackId) != ids.end();
@@ -130,7 +130,7 @@ StateBase::StateKind Character::GetStateKind() const
 
 void Character::UpdateState()
 {
-	//外部(死亡判定など)から予約されたステートを先に反映する
+	//外部から予約されたステートを先に反映する
 	ApplyNextState();
 
 	if (m_pState)

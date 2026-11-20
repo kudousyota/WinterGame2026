@@ -167,7 +167,7 @@ HitResult Dummy::OnHit(const AttackData& attackData, int damage)
 
 bool Dummy::IsBlownAwayFinished() const
 {
-	//当たったフレームはのけぞり・倒れるステートが予約されているだけで、まだ切り替わっていない
+	//当たったフレームはのけぞりや倒れるステートが予約されているだけでまだ切り替わっていない
 	if (m_pNextState) return false;
 	//叩き落とされたときは、地面に倒れきってアニメーションが止まったら
 	if (GetStateKind() == StateBase::StateKind::Down) return m_isAnimPause;
@@ -222,7 +222,7 @@ void Dummy::Respawn()
 	//戻ってきたらプレイヤーの方を向いて立っている
 	FaceTarget();
 	m_angle = atan2f(m_forward.x, m_forward.z) + DX_PI_F;
-	//倒れている途中のステートから待機に戻す(倒れたままのアニメーションの停止はステートを抜けるときに解除される)
+	//倒れている途中のステートから待機に戻す
 	ChangeState(std::make_unique<EnemyStateIdle>(*this));
 
 	m_isBlownAway = false;

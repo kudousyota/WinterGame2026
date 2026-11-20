@@ -5,17 +5,17 @@
 
 namespace
 {
-	//吹っ飛びのアニメーションで、体が宙に浮いて後ろへ飛び始める割合
-	//飛び終わる割合と倒れきる割合はアニメーションごとに違うので、敵から受け取る
-	//この区間の外(倒れた後)は動かさないので、体が滑って見えない
+	//吹っ飛びのアニメーションで体が宙に浮いて後ろへ飛び始める割合
+	//飛び終わる割合と倒れきる割合はアニメーションごとに違うので敵から受け取る
+	//この区間の外は動かさないので体が滑って見えない
 	constexpr float kFlyStartRate = 0.0f;
 
-	//飛び始めが一番速く、着地に向けてゆっくりになる
+	//飛び始めが一番速く着地に向けてゆっくりになる
 	float EaseOut(float t)
 	{
 		return 1.0f - (1.0f - t) * (1.0f - t);
 	}
-	//倒れたままでいるフレーム数(この間に地上のコンボを入れられる)
+	//倒れたままでいるフレーム数
 	constexpr float kLieFrame = 90.0f;
 }
 
@@ -32,8 +32,8 @@ void EnemyStateKnockdown::Enter()
 	m_enemy.FaceTarget();
 	m_flyDir = m_enemy.GetForward() * -1.0f;
 	m_enemy.GetAnim().ChangeAnim(m_enemy.GetKnockdownAnimName(), false);
-	//地面(y=0)まで落ちる高さを覚えておく
-	//地上で浮いている敵なら浮いている高さ(90cm)、運ばれて高い所にいればその分だけ多く落ちる
+	//地面まで落ちる高さを覚えておく
+	//地上で浮いている敵なら浮いている高さ運ばれて高い所にいればその分だけ多く落ちる
 	m_fallHeight = (std::max)(m_enemy.GetPos().y, 0.0f);
 
 }

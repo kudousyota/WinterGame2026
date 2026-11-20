@@ -1,10 +1,6 @@
 ﻿#pragma once
 #include "../Enemy.h"
 
-//チュートリアルで使う死なない練習相手
-//見た目と動きはゴブリンを使い回す
-//段階が変わるときは消して別のモードで出し直す
-//吹っ飛ばされたら、倒れたあと消えて、最初に出た場所に戻ってくる
 class Dummy : public Enemy
 {
 public:
@@ -28,7 +24,7 @@ public:
 
 	//HPが0になりそうなら最大まで戻して死なないようにする
 	void Damage(int damage)override;
-	//吹っ飛ぶ攻撃を受けたら、止まったあとに消えて戻ってくるようにする
+	//吹っ飛ぶ攻撃を受けたら止まったあとに消えて戻ってくるようにする
 	HitResult OnHit(const AttackData& attackData, int damage)override;
 
 	//Attackモードのときだけ攻撃する
@@ -48,11 +44,11 @@ private:
 		FadeIn,
 	};
 
-	//吹っ飛ばされて、もう動きが止まったか
+	//吹っ飛ばされてもう動きが止まったか
 	bool IsBlownAwayFinished()const;
 	//消えて戻ってくる流れを進める//ステートを止めておくならtrueを返す
 	bool UpdateRespawn(float timeScale);
-	//最初に出た場所に戻して、待機から始め直す
+	//最初に出た場所に戻して待機から始め直す
 	void Respawn();
 
 	Mode m_mode;

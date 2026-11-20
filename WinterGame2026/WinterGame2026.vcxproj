@@ -215,6 +215,9 @@
     <ClCompile Include="Source\Effect\ScreenDistortion.cpp" />
     <ClCompile Include="Source\Scene\TutorialScene.cpp" />
     <ClCompile Include="Source\Game\TutorialGuide.cpp" />
+    <ClCompile Include="Source\UI\MenuCursorUI.cpp" />
+    <ClCompile Include="Source\UI\UIManager.cpp" />
+    <ClCompile Include="Source\UI\WitchTimeNeedleUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Scene\PauseScene.h" />
@@ -293,6 +296,10 @@
     <ClInclude Include="Source\Effect\ScreenDistortion.h" />
     <ClInclude Include="Source\Scene\TutorialScene.h" />
     <ClInclude Include="Source\Game\TutorialGuide.h" />
+    <ClInclude Include="Source\UI\MenuCursorUI.h" />
+    <ClInclude Include="Source\UI\UIBase.h" />
+    <ClInclude Include="Source\UI\UIManager.h" />
+    <ClInclude Include="Source\UI\WitchTimeNeedleUI.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\Shader\DistortionPS.hlsl">

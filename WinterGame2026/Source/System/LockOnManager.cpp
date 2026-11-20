@@ -79,7 +79,7 @@ void LockOnManager::Update(const Vector3& playerPos, const Vector3& baseDir, con
 	//死亡と距離のチェック
 	CheckTarget(playerPos);
 
-	//ロックオン中だけ、右スティック(またはE・Qキー)で対象を切り替える
+	//ロックオン中だけ、右スティック(またはEキーとQキー)で対象を切り替える
 	if (!m_target.lock())return;
 	auto& input = Input::Instance();
 	if (input.IsTriggered("targetRight"))

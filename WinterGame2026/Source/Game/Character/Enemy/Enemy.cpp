@@ -45,7 +45,7 @@ void Enemy::Draw()
 
 HitResult Enemy::OnHit(const AttackData& attackData, int damage)
 {
-	//無敵中・死亡中は当たっていないのでのけぞらない
+	//無敵中と死亡中は当たっていないのでのけぞらない
 	if (!CanBeHit()) return HitResult::Ignored;
 
 	//このダメージで倒れた時はのけぞらない(死亡はUpdateで処理する)
@@ -58,7 +58,7 @@ HitResult Enemy::OnHit(const AttackData& attackData, int damage)
 	if (state)
 	{
 		auto kind = state->GetKind();
-		//倒れている間・起き上がり中はダメージだけ受ける(追い打ちはできる)
+		//倒れている間と起き上がり中はダメージだけ受ける(追い打ちはできる)
 		if (kind == StateBase::StateKind::Down || kind == StateBase::StateKind::GetUp) return HitResult::DamageOnly;
 	}
 

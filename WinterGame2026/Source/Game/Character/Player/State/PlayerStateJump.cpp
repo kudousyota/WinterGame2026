@@ -4,8 +4,6 @@
 #include "../../../../System/Input.h"
 #include "../../../../DataLoader/DataManager.h"
 
-//ジャンプ力や先行入力のフレーム数はPlayerParam.csvに書く
-
 PlayerStateJump::PlayerStateJump(Player& player, bool isJump):
 PlayerStateBase(player)
 {
@@ -52,7 +50,7 @@ void PlayerStateJump::Update()
 	//パンチボタンが押されたらパンチコンボの1段目を出す
 	if (input.IsBuffered("Punch", param.inputBufferFrame))
 	{
-		//1段目に使った入力を消して、2段目が勝手に出ないようにする
+		//1段目に使った入力を消して2段目が勝手に出ないようにする
 		input.ConsumeBuffer("Punch");
 		ChangeAttackState(AttackType::AirPunch, "Punch");
 		return;
@@ -60,14 +58,14 @@ void PlayerStateJump::Update()
 	//キックボタンが押されたらキックコンボの1段目を出す
 	if (input.IsBuffered("Kick", param.inputBufferFrame))
 	{
-		//1段目に使った入力を消して、2段目が勝手に出ないようにする
+		//1段目に使った入力を消して2段目が勝手に出ないようにする
 		input.ConsumeBuffer("Kick");
 		ChangeAttackState(AttackType::AirSkyKick, "Kick");
 		return;
 	}
 	if (input.IsBuffered("Jump", param.inputBufferFrame) && m_player.CanDobuleJump())
 	{
-		//1段目に使った入力を消して、2段目が勝手に出ないようにする
+		//1段目に使った入力を消して2段目が勝手に出ないようにする
 		input.ConsumeBuffer("Jump");
 		//権利を使い切る
 		m_player.UseDoubuleJump();

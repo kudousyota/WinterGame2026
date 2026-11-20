@@ -8,7 +8,7 @@ class Projectile;
 class ProjectileManager
 {
 public:
-	//Projectileは前方宣言なので、コンストラクタ・デストラクタの定義はcpp側に置く
+	//Projectileは前方宣言なので、コンストラクタとデストラクタの定義はcpp側に置く
 	ProjectileManager();
 	~ProjectileManager();
 

@@ -4,26 +4,23 @@
 
 class Scene;
 
-//シーンをスタックで持ち、切り替えを行う
-//Change/Push/Pop/Resetは予約だけして、実際の切り替えは次のUpdateで行う
-//(シーンのUpdate中に自分自身を破棄しないようにするため)
-//Change/Resetはフェードアウト→切り替え→フェードインを自動で行う
+//シーンをスタックで持ち切り替えを行う
 class SceneController
 {
 public:
-	//積まれているシーンを全部消して、渡したシーンだけにする(フェードあり)
+	//積まれているシーンを全部消して渡したシーンだけにする
 	void ResetScene(std::shared_ptr<Scene> scene);
-	//一番上のシーンを渡したシーンに入れ替える(フェードあり)
+	//一番上のシーンを渡したシーンに入れ替える
 	void ChangeScene(std::shared_ptr<Scene> scene);
-	//今のシーンを残したまま、上に新しいシーンを積む(ポーズ画面など。フェードなし)
+	//今のシーンを残したまま、上に新しいシーンを積む
 	void PushScene(std::shared_ptr<Scene> scene);
-	//一番上のシーンを外す(フェードなし)
+	//一番上のシーンを外す
 	void PopScene();
 
-	//予約された切り替えとフェードを進めてから、一番上のシーンを更新する
+	//予約された切り替えとフェードを進めてから一番上のシーンを更新する
 	//フェード中はシーンを更新しない
 	void Update();
-	//積まれている全シーンを下から順に描画し、フェード中なら黒を重ねる
+	//積まれている全シーンを下から順に描画しフェード中なら黒を重ねる
 	void Draw();
 
 private:
@@ -45,20 +42,20 @@ private:
 	enum class FadeState
 	{
 		None,
-		//暗くしている途中(終わったらシーンを切り替える)
+		//暗くしている途中
 		Out,
 		//明るくしている途中
 		In,
 	};
 
-	//積まれているシーン(最後に積んだものが一番上)
+	//積まれているシーン
 	std::list<std::shared_ptr<Scene>> m_scenes;
 
-	//予約されている切り替え(1フレームに複数頼まれたら最後のものを使う)
+	//予約されている切り替え
 	RequestType m_requestType = RequestType::None;
 	std::shared_ptr<Scene> m_requestScene;
 
 	FadeState m_fadeState = FadeState::None;
-	//フェードの進み具合(0:真っ暗でない 〜 kFadeFrame:真っ暗)
+	//フェードの進み具合
 	int m_fadeFrame = 0;
 };

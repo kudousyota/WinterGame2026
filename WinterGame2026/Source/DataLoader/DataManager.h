@@ -17,7 +17,7 @@ public:
 
 	//データの読み込み
 	void LoadData();
-	//ゲーム中にデータを読み直す(デバッグ用)
+	//ゲーム中にデータを読み直す
 	//読み込みに失敗したら今のデータのままにしてfalseを返す
 	bool ReloadData();
 
@@ -40,7 +40,7 @@ private:
 	DataManager(const DataManager&) = delete;
 	DataManager& operator=(const DataManager&) = delete;
 
-	//共通のCSV読み込み処理(行ごとに文字列配列にする)
+	//共通のCSV読み込み処理
 	std::vector<std::vector<std::string>> LoadCsv(const std::string& path);
 
 	//敵の出現データをロードする

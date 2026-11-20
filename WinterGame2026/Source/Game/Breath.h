@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "../System/Projectile.h"
 #include "../DataLoader/AttackData.h"
-//ブレス
+
 //撃った敵が毎フレーム位置と向きを更新し、攻撃が終わったらKillする
 class Breath : public Projectile
 {
