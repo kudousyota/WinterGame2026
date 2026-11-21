@@ -61,8 +61,13 @@ private:
 	int m_weakPointEffectHandle = -1;
 	//弱点の基準にする背中のボーン(見つからなければ-1)
 	int m_weakPointFrame = -1;
-	//ボーンから見た弱点の中心(ボーンが回転しても背中の同じ場所についていく)
-	Vector3 m_weakPointLocalPos;
-	//弱点の中心(LateUpdateで更新する)
-	Vector3 m_weakPointPos;
+	//ボーンから見た弱点の中心
+	Vector3 m_weakPointLocalPos = Vector3(0.0f,0.0f,0.0f);
+	//弱点の中心
+	Vector3 m_weakPointPos = Vector3(0.0f, 0.0f, 0.0f);
+	//ボスが戻る位置
+	Vector3 m_restartPos = Vector3(0.0f, 0.0f, 0.0f);
+	//スポーンしたかどうか
+	bool m_isSpawne = false;
+
 };

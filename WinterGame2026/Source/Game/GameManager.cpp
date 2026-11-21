@@ -87,6 +87,11 @@ void GameManager::UpdateWorld()
 	m_collision.BeginFrame(GetAllCharacters());
 	//カメラ基準で移動させるためにカメラの向きを渡す
 	//ロックオンの方向もカメラ基準だからロックオンより先に渡す
+	//動く前の位置を覚えておく//速く動いて壁を飛び越えていないか、ここから線を飛ばして調べる
+	for (Character* character : GetAllCharacters())
+	{
+		character->SavePrevPos();
+	}
 	m_pPlayer->SetCameraAxis(m_pCamera->GetForward(), m_pCamera->GetRight());
 	//プレイヤーが攻撃の向きに使うからプレイヤーより先にロックオンを更新する
 	//敵の一覧は作り直しになるので1回だけ作る
@@ -171,7 +176,8 @@ void GameManager::SpawnEnemy(const std::string& name, const Vector3& groundPos)
 
 	//Initで最初の位置が入るから位置はInitの後に決める
 	enemy->Init();
-	enemy->SetPosition(pos + Vector3(0.0f, enemy->GetHoverHeight(), 0.0f));
+	//出てきた場所までの間に壁があっても引っかからないようにWarpで置く
+	enemy->Warp(pos + Vector3(0.0f, enemy->GetHoverHeight(), 0.0f));
 	//最初のフレームから正しい位置に描かれるようモデルにも反映しておく
 	enemy->LateUpdate();
 	//敵はプレイヤーを狙う

@@ -172,6 +172,13 @@ void Warrok::Update()
 
 	//ゲーム全体の時間倍率に敵専用の倍率を掛ける
 	float timeScale = GetTimeScale();
+	
+	//最初に生まれた場所を記憶する
+	if (!m_isSpawne)
+	{
+		m_restartPos = m_pos;
+		m_isSpawne = true;
+	}
 
 	//ジャンプ攻撃が使えるまでの時間を進める
 	if (m_jumpAttackCooldown > 0.0f)

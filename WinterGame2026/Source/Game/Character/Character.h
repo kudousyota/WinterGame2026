@@ -96,6 +96,13 @@ public:
 	//ステートから操作するためのアクセサ
 	const Vector3& GetPos()const { return m_pos; }
 	void SetPosition(const Vector3& pos) { m_pos = pos; }
+	//瞬間移動させる//前の位置も一緒に移すので、壁のすり抜け判定に引っかからない
+	//出現やリスポーンなど、間を通ってきたことにしたくない移動で使う
+	void Warp(const Vector3& pos) { m_pos = pos; m_prevPos = pos; }
+	//今の位置を前の位置として覚える//全員が動く前に1回だけ呼ぶ
+	void SavePrevPos() { m_prevPos = m_pos; }
+	//このフレームに動き始める前の位置//壁のすり抜けを防ぐ線の始点に使う
+	const Vector3& GetPrevPos()const { return m_prevPos; }
 	const Vector3& GetVelocity()const { return m_velocity; }
 	void SetVelocity(const Vector3& velocity) { m_velocity = velocity; }
 	const Vector3& GetForward()const { return m_forward; }
@@ -197,6 +204,8 @@ protected:
 
 	//位置
 	Vector3 m_pos = Vector3(0.0f,0.0f,0.0f);
+	//このフレームに動き始める前の位置
+	Vector3 m_prevPos = Vector3(0.0f, 0.0f, 0.0f);
 	//向いている方向
 	Vector3 m_forward = Vector3(0.0f, 0.0f, 0.0f);
 	//速度

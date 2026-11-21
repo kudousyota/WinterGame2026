@@ -217,7 +217,8 @@ bool Dummy::UpdateRespawn(float timeScale)
 
 void Dummy::Respawn()
 {
-	SetPosition(m_homePos);
+	//飛ばされた場所から元の場所へ瞬間移動するので、間の壁に引っかからないようにWarpで戻す
+	Warp(m_homePos);
 	StopMove();
 	//戻ってきたらプレイヤーの方を向いて立っている
 	FaceTarget();
