@@ -15,7 +15,7 @@ namespace
 }
 
 //キャラクターとステージの当たり判定をまとめて解決する
-void StageCollision::Resolve(Character* character, int stagehandle)
+void StageCollision::Resolve(Character& character, int stagehandle)
 {
 	//先に壁から押し出して、XZの位置を確定させる
 	CheckWall(character, stagehandle);
@@ -25,41 +25,41 @@ void StageCollision::Resolve(Character* character, int stagehandle)
 	Vector3 groundNormal;
 	bool isHit = CheckGround(character, stagehandle, groundY, groundNormal);
 
-	Vector3 pos = character->GetPos();
-	Vector3 velocity = character->GetVelocity();
+	Vector3 pos = character.GetPos();
+	Vector3 velocity = character.GetVelocity();
 
 	//上昇中は着地しない(ジャンプした直後に地面へ引き戻されないようにする)
 	bool isRising = velocity.y > 0.0f;
 	//地面にいたキャラクターは、レイが届く範囲なら地面に吸着する(坂や段差を下りるときに浮かないようにする)
 	//空中にいたキャラクターは、足元が地面に届いたときだけ着地する(落下中に地面へ瞬間移動しないようにする)
-	bool canLand = character->IsGround() || pos.y <= groundY;
+	bool canLand = character.IsGround() || pos.y <= groundY;
 
 	if (isHit && !isRising && canLand)
 	{
 		pos.y = groundY;
 		velocity.y = 0.0f;
-		character->SetPosition(pos);
-		character->SetVelocity(velocity);
-		character->SetGround(true);
+		character.SetPosition(pos);
+		character.SetVelocity(velocity);
+		character.SetGround(true);
 	}
 	else
 	{
-		character->SetGround(false);
+		character.SetGround(false);
 	}
 }
 
-//キャラクターとステージの壁との衝突を判定し、めり込んでいた場合は壁の外側へ押し出す
-bool StageCollision::CheckWall(Character* character, int stagehandle)
+//キャラクターとステージの壁との衝突を判定しめり込んでいた場合は壁の外側へ押し出す
+bool StageCollision::CheckWall(Character& character, int stagehandle)
 {
+	//早く動いて壁を超えていたら先に壁の前に戻す
+	bool hitAny = SweepWall(character, stagehandle);
+
 	//プレイヤーのカプセル情報を取得
-	float radius = character->GetCollisionRadius();
-	float height = character->GetCollisionHeight();
+	float radius = character.GetCollisionRadius();
+	float height = character.GetCollisionHeight();
 
 	//足元基準の現在地
-	Vector3 pos = character->GetPos();
-	//このフレームで一回でもポリゴンに当たったか確認
-	bool hitAny = false;
-
+	Vector3 pos = character.GetPos();
 	//当たっていたら
 	//4回判定する
 	const int kMaxIteration = 4;
@@ -77,89 +77,70 @@ bool StageCollision::CheckWall(Character* character, int stagehandle)
 			MV1CollResultPolyDimTerminate(hit);
 			break;
 		}
-		//ポリゴンに当たったか記録
-		//ここでは壁ポリゴンに当たったかを一旦保留にする
-		//一番めり込んだポリゴンを探すための変数
-		float maxDepth = -FLT_MAX;
-		//一番深いポリゴンの法線を保持
-		Vector3 bestNormal;
+		//一番深くめり込んだ深さ//0のままならどのポリゴンにもめり込んでいない
+		float maxDepth = 0.0f;
+		//一番深いポリゴンから押し出す向き
+		Vector3 bestPush;
 		//当たったポリゴンをチェック
 		for (int i = 0; i < hit.HitNum; i++)
 		{
 			Vector3 fullNormal(hit.Dim[i].Normal.x, hit.Dim[i].Normal.y, hit.Dim[i].Normal.z);
 			fullNormal = fullNormal.Normalize();
 
-			//歩ける床と坂とみなして壁判定から除外
-			//歩行可能な坂道は壁として扱わない
-			if (fullNormal.y >= kWalkableSlopeCos)
+			//歩ける床と坂は壁として扱わない
+			if (fullNormal.y >= kWalkableSlopeCos) continue;
+
+			//カプセルの軸と三角形のいちばん近い点どうしを求める
+			//面を無限に広げて測ると、角や壁と壁の間でとなりの面に押し込まれて挟まる
+			SEGMENT_TRIANGLE_RESULT result;
+			Segment_Triangle_Analyse(&start, &end,
+				&hit.Dim[i].Position[0], &hit.Dim[i].Position[1], &hit.Dim[i].Position[2], &result);
+
+			//半径より離れていればめり込んでいない
+			float depth = radius - sqrtf(result.Seg_Tri_MinDist_Square);
+			if (depth <= maxDepth) continue;
+
+			//三角形から軸へ向かう向きに押し出す//高さは地面の判定で決めるのでXZだけ
+			Vector3 push(result.Seg_MinDist_Pos.x - result.Tri_MinDist_Pos.x, 0.0f,
+				result.Seg_MinDist_Pos.z - result.Tri_MinDist_Pos.z);
+			if (push.SqMagnitude() < 0.0001f)
 			{
-				//坂と床はスキップ
-				continue;
+				//軸がポリゴンを貫いていて向きが出ないときは、面の向きで押し出す
+				push = Vector3(fullNormal.x, 0.0f, fullNormal.z);
+				if (push.SqMagnitude() < 0.0001f) continue;
 			}
-			//法線のY成分を無視してXZ平面に投射
-			Vector3 rawNormal(hit.Dim[i].Normal.x, 0.0f, hit.Dim[i].Normal.z);
-
-			//ほぼ水平なポリゴン床は壁判定から除外
-			float lenSq = rawNormal.SqMagnitude();
-			if (lenSq < 0.0001f)
-			{
-				continue;
-			}
-			//歩行可能な坂道は壁として扱わない
-			Vector3 normal(hit.Dim[i].Normal.x, 0.0f, hit.Dim[i].Normal.z);
-
-			normal = normal.Normalize();
-			//ポリゴンの頂点の一つを平面上の点として使う
-			Vector3 planepoint(hit.Dim[i].Position[0].x,
-				hit.Dim[i].Position[0].y,
-				hit.Dim[i].Position[0].z);
-
-			//カプセル軸
-			Vector3 axispoint(pos.x, planepoint.y, pos.z);
-			//平面点からカプセル軸への距離を法線方向に射影
-			float signedDist = normal.Dot(axispoint - planepoint);
-
-			//半径よりも平面に近ければめり込んでいる
-			float depth = radius - signedDist;
-			//最も深くめり込んでいるポリゴンを記録
-			if (depth > maxDepth)
-			{
-				maxDepth = depth;
-				bestNormal = normal;
-			}
-
+			maxDepth = depth;
+			bestPush = push.Normalize();
 		}
-		//実際に壁として押し出しが発生した場合のみ hitAny を立てる
-		//実際にめり込んでいた場合のみ、その分だけ壁の法線方向に押し出す
+		//めり込んでいたときだけ、その分だけ押し出す
 		if (maxDepth > 0.0f)
 		{
-			pos += bestNormal * maxDepth;
+			pos += bestPush * maxDepth;
 			hitAny = true;
 		}
 		//ヒット結果のメモリを解放
 		MV1CollResultPolyDimTerminate(hit);
 	}
 	//押し出し後の最終的な座標をキャラクターに反映
-	character->SetPosition(pos);
+	character.SetPosition(pos);
 	//壁に一度でも当たったかを返す
 	return hitAny;
 }
 
-bool StageCollision::CheckGround(Character* character, int stagehandle, float& outGroundY, Vector3& outGroundNormal)
+bool StageCollision::CheckGround(Character& character, int stagehandle, float& outGroundY, Vector3& outGroundNormal)
 {
 	//キャラクターの現在の位置を取得
-	Vector3 pos = character->GetPos();
-	//キャラクターのカプセルの半径を取得
-	float radius = character->GetCollisionRadius();
+	Vector3 pos = character.GetPos();
 	//レイを伸ばして坂道や段差でも設置判定をできるようにする
 	const float kUpMargin = 5.0f;
 	const float kDownMargin = 8.0f;
 
-	//レイ(下向きの線分)の開始点と終了点を決める
+	//レイの開始点と終了点を決める
 	//キャラクターの基準位置は足元
-	//カプセル半径を考慮した位置から下向きにレイを飛ばす
-	VECTOR rayStart = Vector3(pos.x, pos.y + kStepHeight + radius + kUpMargin, pos.z);
-	VECTOR rayEnd = Vector3(pos.x, pos.y - radius - kDownMargin, pos.z);
+	//登れる段差の高さより少し上から飛ばす//半径を足すと体の大きいキャラほど高い壁に乗り上げてしまう
+	VECTOR rayStart = Vector3(pos.x, pos.y + kStepHeight + kUpMargin, pos.z);
+	//下りの坂や段差で浮かないように足元より少し下まで届かせる
+	VECTOR rayEnd = Vector3(pos.x, pos.y - kStepHeight - kDownMargin, pos.z);
 
 	//ステージとのレイ判定をする
 	MV1_COLL_RESULT_POLY hitPoly = MV1CollCheck_Line(stagehandle, -1, rayStart, rayEnd);
@@ -203,4 +184,44 @@ bool StageCollision::CheckCameraRay(int stagehandle, const Vector3& start, const
 		return true;
 	}
 	return false;
+}
+
+bool StageCollision::SweepWall(Character& character, int stagehandle)
+{
+	float radius = character.GetCollisionRadius();
+	Vector3 pos = character.GetPos();
+	const Vector3& prevPos = character.GetPrevPos();
+	
+	//レイの始点と終点//終点も始点と同じ高さにする
+	//登れる段差のすぐ上を通す//半径を足すと体の大きいキャラほど低い壁の上を素通りしてしまう
+	const float lineY = prevPos.y + kStepHeight + 1.0f;
+	Vector3 start(prevPos.x ,lineY, prevPos.z);
+	Vector3 end(pos.x, lineY, pos.z);
+
+	//動いていなかったら調べない
+	Vector3 move = end - start;
+	if (move.SqMagnitude() < 0.00001f)return false;
+
+	//線を飛ばす
+	MV1_COLL_RESULT_POLY hitPoly = MV1CollCheck_Line(stagehandle, -1, start, end);
+	if (hitPoly.HitFlag == 0)return false;
+
+	//超えては行けない壁を調べる
+	Vector3 normal = Vector3(hitPoly.Normal.x, hitPoly.Normal.y, hitPoly.Normal.z).Normalize();
+	//床とか坂ではない
+	if (normal.y >= kWalkableSlopeCos) return false;
+
+	//移動方向と壁の向きはxとzだけで比べる
+	Vector3 dir = move.Normalize();
+	Vector3 wallNormal = Vector3(normal.x, 0.0f, normal.z);
+
+	//壁の裏から当たったとき//押し出されて離れている途中は止めない
+	if (dir.Dot(wallNormal) >= 0.0f) return false;
+
+	//当たった場所から来た方向分もどす
+	Vector3 hitPos (hitPoly.HitPosition.x, hitPoly.HitPosition.y, hitPoly.HitPosition.z);
+	pos.x = hitPos.x - dir.x * radius;
+	pos.z = hitPos.z - dir.z * radius;
+	character.SetPosition(pos);
+	return true;
 }

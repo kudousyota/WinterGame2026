@@ -89,7 +89,7 @@ bool Gate::IsClosed() const
 	return m_isClosed;
 }
 
-void Gate::ResolveWall(Character* character)
+void Gate::ResolveWall(Character& character)
 {
 	//閉じているゲートだけ判定する
 	for (int i = 0; i < m_activeNum; i++)

@@ -19,7 +19,7 @@ public:
 	void Update(bool shouldClose, const std::vector<SpawnTable::GateInfo>& gates);
 	bool IsClosed()const;
 	//閉じている壁だけ
-	void ResolveWall(Character* character);
+	void ResolveWall(Character& character);
 
 	void DrawDebug()const;
 

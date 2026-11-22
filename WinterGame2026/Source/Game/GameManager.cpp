@@ -107,8 +107,8 @@ void GameManager::UpdateWorld()
 	//キャラクター同士の押し出しで壁にめり込むことがあるので、ステージとの判定は最後に行う
 	for (Character* character : GetAllCharacters())
 	{
-		m_gate.ResolveWall(character);
-		StageCollision::Resolve(character, m_pStage->GetCollisionHandle());
+		m_gate.ResolveWall(*character);
+		StageCollision::Resolve(*character, m_pStage->GetCollisionHandle());
 	}
 
 	//押し出しで確定した位置をモデルに反映する
