@@ -64,6 +64,10 @@ public:
 	bool AreAllEnemiesVanished()const;
 	//ロックオンしているか
 	bool IsLockedOn()const;
+	//ロックオンしている敵//いなければ空//返したshared_ptrはその場で使うだけにする
+	std::shared_ptr<const Character> GetLockOnTarget()const { return m_lockOn.GetTarget(); }
+	//敵の一覧//ロックオンやHPバーなど、weak_ptrで敵を覚えておく処理用
+	std::vector<std::shared_ptr<Character>> GetEnemies()const;
 
 private:
 	//キャラクターの更新から攻撃判定とカメラまで進める
@@ -76,8 +80,6 @@ private:
 
 	//敵の一覧//その場で使うだけの処理用。フレームをまたいで持たない
 	std::vector<Enemy*> GetEnemyList()const;
-	//敵の一覧//ロックオンなど、weak_ptrで敵を覚えておく処理用
-	std::vector<std::shared_ptr<Character>> GetEnemies()const;
 	//プレイヤーと全部の敵//攻撃の判定など、その場で使うだけの処理用
 	std::vector<Character*> GetAllCharacters()const;
 

@@ -12,6 +12,8 @@
 #include <vector>
 #include "../DataLoader/DataManager.h"
 #include "../UI/WitchTimeNeedleUI.h"
+#include "../UI/PlayerHPUI.h"
+#include "../UI/EnemyHPUI.h"
 
 namespace
 {
@@ -65,6 +67,10 @@ void GameScene::Init()
 
 	//UIを登録してからまとめて初期化する
 	m_uiManager.Add(std::make_unique<WitchTimeNeedleUI>());
+	//プレイヤーはm_game.Initで作られるのでその後に渡す
+	m_uiManager.Add(std::make_unique<PlayerHPUI>(m_game.GetPlayer()));
+	//敵のHPバー//敵は後から出てくるのでUIの中で敵の一覧を毎フレーム見る
+	m_uiManager.Add(std::make_unique<EnemyHPUI>(m_game));
 	m_uiManager.Init();
 }
 
