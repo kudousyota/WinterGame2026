@@ -15,10 +15,10 @@ namespace
 }
 
 //キャラクターとステージの当たり判定をまとめて解決する
-void StageCollision::Resolve(Character& character, int stagehandle)
+bool StageCollision::Resolve(Character& character, int stagehandle)
 {
 	//先に壁から押し出して、XZの位置を確定させる
-	CheckWall(character, stagehandle);
+	const bool isHitWall = CheckWall(character, stagehandle);
 
 	//確定した位置の真下にある地面を探す
 	float groundY = 0.0f;
@@ -46,6 +46,7 @@ void StageCollision::Resolve(Character& character, int stagehandle)
 	{
 		character.SetGround(false);
 	}
+	return isHitWall;
 }
 
 //キャラクターとステージの壁との衝突を判定しめり込んでいた場合は壁の外側へ押し出す
@@ -71,7 +72,7 @@ bool StageCollision::CheckWall(Character& character, int stagehandle)
 		VECTOR end = VAdd(start, Vector3(0.0f, height, 0.0f));
 		//ステージとのカプセル衝突判定
 		auto hit = MV1CollCheck_Capsule(stagehandle, -1, start, end, radius);
-		//何もヒットしなければ,これ以上押し出す必要はない
+		//何もヒットしなければこれ以上押し出す必要はない
 		if (hit.HitNum == 0)
 		{
 			MV1CollResultPolyDimTerminate(hit);

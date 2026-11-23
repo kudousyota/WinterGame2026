@@ -85,16 +85,18 @@ void GameManager::UpdateWorld()
 {
 	//当たり判定はこのフレームにいるキャラクターで行う//消えた敵はもう入っていない
 	m_collision.BeginFrame(GetAllCharacters());
-	//カメラ基準で移動させるためにカメラの向きを渡す
-	//ロックオンの方向もカメラ基準だからロックオンより先に渡す
+	
 	//動く前の位置を覚えておく//速く動いて壁を飛び越えていないか、ここから線を飛ばして調べる
 	for (Character* character : GetAllCharacters())
 	{
 		character->SavePrevPos();
 	}
+
+	//カメラ基準で移動させるためにカメラの向きを渡す
+	//ロックオンの方向もカメラ基準だからロックオンより先に渡す
 	m_pPlayer->SetCameraAxis(m_pCamera->GetForward(), m_pCamera->GetRight());
+
 	//プレイヤーが攻撃の向きに使うからプレイヤーより先にロックオンを更新する
-	//敵の一覧は作り直しになるので1回だけ作る
 	auto enemies = GetEnemies();
 	m_lockOn.Update(m_pPlayer->GetPos(), m_pCamera->GetForward(), enemies);
 	m_pPlayer->SetAttackTarget(m_lockOn.GetAttackTarget(m_pPlayer->GetPos(), m_pPlayer->GetMoveInput(), m_pPlayer->GetForward(), enemies));
@@ -107,13 +109,18 @@ void GameManager::UpdateWorld()
 	//キャラクター同士の押し出しで壁にめり込むことがあるので、ステージとの判定は最後に行う
 	for (Character* character : GetAllCharacters())
 	{
-		m_gate.ResolveWall(*character);
-		StageCollision::Resolve(*character, m_pStage->GetCollisionHandle());
+		//ゲートとステージのどちらの壁に当たっても壁に当たったことにする
+		//両方から押し出したいので、||でつながずに別々に呼ぶ
+		const bool isHitGate = m_gate.ResolveWall(*character);
+		const bool isHitStage = StageCollision::Resolve(*character, m_pStage->GetCollisionHandle());
+		//次のフレームのUpdateで、ステートがこの結果を見る
+		character->SetHitWall(isHitGate || isHitStage);
 	}
 
 	//押し出しで確定した位置をモデルに反映する
 	m_pPlayer->LateUpdate();
 	m_enemyManager.LateUpdate();
+
 	//敵の位置が確定してからマーカーを合わせる
 	m_lockOn.LateUpdate();
 

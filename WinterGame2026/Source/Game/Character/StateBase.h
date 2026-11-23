@@ -20,6 +20,7 @@ public:
 		GetUp,//起き上がり
 		Retreat,//離れる
 		Observe,//様子見
+		Stun,//壁に激突してふらつく
 	};
 
 	virtual ~StateBase() = default;
@@ -51,6 +52,7 @@ public:
 		case StateKind::GetUp:	return "GetUp";
 		case StateKind::Retreat:	return "Retreat";
 		case StateKind::Observe:	return "Observe";
+		case StateKind::Stun:	return "Stun";
 		default:				return "null";
 		}
 	}

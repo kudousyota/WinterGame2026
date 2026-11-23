@@ -228,6 +228,9 @@
     <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateCharge.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Game\Character\Enemy\State\EnemyStateStun.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Game\Gate.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -468,6 +471,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateCharge.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\Character\Enemy\State\EnemyStateStun.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Source\Game\Gate.h">

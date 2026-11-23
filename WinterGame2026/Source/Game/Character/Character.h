@@ -85,7 +85,7 @@ public:
 	bool IsDead()const;
 
 	//ステートを変更する
-	//Update中に今のステートを破棄しないよう、実際の切り替えはUpdateStateの中で行う
+	//Update中に今のステートを破棄しないよう実際の切り替えはUpdateStateの中で行う
 	void ChangeState(std::unique_ptr<StateBase> nextState);
 	//現在のステートの種類を取得
 	StateBase::StateKind GetStateKind()const;
@@ -97,7 +97,7 @@ public:
 	const Vector3& GetPos()const { return m_pos; }
 	void SetPosition(const Vector3& pos) { m_pos = pos; }
 	//瞬間移動させる//前の位置も一緒に移すので、壁のすり抜け判定に引っかからない
-	//出現やリスポーンなど、間を通ってきたことにしたくない移動で使う
+	//出現やリスポーンなど間を通ってきたことにしたくない移動で使う
 	void Warp(const Vector3& pos) { m_pos = pos; m_prevPos = pos; }
 	//今の位置を前の位置として覚える//全員が動く前に1回だけ呼ぶ
 	void SavePrevPos() { m_prevPos = m_pos; }
@@ -106,9 +106,14 @@ public:
 	const Vector3& GetVelocity()const { return m_velocity; }
 	void SetVelocity(const Vector3& velocity) { m_velocity = velocity; }
 	const Vector3& GetForward()const { return m_forward; }
+	
+	//速度
 	float GetSpeed()const { return m_speed; }
+
+	//HP
 	int GetHp()const { return m_hp; }
 	int GetMaxHp()const { return m_maxhp; }
+
 	bool IsGround()const { return m_isGround; }
 	//ステージとの当たり判定の結果を反映する
 	void SetGround(bool isGround) { m_isGround = isGround; }
@@ -142,7 +147,7 @@ public:
 	//ジャスト回避の受付中か
 	bool IsJustDodgeWindow()const { return m_isJustDodgeWindow; }
 
-	//攻撃を受けられる状態か(無敵中、被弾後の無敵中、死亡中は受けない)
+	//攻撃を受けられる状態か
 	bool CanBeHit()const { return !m_isInvincible && m_hitInvincibleFrame <= 0 && !m_isDead; }
 	//無敵中か//今は回避中だけ無敵になる//被弾後の無敵は含まない
 	bool IsInvincible()const { return m_isInvincible && !m_isDead; }
@@ -154,7 +159,7 @@ public:
 
 	//攻撃する側
 	//攻撃を始めるたびに新しい番号を発行する
-	//番号は全キャラクターで共通にして、同じ番号が二度と出ないようにする
+	//番号は全キャラクターで共通にして同じ番号が二度と出ないようにする
 	int IssueAttackId() { return ++s_attackIdCounter; }
 	//攻撃を申請する
 	void RequestAttack(const AttackRequest& request) { m_attackRequests.push_back(request); }
@@ -174,12 +179,14 @@ public:
 	//この攻撃を受けたことを記録する
 	void MarkAttackReceived(const Character* attacker, int attackId);
 
-	//読み直したステータスを反映する(今のHPは残す)
+	//読み直したステータスを反映する
 	virtual void ReloadStatus();
 	//受けるダメージ倍率
 	virtual float GetDamageRate(const Vector3& start, const Vector3& end, float radius)const { return 1.0f; }
 
-
+	//壁に当たったか
+	void SetHitWall(bool isHit) { m_isHitWall = isHit; }
+	bool IsHitWall()const { return m_isHitWall; }
 #ifdef _DEBUG
 	//デバッグ表示用のステート情報
 	std::string GetDebugStateText()const;
@@ -245,6 +252,8 @@ protected:
 	bool m_isDead = false;
 	//ジャスト回避の受付中か
 	bool m_isJustDodgeWindow = false;
+	//壁に当たったか
+	bool m_isHitWall = false;
 
 	//体の大きさ、当たり判定
 	//身長

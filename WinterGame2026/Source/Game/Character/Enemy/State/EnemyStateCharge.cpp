@@ -1,5 +1,6 @@
 ﻿#include "EnemyStateCharge.h"
 #include "EnemyStateRetreat.h"
+#include "EnemyStateStun.h"
 #include "../../../../DataLoader/DataManager.h"
 #include "../../../../Effect/EffectManager.h"
 #include <cstdio>
@@ -67,12 +68,25 @@ void EnemyStateCharge::Update()
 		{
 			StartCharge();
 		}
-		//決めた方向へ真っ直ぐすすむ
-		m_enemy.SetVelocity(m_chargeDir * m_chargeSpeed);
+		else if (m_enemy.IsHitWall())
+		{
+			//前のフレームに壁に当たっていたら、激突してふらつく
+			//走り始めたフレームは溜めている間の結果なので見ない//壁を背にして溜めていたときにすぐ止まらないように
+			//跳ね返るのは突進と逆の向き
+			m_enemy.ChangeState(std::make_unique<EnemyStateStun>(m_enemy, m_chargeDir * -1.0f));
+			return;
+		}
+
+		//壁で止まったときは走り終わりに移っているので進まない
+		if (IsCharging())
+		{
+			//決めた方向へ真っ直ぐすすむ
+			m_enemy.SetVelocity(m_chargeDir * m_chargeSpeed);
+		}
 	}
 	else
 	{
-		//走り終わり//ここで背中を見せるようにする
+		//走り終わり//外れたときはプレイヤーの方を向かずに背中を見せたままにする
 		m_enemy.StopMove();
 	}
 	//判定が出るまでが予兆

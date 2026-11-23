@@ -59,7 +59,7 @@ HitResult Enemy::OnHit(const AttackData& attackData, int damage)
 	{
 		auto kind = state->GetKind();
 		//倒れている間と起き上がり中はダメージだけ受ける(追い打ちはできる)
-		if (kind == StateBase::StateKind::Down || kind == StateBase::StateKind::GetUp) return HitResult::DamageOnly;
+		if (kind == StateBase::StateKind::Down || kind == StateBase::StateKind::GetUp || kind == StateBase::StateKind::Stun) return HitResult::DamageOnly;
 	}
 
 	//叩き落とせる攻撃は、浮いている敵を地面に落とす

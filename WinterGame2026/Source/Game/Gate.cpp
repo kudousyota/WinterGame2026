@@ -89,12 +89,17 @@ bool Gate::IsClosed() const
 	return m_isClosed;
 }
 
-void Gate::ResolveWall(Character& character)
+bool Gate::ResolveWall(Character& character)
 {
+	bool isHit = false;
 	//閉じているゲートだけ判定する
 	for (int i = 0; i < m_activeNum; i++)
 	{
 		//キャラクターと壁の衝突判定を行う
-		StageCollision::CheckWall(character, m_handles[i]);
+		if (StageCollision::CheckWall(character, m_handles[i]))
+		{
+			isHit = true;
+		}
 	}
+	return isHit;
 }
