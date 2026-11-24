@@ -11,7 +11,7 @@ JumpKick,None,None,None,None,0
 Kicking,None,None,WitchLeg,None,0
 LegSweep,None,None,WitchLeg,None,0
 MeleeKick,Punching,None,None,None,0
-Rush,None,None,WitchHand,None,46
+Rush,None,None,WitchHand,None,31
 AirPunch,AirPunching,AirSkyKick,None,None,0
 AirPunching,AirRush,AirSkyKick,None,None,0
 AirRush,None,None,WitchHand,None,0

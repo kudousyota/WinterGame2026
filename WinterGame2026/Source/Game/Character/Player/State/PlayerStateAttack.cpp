@@ -319,7 +319,7 @@ void PlayerStateAttack::SummonStomp()
 void PlayerStateAttack::OpenShotCircle()
 {
 	const Vector3& forward = m_player.GetForward();
-	//弾が出る位置(ShotRequestと同じ)に出して、魔法陣から弾が出てくるように見せる
+	//弾が出る位置に出して、魔法陣から弾が出てくるように見せる
 	const Vector3 pos = m_player.GetPos() + forward * Param().hitForwardOffset + Vector3(0.0f, Param().hitHeight, 0.0f);
 
 	//魔法陣は地面に寝ているので、x軸で90度起こしてから撃つ方向へ向ける
