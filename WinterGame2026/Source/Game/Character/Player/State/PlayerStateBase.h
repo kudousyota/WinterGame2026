@@ -34,6 +34,9 @@ protected:
 	//地上で出せる行動の入力を見てあればステートを切り替える
 	bool TryGroundAction(int bufferFrame);
 
+	//移動入力があれば歩いてなければIdleにする
+	void ChangeToGroundState();
+
 protected:
 	//持ち主のプレイヤー
 	Player& m_player;

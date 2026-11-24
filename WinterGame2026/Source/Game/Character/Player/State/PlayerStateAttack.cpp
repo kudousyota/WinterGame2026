@@ -5,6 +5,7 @@
 #include "../../../../System/Input.h"
 #include "../../../../DataLoader/DataManager.h"
 #include "../../../../Effect/EffectManager.h"
+#include "../../../WickedWeave.h"
 #include <algorithm>
 
 namespace
@@ -142,6 +143,13 @@ void PlayerStateAttack::Update()
 		return;
 	}
 
+	//空中で出した攻撃は着地したら終わる
+	if (m_isAir && !m_isFalling && m_player.IsGround())
+	{
+		ChangeToGroundState();
+		return;
+	}
+
 	//受付フレームを過ぎたら次の攻撃の入力と回避キャンセルを受け付ける
 	if (m_frame >= m_info.comboStartFrame)
 	{
@@ -193,14 +201,7 @@ void PlayerStateAttack::Update()
 	//攻撃が終わったらIdleかWalkにする
 	if (m_frame >= m_info.totalFrame)
 	{
-		if (GetMoveInput().SqMagnitude() > 0.0f)
-		{
-			ChangeState<PlayerStateWalk>();
-		}
-		else
-		{
-			ChangeState<PlayerStateIdle>();
-		}
+		ChangeToGroundState();
 		return;
 	}
 
@@ -220,6 +221,8 @@ void PlayerStateAttack::Update()
 
 		//着地したら続きを再生する
 		m_isFalling = false;
+		//ここからは地上の攻撃として扱うので、空中攻撃の着地処理にかからないようにする
+		m_isAir = false;
 		m_player.SetAnimPause(false);
 		m_player.SetGravityScale(1.0f);
 		//落ちている間に当たった相手にも、着地の一撃をもう一度当てる
@@ -232,12 +235,10 @@ void PlayerStateAttack::Update()
 	//witchHandFrameが0なら攻撃判定が出た瞬間に呼び出す
 	//地面まで落ちる攻撃は上でフレームを止めているので着地した瞬間に呼び出される
 	const int witchHandFrame = (m_info.witchHandFrame > 0) ? m_info.witchHandFrame : m_info.hitStartFrame;
-	if (m_info.witchHand && !m_witchHandInfo && m_frame == witchHandFrame)
+	if (m_info.witchHand && !m_isWitchHandSummoned && m_frame == witchHandFrame)
 	{
 		SummonWitchHand();
 	}
-	//長押しで止まっている間も手の攻撃は進める
-	UpdateWitchHand();
 
 	//攻撃判定が終わってもボタンを押し続けていたら弾を出す
 	bool isHold = m_frame >= m_info.hitEndFrame && input.IsPressed(m_buttonName) && !m_reservedNext;
@@ -300,22 +301,6 @@ void PlayerStateAttack::RequestHit()
 	m_player.RequestAttack(request);
 }
 
-void PlayerStateAttack::SummonStomp()
-{
-	const Vector3& forward = m_player.GetForward();
-	const Vector3 up(0.0f, 1.0f, 0.0f);
-
-	//踏みつける場所
-	const Vector3 hitPos = m_player.GetPos() + forward * Param().witchHandForwardOffset + up * Param().hitHeight;
-	//衝撃は原点より下に出るので、その分持ち上げて攻撃判定の位置で衝撃が出るようにする
-	const Vector3 pos = hitPos + up * (kStompImpactOffset * kWitchHandScale);
-
-	//向きは水平だけ渡す
-	Vector3 rot;
-	rot.y = atan2f(-forward.x, -forward.z);
-	EffectManager::Instns().PlayEffect(EffectType::WickedWeaveStomp, pos, rot, kWitchHandScale);
-}
-
 void PlayerStateAttack::OpenShotCircle()
 {
 	const Vector3& forward = m_player.GetForward();
@@ -359,60 +344,47 @@ bool PlayerStateAttack::IsHitActive() const
 
 void PlayerStateAttack::SummonWitchHand()
 {
-	m_witchHandInfo = DataManager::GetInstance().GetAttackTable().GetInfo(*m_info.witchHand);
-	m_witchHandFrame = 0;
-	//足技とは別の番号にして、足技が当たった相手にも当たるようにする
-	m_witchHandAttackId = m_player.IssueAttackId();
-
-	//踏みつけは違う出し方する
-	if (*m_info.witchHand == AttackType::WitchStomp)
-	{
-		SummonStomp();
-		return;
-	}
-
-	//見た目はエフェクトで出す(足技の締めは足、それ以外は腕)
-	const bool isLeg = (*m_info.witchHand == AttackType::WitchLeg);
-	const EffectType effectType = isLeg ? EffectType::WickedWeaveLeg : EffectType::WickedWeave;
-	const float portalHeight = isLeg ? kWitchLegPortalHeight : kWitchHandPortalHeight;
+	m_isWitchHandSummoned = true;
+	const AttackType type = *m_info.witchHand;
 
 	const Vector3& forward = m_player.GetForward();
 	//プレイヤーの右方向
 	const Vector3 right(forward.z, 0.0f, -forward.x);
 	const Vector3 up(0.0f, 1.0f, 0.0f);
 
-	//拳の攻撃判定
-	const Vector3 hitPos = m_player.GetPos() + forward * Param().witchHandForwardOffset + up * Param().hitHeight;
-	//魔法陣を出したい位置から着弾点へ向かう方向に拳を突き出す
-	const Vector3 portalPos = m_player.GetPos() - forward * kWitchHandPortalBack + up * portalHeight + right * kWitchHandPortalSide;
-	const Vector3 punchDir = (hitPos - portalPos).Normalize();
+	WickedWeave::SummonParam param;
+	//拳や足が当たる場所//呼び出した瞬間に決めて、プレイヤーが動いてもその場に残す
+	param.hitPos = m_player.GetPos() + forward * Param().witchHandForwardOffset + up * Param().hitHeight;
+	param.effectScale = kWitchHandScale;
 
-	//拳が着弾点に来るように、原点を拳の分だけ手前にずらす
-	const Vector3 pos = hitPos - punchDir * (kWitchHandFistDistance * kWitchHandScale);
-
-	//エフェクトの向き
-	Vector3 rot;
-	rot.x = asinf(punchDir.y);
-	rot.y = atan2f(-punchDir.x, -punchDir.z);
-	EffectManager::Instns().PlayEffect(effectType, pos, rot, kWitchHandScale);
-}
-
-void PlayerStateAttack::UpdateWitchHand()
-{
-	if (!m_witchHandInfo) return;
-
-	//呼び出してからのフレームで攻撃判定を出す
-	if (m_witchHandInfo->hitStartFrame <= m_witchHandFrame && m_witchHandFrame < m_witchHandInfo->hitEndFrame)
+	if (type == AttackType::WitchStomp)
 	{
-		AttackRequest request{AttackData(CharacterType::Player, m_witchHandInfo->type, m_witchHandInfo->damage, m_witchHandInfo->radius)};
-		request.data.SetKnockback(m_witchHandInfo->knockback);
-		request.data.SetCanKnockdown(m_witchHandInfo->canKnockDown);
-		request.attackId = m_witchHandAttackId;
-		request.forwardOffset = Param().witchHandForwardOffset;
-		request.height = Param().hitHeight;
-		m_player.RequestAttack(request);
+		//踏みつけは真上から落ちてくるので、向きは水平だけ渡す
+		param.effectType = EffectType::WickedWeaveStomp;
+		//衝撃は原点より下に出るので、その分持ち上げて攻撃判定の位置で衝撃が出るようにする
+		param.effectPos = param.hitPos + up * (kStompImpactOffset * kWitchHandScale);
+		param.effectRot.y = atan2f(-forward.x, -forward.z);
 	}
-	m_witchHandFrame++;
+	else
+	{
+		//足技の締めは足、それ以外は腕
+		const bool isLeg = (type == AttackType::WitchLeg);
+		param.effectType = isLeg ? EffectType::WickedWeaveLeg : EffectType::WickedWeave;
+		const float portalHeight = isLeg ? kWitchLegPortalHeight : kWitchHandPortalHeight;
+
+		//魔法陣を出したい位置から着弾点へ向かう方向に拳を突き出す
+		const Vector3 portalPos = m_player.GetPos() - forward * kWitchHandPortalBack + up * portalHeight + right * kWitchHandPortalSide;
+		const Vector3 punchDir = (param.hitPos - portalPos).Normalize();
+
+		//拳が着弾点に来るように、原点を拳の分だけ手前にずらす
+		param.effectPos = param.hitPos - punchDir * (kWitchHandFistDistance * kWitchHandScale);
+		param.effectRot.x = asinf(punchDir.y);
+		param.effectRot.y = atan2f(-punchDir.x, -punchDir.z);
+	}
+
+	//足技とは別の番号にして、足技が当たった相手にも当たるようにする
+	const auto& info = DataManager::GetInstance().GetAttackTable().GetInfo(type);
+	m_player.AddWickedWeave(std::make_unique<WickedWeave>(info, m_player.IssueAttackId(), param));
 }
 
 void PlayerStateAttack::UpdateMove()

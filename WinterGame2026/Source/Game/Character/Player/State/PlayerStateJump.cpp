@@ -1,6 +1,4 @@
 ﻿#include "PlayerStateJump.h"
-#include "PlayerStateIdle.h"
-#include "PlayerStateWalk.h"
 #include "../../../../System/Input.h"
 #include "../../../../DataLoader/DataManager.h"
 
@@ -36,14 +34,7 @@ void PlayerStateJump::Update()
 	//着地したら入力に応じてIdleかWalkにする
 	if (m_player.IsGround())
 	{
-		if (GetMoveInput().SqMagnitude() > 0.0f)
-		{
-			ChangeState<PlayerStateWalk>();
-		}
-		else
-		{
-			ChangeState<PlayerStateIdle>();
-		}
+		ChangeToGroundState();
 		return;
 	}
 

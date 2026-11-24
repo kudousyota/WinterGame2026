@@ -2,6 +2,8 @@
 #include "PlayerStateAttack.h"
 #include "PlayerStateJump.h"
 #include "PlayerStateDodge.h"
+#include "PlayerStateWalk.h"
+#include "PlayerStateIdle.h"
 #include "../../../../System/Input.h"
 #include "../../../../DataLoader/DataManager.h"
 
@@ -89,4 +91,16 @@ bool PlayerStateBase::TryGroundAction(int bufferFrame)
 	}
 
 	return false;
+}
+
+void PlayerStateBase::ChangeToGroundState()
+{
+	if (GetMoveInput().SqMagnitude() > 0.0f)
+	{
+		ChangeState<PlayerStateWalk>();
+	}
+	else
+	{
+		ChangeState<PlayerStateIdle>();
+	}
 }

@@ -23,13 +23,11 @@ private:
 	//攻撃中の前進(決めた距離だけ進む)
 	void UpdateMove();
 	//コンボの締めでウィケッドウィーブを呼び出す
+	//呼び出した後の攻撃判定はPlayerが持つWickedWeaveが出す
 	void SummonWitchHand();
-	//呼び出したウィケッドウィーブの攻撃判定を出す
-	void UpdateWitchHand();
 	//この攻撃の攻撃判定を申請する
 	void RequestHit();
 
-	void SummonStomp();
 	//長押しで撃ち始めたときに、弾が出る位置へ魔法陣を出す
 	void OpenShotCircle();
 	//撃ち終わったら魔法陣をフェードして消す
@@ -58,12 +56,9 @@ private:
 	//予約されている次の攻撃(入力がなければ空)
 	std::optional<AttackType> m_reservedNext;
 
-	//呼び出したウィケッドウィーブのデータ(呼び出していなければ空)
-	std::optional<AttackTable::AttackInfo> m_witchHandInfo;
-	//ウィケッドウィーブを呼び出してからのフレーム数
-	int m_witchHandFrame = 0;
-	//ウィケッドウィーブの攻撃番号(足技とは別の攻撃として当てる)
-	int m_witchHandAttackId = 0;
+	//ウィケッドウィーブをもう呼び出したか
+	//長押しで止まっている間も呼び出すフレームのままなので、何度も呼び出さないようにする
+	bool m_isWitchHandSummoned = false;
 
 	bool m_isAir = false;
 	//地面まで落ちる攻撃(かかと落とし)の途中か。着地したらfalseになる

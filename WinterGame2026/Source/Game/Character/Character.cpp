@@ -55,6 +55,8 @@ std::vector<ShotRequest> Character::TakeShotRequests()
 
 Vector3 Character::GetAttackPos(const AttackRequest& request) const
 {
+	//位置を決めて出した攻撃はキャラクターが動いてもその場で判定する
+	if (request.useWorldPos) return request.worldPos;
 	//足元から前方と上方向にずらした位置
 	return m_pos + m_forward * request.forwardOffset + Vector3(0.0f, request.height, 0.0f);
 }

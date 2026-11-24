@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "../Character.h"
+class WickedWeave;
 class Player : public Character
 {
 public:
@@ -49,6 +50,10 @@ public:
 	//二段ジャンプの権利を使う
 	void UseDoubuleJump();
 
+	//ウィケッドウィーブを出す
+	//出した後は状態が変わっても最後まで攻撃を続ける
+	void AddWickedWeave(std::unique_ptr<WickedWeave> weave);
+
 	//攻撃を受けたらのけぞる
 	HitResult OnHit(const AttackData& attackData, int damage)override;
 
@@ -57,6 +62,8 @@ public:
 private:
 	//PlayerParam.csvの値のうちメンバーに持つものを入れる
 	void ApplyParam();
+	//出ているウィケッドウィーブの攻撃判定を出して終わったものを消す
+	void UpdateWickedWeaves();
 
 	int m_modelHandle = -1;
 	bool m_isAnimPause = false;
@@ -70,5 +77,7 @@ private:
 	//所有せずシーンから向く相手を指定してもらう
 	//敵が消えても触らないようにweak_ptrで持つ
 	std::weak_ptr<const Character> m_attackTarget;
+	//出ているウィケッドウィーブ//複数同時に出せる
+	std::vector<std::unique_ptr<WickedWeave>> m_wickedWeaves;
 };
 

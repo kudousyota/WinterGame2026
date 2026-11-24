@@ -8,12 +8,11 @@
 #include "../../../System/Input.h"
 #include "../../../Math/MathUtil.h"
 #include "../../../DataLoader/DataManager.h"
+#include "../../WickedWeave.h"
 
 namespace
 {
 	const Vector3 kPlayerToTarget = Vector3(0.0f, 200.0f, 0.0f);
-
-	//重力や回転などの手触りに関わる数値はPlayerParam.csvに書く
 
 	//アニメション
 	const char* const kIdleAnimName = "Player|Idle";
@@ -62,6 +61,9 @@ void Player::Init()
 	//向きもすぐ反映する
 	MV1SetRotationXYZ(m_modelHandle, VGet(0.0f, m_angle, 0.0f));
 
+	//やり直したときに前のウィケッドウィーブが残らないようにする
+	m_wickedWeaves.clear();
+
 	//最初はIdleで初期化
 	ChangeState(std::make_unique<PlayerStateIdle>(*this));
 }
@@ -90,6 +92,8 @@ void Player::Update()
 
 	//ステートの更新
 	UpdateState();
+	//ステートで呼び出した分も同じフレームから攻撃する
+	UpdateWickedWeaves();
 	//アニメーションの更新
 	if(!m_isAnimPause)
 	{
@@ -116,6 +120,25 @@ void Player::Update()
 
 	//差の一部だけ回転して、少しずつ目標の向きに近づける
 	m_angle += diff * DataManager::GetInstance().GetPlayerParam().rotateRate;
+}
+
+void Player::AddWickedWeave(std::unique_ptr<WickedWeave> weave)
+{
+	m_wickedWeaves.push_back(std::move(weave));
+}
+
+void Player::UpdateWickedWeaves()
+{
+	for (auto& weave : m_wickedWeaves)
+	{
+		if (weave->IsHitActive())
+		{
+			RequestAttack(weave->MakeAttackRequest());
+		}
+		weave->Update();
+	}
+	//攻撃判定の時間が終わったものを消す
+	std::erase_if(m_wickedWeaves, [](const auto& weave) { return weave->IsDead(); });
 }
 
 void Player::ReloadStatus()

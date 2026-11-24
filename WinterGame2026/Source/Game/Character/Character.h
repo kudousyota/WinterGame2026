@@ -28,6 +28,10 @@ struct AttackRequest
 	//カプセル判定の向きと長さ
 	Vector3 dir = Vector3(0.0f, 0.0f, 0.0f);
 	float length = 0.0f;
+	//trueならキャラクターの位置に関係なくworldPosで判定する
+	//呼び出した後もその場に残る攻撃に使う
+	bool useWorldPos = false;
+	Vector3 worldPos = Vector3(0.0f, 0.0f, 0.0f);
 };
 //飛び道具の種類
 enum class ShotKind
