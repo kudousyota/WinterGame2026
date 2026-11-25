@@ -16,7 +16,9 @@ enum class TutorialGoal
 	//叩き落とし
 	Knockdown,
 	//ジャスト回避
-	JustDodge
+	JustDodge,
+	//ウィッチタイム中にプレイヤーの攻撃を当てた回数
+	WitchTimeHit
 };
 
 //ステップで数える攻撃
@@ -49,6 +51,8 @@ struct TutorialStep
 	std::vector<TutorialAttack> attacks;
 	//このステップで出す敵//ステップが変わると前の敵は消えて出し直す
 	std::vector<TutorialEnemy> enemies;
+	//死ぬか
+	bool canDie = false;
 };
 
 //シーンから渡す、このフレームに起きたこと
@@ -60,7 +64,10 @@ struct TutorialInfo
 	bool isLockedOn = false;
 	//このフレームに起きた戦闘イベント
 	std::vector<BattleEvent> events;
-	
+	//ウィッチタイム中か(敵がゆっくりになっているか)
+	bool isWitchTime = false;
+	//プレイヤー//イベントの攻撃した側と比べて、プレイヤーの攻撃だけ数えるのに使う
+	const Character* player = nullptr;
 };
 
 //今どのステップか何回できたかを数えて達成したら次のステップへ進める
@@ -78,6 +85,14 @@ public:
 	bool IsCleared()const;
 
 	bool IsFinished()const;
+
+	//今のステップの番号//0から数える//全部終わるとステップの数と同じになる
+	int GetStepIndex()const;
+	//ステップの数
+	int GetStepNum()const;
+
+	//今のステップを飛ばす
+	void SkipStep();
 
 private:
 	//今のステップの条件に合っていたら数える

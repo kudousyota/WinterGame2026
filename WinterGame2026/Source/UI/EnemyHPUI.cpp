@@ -68,7 +68,7 @@ void EnemyHPUI::Update(Input& input)
 	for (Bar& bar : m_bars)
 	{
 		const std::shared_ptr<const Character> enemy = bar.target.lock();
-		//SyncBarsで外しているので空にはならないが、念のため
+		//SyncBarsで外しているから空にはならないが念のため
 		if (!enemy) continue;
 		UpdateBar(bar, *enemy, enemy == lockOnTarget);
 	}

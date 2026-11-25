@@ -12,6 +12,7 @@
 #include "../System/BattleSystem.h"
 #include "../System/LockOnManager.h"
 #include "../System/DebugTool.h"
+#include "../Effect/ScreenDistortion.h"
 
 //本編とチュートリアルで共通のゲームの中身をまとめて持つ
 class GameManager
@@ -33,7 +34,7 @@ public:
 	bool Update();
 
 	//このフレームの戦闘で起きたことを受け取る//受け取ったら中身は空になる
-	//カメラの揺れはもう出してあるので、シーンは歪みなどの演出に使う
+	//カメラの揺れとジャスト回避の歪みはもう出してあるので、シーンはそれ以外の進行や演出に使う
 	//消えた敵はUpdateの中で片付け済みなので、シーンではattacker、targetのポインタを使わない
 	std::vector<BattleEvent> TakeBattleEvents();
 
@@ -48,6 +49,7 @@ public:
 	void UpdateGate(bool shouldClose, const std::vector<SpawnTable::GateInfo>& gates);
 
 	//ステージ→ウィッチタイムの色→プレイヤー、敵、飛び道具→エフェクトの順に描く
+	//ここで描いたものだけ歪ませる//UIはシーンがこの後に描くので歪まない
 	void Draw();
 #ifdef _DEBUG
 	//当たり判定やロックオン範囲などを、DebugToolの設定に合わせて描く
@@ -74,6 +76,9 @@ private:
 	void UpdateWorld();
 	//カメラだけ進める//ヒットストップ中もシェイクは動かす
 	void UpdateCamera();
+	//ジャスト回避の輪とウィッチタイムの揺らぎを進めてシェーダーに渡す値を決める
+	//中心はプレイヤーの画面上の位置なのでカメラを動かした後に呼ぶ
+	void UpdateDistortion();
 	//死亡演出が終わって消えた敵を消す
 	//このフレームの処理が全部終わってから呼ぶ
 	void RemoveVanishedEnemies();
@@ -104,4 +109,13 @@ private:
 
 	//シーンに渡す戦闘のイベント
 	std::vector<BattleEvent> m_battleEvents;
+
+	//画面の歪み
+	ScreenDistortion m_distortion;
+	//ジャスト回避の歪みが始まってから経ったフレーム数//出ていないときは-1
+	int m_distortionFrame = -1;
+	//ウィッチタイム中の揺らぎの今の強さ
+	float m_waveStrength = 0.0f;
+	//揺らぎを動かす時間
+	float m_waveTime = 0.0f;
 };

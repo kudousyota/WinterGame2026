@@ -11,8 +11,6 @@
 #include "../../DataLoader/AttackData.h"
 
 //攻撃の申請
-//攻撃ステートは判定をせず、これをキャラクターに渡すだけにする
-//判定はGameSceneが全員の移動が終わった後にまとめて行う
 struct AttackRequest
 {
 	//ダメージ、半径、誰の攻撃か

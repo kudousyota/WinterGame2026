@@ -221,6 +221,7 @@
     <ClCompile Include="Source\UI\HPGauge.cpp" />
     <ClCompile Include="Source\UI\MenuCursorUI.cpp" />
     <ClCompile Include="Source\UI\PlayerHPUI.cpp" />
+    <ClCompile Include="Source\UI\TutorialTaskUI.cpp" />
     <ClCompile Include="Source\UI\UIManager.cpp" />
     <ClCompile Include="Source\UI\WitchTimeNeedleUI.cpp" />
   </ItemGroup>
@@ -307,6 +308,7 @@
     <ClInclude Include="Source\UI\HPGauge.h" />
     <ClInclude Include="Source\UI\MenuCursorUI.h" />
     <ClInclude Include="Source\UI\PlayerHPUI.h" />
+    <ClInclude Include="Source\UI\TutorialTaskUI.h" />
     <ClInclude Include="Source\UI\UIBase.h" />
     <ClInclude Include="Source\UI\UIManager.h" />
     <ClInclude Include="Source\UI\WitchTimeNeedleUI.h" />

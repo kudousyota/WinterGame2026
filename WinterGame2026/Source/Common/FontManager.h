@@ -29,6 +29,8 @@ public:
 	/// <param name="shakeSpeed">揺れの速さ</param>
 	void DrawBottomRightAndQuakeText(int x, int y, const std::string& text, unsigned int color, int size, unsigned int edgeColor, bool isShake = false, int shakeAmplitude = 5, int shakeSpeed = 2);
 
+	int GetTextWidth(const std::string& text,int size)const;
+
 private:
 	FontManager() = default;
 	virtual ~FontManager() = default;

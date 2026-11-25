@@ -114,7 +114,7 @@ void FontManager::DrawBottomRightAndQuakeText(int x, int y, const std::string& t
 	{
 		//現在のフレーム数を取得
 		int frameCount = GetNowCount() / shakeSpeed / 5;
-		//揺れの計算(sinを使用して滑らかに左右に動く)
+		//揺れの計算
 		int shakeOffset = static_cast<int>(sin(frameCount) * shakeAmplitude / 6);
 
 		x += shakeOffset;
@@ -123,4 +123,12 @@ void FontManager::DrawBottomRightAndQuakeText(int x, int y, const std::string& t
 	int textWidth = GetDrawStringWidthToHandle(text.c_str(), static_cast<int>(text.length()), handle);
 	int textHeight = GetFontSizeToHandle(handle);
 	DrawStringToHandle(x - textWidth, y - textHeight, text.c_str(), color, handle, edgeColor);
+}
+
+int FontManager::GetTextWidth(const std::string& text, int size) const
+{
+	int handle = FindHandle(size);
+	if (handle == -1) return 0;
+	int textWidth = GetDrawStringWidthToHandle(text.c_str(), static_cast<int>(text.length()), handle);
+	return textWidth;
 }

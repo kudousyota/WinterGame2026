@@ -19,18 +19,6 @@ namespace
 {
 	//勝ち負けが決まってから画面を切り替えるまでのフレーム数
 	constexpr int kGameEndWaitFrame = 120;
-	//ジャスト回避の歪みが画面の端まで広がるフレーム数
-	constexpr int kDistortionFrame = 40;
-	//ジャスト回避の歪みの強さ
-	constexpr float kDistortionStrength = 0.04f;
-	//ジャスト回避の歪みの輪の太さ
-	constexpr float kDistortionRingWidth = 0.2f;
-	//ウィッチタイム中の揺らぎの強さ
-	constexpr float kWaveStrength = 0.01f;
-	//揺らぎが最大になるまでのフレーム数
-	constexpr float kWaveFadeFrame = 20.0f;
-	//1フレームで進める揺らぎの時間
-	constexpr float kWaveTimeStep = 1.0f / 60.0f;
 }
 
 GameScene::GameScene(SceneController& controller):
@@ -62,9 +50,6 @@ void GameScene::Init()
 	//敵はプレイヤーを狙うからプレイヤーの後に準備する
 	m_spawner.Init(spawnTable);
 
-	//画面の歪み
-	m_distortion.Init();
-
 	//UIを登録してからまとめて初期化する
 	m_uiManager.Add(std::make_unique<WitchTimeNeedleUI>());
 	//プレイヤーはm_game.Initで作られるのでその後に渡す
@@ -93,12 +78,9 @@ void GameScene::Update()
 	//タイマー、キャラクター、攻撃判定、カメラ、エフェクト、消えた敵の片付けまで
 	const bool isAdvanced = m_game.Update();
 
-	//このフレームの戦闘で起きたことを演出に使う//ジャスト回避の歪みをこのフレームから始めるので歪みの更新より前
+	//このフレームの戦闘で起きたことを受け取る//受け取らないとGameManagerにたまり続ける
 	//ヒットストップ中はキャラクターが止まっていてイベントは出ないので毎フレーム受け取る
 	HandleBattleEvents();
-	//歪みの中心はプレイヤーの画面上の位置だからカメラが確定してから決める
-	//ヒットストップ中も揺らぎは動かす
-	UpdateDistortion();
 	//ウィッチタイムの状態はゲームを進めた後に決まるのでその後に見る
 	//ヒットストップ中もUIの演出は動かす
 	m_uiManager.Update(Input::Instance());
@@ -116,14 +98,8 @@ void GameScene::Update()
 
 void GameScene::Draw()
 {
-	//ここからエフェクトまでを歪みの対象にする
-	m_distortion.BeginCapture();
-
-	//ステージ、ウィッチタイムの色、キャラクター、エフェクト
+	//ステージ、ウィッチタイムの色、キャラクター、エフェクト//歪みもかけて出す
 	m_game.Draw();
-
-	//歪ませて画面に出す
-	m_distortion.EndCapture();
 
 	//UIは歪ませたくないから歪みの後に一番手前に描く
 	m_uiManager.Draw();
@@ -140,13 +116,12 @@ void GameScene::Draw()
 
 void GameScene::HandleBattleEvents()
 {
-	//カメラの揺れはGameManagerが出しているのでここでは画面の演出だけ行う
+	//カメラの揺れとジャスト回避の歪みはGameManagerが出しているので、今ここで行う演出はない
 	for (const BattleEvent& event : m_game.TakeBattleEvents())
 	{
 		switch (event.type)
 		{
 		case BattleEvent::Type::JustDodge:
-			StartJustDodgeDistortion();
 			break;
 		case BattleEvent::Type::Hit:
 			break;
@@ -168,56 +143,6 @@ void GameScene::UpdateSpawn()
 	for (const auto& request : m_spawner.TakeSpawnRequests())
 	{
 		m_game.SpawnEnemy(request.characterName, request.groundPos);
-	}
-}
-
-void GameScene::StartJustDodgeDistortion()
-{
-	//連続で成功したら最初から広げ直す
-	m_distortionFrame = 0;
-}
-
-void GameScene::UpdateDistortion()
-{
-	ScreenDistortion::Param param = m_distortion.GetParam();
-
-	//ウィッチタイム中は揺らぎを強くして終わったら弱くする
-	const float waveStep = kWaveStrength / kWaveFadeFrame;
-	if (Timer::Instance().IsEnemySlow())
-	{
-		m_waveStrength = (std::min)(m_waveStrength + waveStep, kWaveStrength);
-	}
-	else
-	{
-		m_waveStrength = (std::max)(m_waveStrength - waveStep, 0.0f);
-	}
-	m_waveTime += kWaveTimeStep;
-	param.time = m_waveTime;
-	param.waveStrength = m_waveStrength;
-
-	//揺らぎも中心からの距離を使うので、中心は毎フレーム決める
-	VECTOR screenPos = ConvWorldPosToScreenPos(m_game.GetPlayer().GetCameraTarget().ToDxLibVector());
-	param.centerX = screenPos.x / static_cast<float>(Game::kScreenWidth);
-	param.centerY = screenPos.y / static_cast<float>(Game::kScreenHeight);
-
-	//輪が出ていないときは輪の強さだけ0にする
-	if (m_distortionFrame < 0)
-	{
-		param.strength = 0.0f;
-		m_distortion.SetParam(param);
-		return;
-	}
-
-	param.progress = static_cast<float>(m_distortionFrame) / static_cast<float>(kDistortionFrame);
-	param.strength = kDistortionStrength;
-	param.ringWidth = kDistortionRingWidth;
-	m_distortion.SetParam(param);
-
-	m_distortionFrame++;
-	//広がりきったら終わり
-	if (m_distortionFrame > kDistortionFrame)
-	{
-		m_distortionFrame = -1;
 	}
 }
 

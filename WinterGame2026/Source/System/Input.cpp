@@ -31,8 +31,10 @@ void Input::InitializeInputTable()
 					  { PeripheralType::pad1,PAD_INPUT_A } };	// PADのAボタン
 	m_inputTable["cancel"] = { { PeripheralType::keyboard,KEY_INPUT_BACK},
 						{ PeripheralType::pad1,PAD_INPUT_2 } };	// PADのBボタン
+	//XboxコントローラーではPAD_INPUT_7がビュー、8がメニュー(≡)、9が左スティック押し込み、10が右スティック押し込み
+	//PAD_INPUT_STARTは9番目と同じ値で、Xboxでは左スティック押し込みになるので使わない
 	m_inputTable["pause"] ={ { PeripheralType::keyboard,KEY_INPUT_P},
-					   { PeripheralType::pad1,PAD_INPUT_START } };	// PADのSTARTボタン
+					   { PeripheralType::pad1,PAD_INPUT_8 } };	// PADのメニュー(≡)ボタン
 
 	m_inputTable["Punch"] = { { PeripheralType::keyboard,KEY_INPUT_Z},
 						  { PeripheralType::pad1,PAD_INPUT_3 } };	// PADのXボタン
@@ -57,6 +59,10 @@ void Input::InitializeInputTable()
 	//ロックオン対象の切り替え
 	m_inputTable["targetRight"] = { {PeripheralType::keyboard,KEY_INPUT_E} };
 	m_inputTable["targetLeft"] = { {PeripheralType::keyboard,KEY_INPUT_Q} };
+	//チュートリアルのステップを飛ばす
+	//パッドはLB(target)とRBの同時長押し、キーボードはNの長押し//どちらもTutorialSceneが組み合わせて見る
+	m_inputTable["skipKey"] = { { PeripheralType::keyboard,KEY_INPUT_N } };
+	m_inputTable["skipRB"] = { { PeripheralType::pad1,PAD_INPUT_6 } };	// PADのRBボタン
 	//カメラを背中側へ戻す
 	m_inputTable["cameraReset"] = { { PeripheralType::keyboard,KEY_INPUT_R},
 								{ PeripheralType::pad1,PAD_INPUT_10 } };	// PADの右スティック押し込み

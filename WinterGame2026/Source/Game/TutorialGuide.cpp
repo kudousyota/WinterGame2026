@@ -15,7 +15,8 @@ namespace
 		{"Xで3連続攻撃を当てよう",TutorialGoal::Combo,3,{{AttackType::Punch},{AttackType::Punching},{AttackType::Rush,4}},{{"Dummy",kEnemyPos}}},
 		{"Yで敵にキックしてみよう",TutorialGoal::HitAttack,3,{{AttackType::Kick},{AttackType::MmaKick},{AttackType::SideKick}},{{"Dummy",kEnemyPos}}},
 		{"AでジャンプしてYで敵を叩き落としてみよう", TutorialGoal::Knockdown, 1,{},{{"DummyFloat",kEnemyPos}}},
-		{"敵の攻撃をBで回避",TutorialGoal::JustDodge,1,{},{{"DummyAttack",kEnemyPos}}}
+		{"敵の攻撃をBで回避",TutorialGoal::JustDodge,1,{},{{"DummyAttack",kEnemyPos}}},
+		{"ジャスト回避して、敵が遅い間に攻撃を当てよう",TutorialGoal::WitchTimeHit,3,{},{{"DummyAttack",kEnemyPos}}}
 	};
 	//ステップの数
 	constexpr int kStepNum = static_cast<int>(std::size(kSteps));
@@ -81,6 +82,23 @@ bool TutorialGuide::IsFinished() const
 	return GetCurrentStep() == nullptr;
 }
 
+int TutorialGuide::GetStepIndex() const
+{
+	return m_stepIndex;
+}
+
+int TutorialGuide::GetStepNum() const
+{
+	return kStepNum;
+}
+
+void TutorialGuide::SkipStep()
+{
+	if (IsFinished())return;
+	m_clearWaitFrame = 0;
+	NextStep();
+}
+
 void TutorialGuide::CountUp(const TutorialStep& step, const TutorialInfo& info)
 {
 	switch (step.goal)
@@ -130,6 +148,18 @@ void TutorialGuide::CountUp(const TutorialStep& step, const TutorialInfo& info)
 		for (const BattleEvent& event : info.events)
 		{
 			if (event.type == BattleEvent::Type::JustDodge)m_count++;
+		}
+		break;
+	case TutorialGoal::WitchTimeHit:
+		//ウィッチタイムの外で当てても数えない
+		if (!info.isWitchTime) break;
+		for (const BattleEvent& event : info.events)
+		{
+			if (event.type != BattleEvent::Type::Hit)continue;
+			if (event.result == HitResult::Ignored)continue;
+			//敵がプレイヤーに当てた攻撃は数えない
+			if (event.attacker != info.player)continue;
+			m_count++;
 		}
 		break;
 	case TutorialGoal::Knockdown:

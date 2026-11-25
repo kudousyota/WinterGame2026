@@ -7,6 +7,8 @@
 #include "SceneController.h"
 #include "PauseScene.h"
 #include "../System/Input.h"
+#include "../UI/TutorialTaskUI.h"
+#include "../UI/PlayerHPUI.h"
 #include <string>
 #include <utility>
 
@@ -16,11 +18,14 @@ namespace
 	//最後の課題のボタン連打がそのままメニューの決定にならないように間をあける
 	constexpr int kFinishMenuWaitFrame = 90;
 
+	//ステップを飛ばすのに長押しするフレーム数//うっかり押しても飛ばないように少し長めにする
+	constexpr int kSkipHoldFrame = 60;
+
 	//画面上のTUTORIALの表示
 	constexpr int kLabelFontSize = 32;
 	constexpr int kLabelPosY = 40;
 
-	//画面下の課題の表示
+	//画面下の案内の表示//課題は右上のTutorialTaskUIが出す
 	constexpr int kGuideFontSize = 32;
 	constexpr int kGuidePosY = 640;
 }
@@ -54,6 +59,16 @@ void TutorialScene::Init()
 
 	//最初のステップの敵を出す//敵はプレイヤーを狙うのでプレイヤーの後に出す
 	UpdateStepEnemies();
+
+	//UIを登録してからまとめて初期化する
+	//右上の課題//進行役はこのシーンが持っていてUIより長く残る
+	//長押しの進み具合を渡すので、持ち主をm_uiManagerに渡す前に借りておく
+	auto taskUI = std::make_unique<TutorialTaskUI>(m_guide);
+	m_pTaskUI = taskUI.get();
+	m_uiManager.Add(std::move(taskUI));
+	//HPバー//プレイヤーはm_game.Initで作られるのでその後に渡す
+	m_uiManager.Add(std::make_unique<PlayerHPUI>(m_game.GetPlayer()));
+	m_uiManager.Init();
 }
 
 void TutorialScene::Update()
@@ -75,6 +90,8 @@ void TutorialScene::Update()
 	const bool isAdvanced = m_game.Update();
 
 	 std::vector<BattleEvent> events = m_game.TakeBattleEvents();
+	 //ヒットストップ中もUIの演出は動かす
+	 m_uiManager.Update(Input::Instance());
 	 if (!isAdvanced)return;
 	 m_frameCount++;
 	 //このフレームに起きたことをまとめてチュートリアルの進行役に渡す
@@ -82,7 +99,12 @@ void TutorialScene::Update()
 	 info.isMoving = m_game.GetPlayer().GetMoveInput().SqMagnitude() > 0.0f;
 	 info.isLockedOn = m_game.IsLockedOn();
 	 info.events = events;
+	 info.isWitchTime = Timer::Instance().IsEnemySlow();
+	 info.player = &m_game.GetPlayer();
 	 m_guide.Update(info);
+
+	 //長押しで飛ばす//飛ばした先の敵をこのフレームで出せるように敵の出し直しより前
+	 UpdateSkip();
 
 	 //次のステップへ進んでいたら敵を出し直す
 	 UpdateStepEnemies();
@@ -124,6 +146,44 @@ void TutorialScene::OpenPauseMenu()
 	m_controller.PushScene(std::make_shared<PauseScene>(m_controller, "PAUSE", std::move(items), 0));
 }
 
+bool TutorialScene::IsSkipHeld() const
+{
+	const Input& input = Input::Instance();
+	//LBはロックオンと同じボタン//RBと両方押しているときだけにして、ロックオンだけで飛ばないようにする
+	const bool isPadHeld = input.IsPressed("target") && input.IsPressed("skipRB");
+	return isPadHeld || input.IsPressed("skipKey");
+}
+
+void TutorialScene::UpdateSkip()
+{
+	const bool isHeld = IsSkipHeld();
+
+	//飛ばした後は一度離すまで待つ
+	if (m_isWaitSkipRelease)
+	{
+		if (!isHeld) m_isWaitSkipRelease = false;
+		m_skipHoldFrame = 0;
+	}
+	//全部終わったら飛ばすステップがない//離したら最初から数え直す
+	else if (!isHeld || m_guide.IsFinished())
+	{
+		m_skipHoldFrame = 0;
+	}
+	else
+	{
+		m_skipHoldFrame++;
+		if (m_skipHoldFrame >= kSkipHoldFrame)
+		{
+			m_guide.SkipStep();
+			m_skipHoldFrame = 0;
+			m_isWaitSkipRelease = true;
+		}
+	}
+
+	//ゲージに出す進み具合
+	m_pTaskUI->SetSkipRate(static_cast<float>(m_skipHoldFrame) / static_cast<float>(kSkipHoldFrame));
+}
+
 void TutorialScene::UpdateStepEnemies()
 {
 	//全部終わったら敵はそのまま残しておく
@@ -139,12 +199,16 @@ void TutorialScene::UpdateStepEnemies()
 		m_game.SpawnEnemy(enemy.name, enemy.groundPos);
 	}
 	m_spawnedStep = step;
+	m_game.GetPlayer().SetUndying(!step->canDie);
 }
 
 void TutorialScene::Draw()
 {
-	//ステージウィッチタイムの色キャラクターエフェクト
+	//ステージウィッチタイムの色キャラクターエフェクト//歪みもかけて出す
 	m_game.Draw();
+
+	//右上の課題とHPバー//歪みの後に描くので歪まない
+	m_uiManager.Draw();
 
 	auto& font = FontManager::Instance();
 	const int centerX = Game::kScreenWidth / 2;
@@ -153,7 +217,7 @@ void TutorialScene::Draw()
 	//本編と見分けがつくように出しておく
 	font.DrawCenteredText(centerX, kLabelPosY, "TUTORIAL", GetColor(200, 120, 255), kLabelFontSize, edgeColor);
 
-	//画面下の課題
+	//全部終わったあとの案内//課題があるあいだは右上のTutorialTaskUIが出す
 	if (m_isFreePractice)
 	{
 		//ポーズからメニューを開けることを伝える
@@ -162,19 +226,6 @@ void TutorialScene::Draw()
 	else if (m_guide.IsFinished())
 	{
 		font.DrawCenteredText(centerX, kGuidePosY, "チュートリアル完了", GetColor(255, 255, 255), kGuideFontSize, edgeColor);
-	}
-	else if (m_guide.IsCleared())
-	{
-		//達成したことを少しのあいだ見せる
-		font.DrawCenteredText(centerX, kGuidePosY, "OK!", GetColor(255, 220, 80), kGuideFontSize, edgeColor);
-	}
-	else
-	{
-		//課題と何回できたか
-		const TutorialStep* step = m_guide.GetCurrentStep();
-		std::string text = step->text;
-		text += "  " + std::to_string(m_guide.GetCount()) + " / " + std::to_string(step->requiredCount);
-		font.DrawCenteredText(centerX, kGuidePosY, text, GetColor(255, 255, 255), kGuideFontSize, edgeColor);
 	}
 
 #ifdef _DEBUG

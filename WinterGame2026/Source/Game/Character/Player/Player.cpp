@@ -149,6 +149,15 @@ void Player::ReloadStatus()
 	ApplyParam();
 }
 
+void Player::Damage(int damage)
+{
+	Character::Damage(damage);
+	if (m_hp <= 0 && m_isUndying)
+	{
+		m_hp = m_maxhp;
+	}
+}
+
 void Player::ApplyParam()
 {
 	const auto& param = DataManager::GetInstance().GetPlayerParam();

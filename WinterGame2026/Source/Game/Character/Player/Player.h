@@ -59,11 +59,17 @@ public:
 
 	//読み直したステータスとPlayerParam.csvの値を反映する
 	void ReloadStatus()override;
+
+	void Damage(int damage)override;
+
+	//今はやられない状態か
+	void SetUndying(bool undying) { m_isUndying = undying; }
 private:
 	//PlayerParam.csvの値のうちメンバーに持つものを入れる
 	void ApplyParam();
 	//出ているウィケッドウィーブの攻撃判定を出して終わったものを消す
 	void UpdateWickedWeaves();
+private:
 
 	int m_modelHandle = -1;
 	bool m_isAnimPause = false;
@@ -74,6 +80,8 @@ private:
 	float m_gravityScale = 1.0f;
 	bool m_canAirHover = false;
 	bool m_canDoubleJump = false;
+	//やられない
+	bool m_isUndying = false;
 	//所有せずシーンから向く相手を指定してもらう
 	//敵が消えても触らないようにweak_ptrで持つ
 	std::weak_ptr<const Character> m_attackTarget;

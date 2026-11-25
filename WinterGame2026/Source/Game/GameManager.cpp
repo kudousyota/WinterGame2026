@@ -9,12 +9,26 @@
 #include "../Game.h"
 #include "DxLib.h"
 #include <cassert>
+#include <algorithm>
 
 namespace
 {
 	//ヒットストップとカメラシェイクの値は攻撃ごとにAttackHit.csvに書く
 	//ウィッチタイム中に画面に重ねる色の濃さ
 	constexpr int kWitchTimeOverlayAlpha = 128;
+
+	//ジャスト回避の歪みが画面の端まで広がるフレーム数
+	constexpr int kDistortionFrame = 40;
+	//ジャスト回避の歪みの強さ
+	constexpr float kDistortionStrength = 0.04f;
+	//ジャスト回避の歪みの輪の太さ
+	constexpr float kDistortionRingWidth = 0.2f;
+	//ウィッチタイム中の揺らぎの強さ
+	constexpr float kWaveStrength = 0.01f;
+	//揺らぎが最大になるまでのフレーム数
+	constexpr float kWaveFadeFrame = 20.0f;
+	//1フレームで進める揺らぎの時間
+	constexpr float kWaveTimeStep = 1.0f / 60.0f;
 
 	//CSVの名前から敵を作る
 	std::shared_ptr<Enemy> CreateEnemy(const std::string& name)
@@ -55,6 +69,9 @@ void GameManager::Init(Stage::Type stageType, int maxGateNum)
 	m_pCamera->Init(m_pPlayer->GetCameraTarget(), m_pPlayer->GetForward());
 	//地形とのめり込み判定に使うステージを渡す
 	m_pCamera->SetStageHandle(m_pStage->GetCollisionHandle());
+
+	//画面の歪み
+	m_distortion.Init();
 }
 
 bool GameManager::Update()
@@ -63,15 +80,19 @@ bool GameManager::Update()
 	//一時停止中やスロー中に進めると先行入力やヒットストップの時間がずれるからゲームが進むときだけ更新する
 	Timer::Instance().Update();
 
-	//ヒットストップ中はキャラクターを止めてカメラシェイクだけ動かす
+	//ヒットストップ中はキャラクターを止めてカメラシェイクと歪みの揺らぎだけ動かす
 	if (Timer::Instance().IsHitStop())
 	{
 		UpdateCamera();
+		UpdateDistortion();
 		return false;
 	}
 
 	//キャラクターの更新から攻撃判定とカメラまで
 	UpdateWorld();
+
+	//ジャスト回避のイベントとカメラが決まってから歪みを進める
+	UpdateDistortion();
 
 	//カメラが確定してからEffekseerに同期して更新する
 	EffectManager::Instns().Update();
@@ -135,6 +156,11 @@ void GameManager::UpdateWorld()
 		{
 			m_pCamera->Shake(event.shakePower, event.shakeFrame);
 		}
+		//ジャスト回避の歪みを始める//連続で成功したら最初から広げ直す
+		if (event.type == BattleEvent::Type::JustDodge)
+		{
+			m_distortionFrame = 0;
+		}
 		m_battleEvents.push_back(event);
 	}
 
@@ -146,6 +172,50 @@ void GameManager::UpdateCamera()
 	//ウィッチタイム中はカメラを引く
 	m_pCamera->SetPull(Timer::Instance().IsEnemySlow());
 	m_pCamera->Update(m_pPlayer->GetCameraTarget(), m_pPlayer->GetForward(), m_lockOn.GetTargetPos(), m_lockOn.GetTargetHeight().value_or(0.0f));
+}
+
+void GameManager::UpdateDistortion()
+{
+	ScreenDistortion::Param param = m_distortion.GetParam();
+
+	//ウィッチタイム中は揺らぎを強くして終わったら弱くする
+	const float waveStep = kWaveStrength / kWaveFadeFrame;
+	if (Timer::Instance().IsEnemySlow())
+	{
+		m_waveStrength = (std::min)(m_waveStrength + waveStep, kWaveStrength);
+	}
+	else
+	{
+		m_waveStrength = (std::max)(m_waveStrength - waveStep, 0.0f);
+	}
+	m_waveTime += kWaveTimeStep;
+	param.time = m_waveTime;
+	param.waveStrength = m_waveStrength;
+
+	//揺らぎも中心からの距離を使うので、中心は毎フレーム決める
+	VECTOR screenPos = ConvWorldPosToScreenPos(m_pPlayer->GetCameraTarget().ToDxLibVector());
+	param.centerX = screenPos.x / static_cast<float>(Game::kScreenWidth);
+	param.centerY = screenPos.y / static_cast<float>(Game::kScreenHeight);
+
+	//輪が出ていないときは輪の強さだけ0にする
+	if (m_distortionFrame < 0)
+	{
+		param.strength = 0.0f;
+		m_distortion.SetParam(param);
+		return;
+	}
+
+	param.progress = static_cast<float>(m_distortionFrame) / static_cast<float>(kDistortionFrame);
+	param.strength = kDistortionStrength;
+	param.ringWidth = kDistortionRingWidth;
+	m_distortion.SetParam(param);
+
+	m_distortionFrame++;
+	//広がりきったら終わり
+	if (m_distortionFrame > kDistortionFrame)
+	{
+		m_distortionFrame = -1;
+	}
 }
 
 std::vector<BattleEvent> GameManager::TakeBattleEvents()
@@ -203,6 +273,9 @@ void GameManager::UpdateGate(bool shouldClose, const std::vector<SpawnTable::Gat
 
 void GameManager::Draw()
 {
+	//ここからエフェクトまでを歪みの対象にする
+	m_distortion.BeginCapture();
+
 	//ステージは背景として扱うから紫を重ねる前に描く
 	m_pStage->Draw();
 
@@ -221,6 +294,9 @@ void GameManager::Draw()
 
 	//エフェクトの描画
 	EffectManager::Instns().Draw();
+
+	//歪ませて画面に出す
+	m_distortion.EndCapture();
 }
 
 #ifdef _DEBUG
