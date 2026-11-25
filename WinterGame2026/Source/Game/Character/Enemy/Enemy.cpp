@@ -8,6 +8,17 @@
 #include <cfloat>
 #include "DxLib.h"
 #include "EnemyManager.h"
+#include <algorithm>
+
+namespace
+{
+	//出てくる演出のフレーム数//EnemySpawn.efkefcの光の柱に合わせる
+	//柱が一番明るい間は姿を隠しておく
+	constexpr float kAppearHideFrame = 40.0f;
+	//隠し終わってから見えきるまで//柱が細くなって消えていくのと同じ間に見えてくる
+	constexpr float kAppearFadeFrame = 20.0f;
+}
+
 #ifdef _DEBUG
 #include "../../../System/DebugDraw.h"
 
@@ -41,6 +52,37 @@ void Enemy::Update()
 void Enemy::Draw()
 {
 
+}
+
+void Enemy::StartAppear()
+{
+	m_appearFrame = 0.0f;
+	m_opacity = 0.0f;
+	//見えていない間に殴られたり動いたりしないようにする
+	//狙う相手がいないと待機のまま動かない
+	SetInvincible(true);
+	m_appearTarget = m_pTarget;
+	m_pTarget = nullptr;
+}
+
+void Enemy::UpdateAppear()
+{
+	//演出中でない
+	if (m_appearFrame < 0.0f) return;
+
+	//光の柱と同じ速さで進める//ウィッチタイム中は一緒に遅くなる
+	m_appearFrame += GetTimeScale();
+	//柱が明るい間は見えず、柱が消えていく間にだんだん見えてくる
+	m_opacity = std::clamp((m_appearFrame - kAppearHideFrame) / kAppearFadeFrame, 0.0f, 1.0f);
+
+	//見えきったら動き始める
+	if (m_appearFrame >= kAppearHideFrame + kAppearFadeFrame)
+	{
+		m_appearFrame = -1.0f;
+		m_opacity = 1.0f;
+		SetInvincible(false);
+		m_pTarget = m_appearTarget;
+	}
 }
 
 HitResult Enemy::OnHit(const AttackData& attackData, int damage)

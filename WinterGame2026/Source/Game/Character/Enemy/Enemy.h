@@ -58,6 +58,11 @@ public:
 	//モデルの不透明度(1で普通、0で見えない)
 	float GetOpacity()const { return m_opacity; }
 	void SetOpacity(float opacity) { m_opacity = opacity; }
+	//出てくる演出を始める//光の柱の中で姿を隠し、柱が消えるときに立っているように見せる
+	//演出中は狙う相手を外して動かず、攻撃も受けない//SetTargetの後に呼ぶ
+	void StartAppear();
+	//出てくる演出を進める//EnemyManagerが毎フレーム各敵のUpdateの前に呼ぶ
+	void UpdateAppear();
 	//死亡演出が終わって消えたことにする
 	void Vanish() { m_isVanished = true; }
 	//消えたか(消えた敵は更新も描画もしない)
@@ -158,6 +163,10 @@ protected:
 
 	//モデルの不透明度//色んな使い道ありそう
 	float m_opacity = 1.0f;
+	//出てくる演出を始めてからのフレーム数//演出中でないときは-1
+	float m_appearFrame = -1.0f;
+	//出てくる演出のあいだ預かっておく狙う相手//演出が終わったらm_pTargetに戻す
+	const Character* m_appearTarget = nullptr;
 	//死亡演出が終わって消えたか
 	bool m_isVanished = false;
 	//浮いている高さ

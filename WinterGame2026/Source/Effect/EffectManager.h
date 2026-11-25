@@ -25,6 +25,14 @@ enum class EffectType
 	Shockwave,
 	//エイリアンのブレス//Effekseerの+Z方向に伸びるので攻撃の向きに回して出す
 	AlienBreath,
+	//敵が消えるときの光の粒//紫の光が広がって粒が上へ昇りながら消える
+	EnemyDeath,
+	//ボスの弱点に当たったときの金色の破裂//普通のヒットに重ねて出す
+	WeakPointHit,
+	//敵が出てくるときの魔法陣//足元に広がって光の柱と粒が昇る
+	EnemySpawn,
+	//ジャスト回避が決まったときの光//白い光と輪が広がって星が飛び散る
+	JustDodge,
 	Max
 };
 class Effect;

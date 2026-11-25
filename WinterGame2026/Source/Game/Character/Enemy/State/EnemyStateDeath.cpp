@@ -1,4 +1,5 @@
 ﻿#include "EnemyStateDeath.h"
+#include "../../../../Effect/EffectManager.h"
 #include <algorithm>
 #include <cstdio>
 
@@ -8,6 +9,8 @@ namespace
 	constexpr float kLieFrame = 30.0f;
 	//消え始めてから完全に消えるまでのフレーム数
 	constexpr float kFadeFrame = 60.0f;
+	//消えるときのエフェクトの拡大率//身長に掛ける//ボスのように大きい敵ほど大きく出す
+	constexpr float kDeathEffectScalePerHeight = 0.1f;
 }
 
 void EnemyStateDeath::Enter()
@@ -29,6 +32,13 @@ void EnemyStateDeath::Update()
 	float fadeRate = (m_afterAnimFrame - kLieFrame) / kFadeFrame;
 	fadeRate = std::clamp(fadeRate, 0.0f, 1.0f);
 	m_enemy.SetOpacity(1.0f - fadeRate);
+
+	//消え始めた瞬間に光の粒を出す//体が透けていくのと一緒に粒が昇っていく
+	if (fadeRate > 0.0f && !m_isEffectPlayed)
+	{
+		m_isEffectPlayed = true;
+		EffectManager::Instns().PlayEffect(EffectType::EnemyDeath, m_enemy.GetPos(), Vector3(), m_enemy.GetHeight() * kDeathEffectScalePerHeight);
+	}
 
 	//完全に透明になったら消えたことにする
 	if (fadeRate >= 1.0f)

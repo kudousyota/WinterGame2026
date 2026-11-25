@@ -30,6 +30,8 @@ namespace
 	constexpr float kSoftMaxDistance = 350.0f;
 	//スティックを倒していないときは、近い敵なら後ろにいても振り向く(cos180度=-1)
 	constexpr float kNoInputNearMinDot = -1.0f;
+	//ロックオンのマーカーの拡大率
+	constexpr float kMarkerScale = 15.0f;
 }
 
 void LockOnManager::Start(const Vector3& playerPos, const Vector3& baseDir, const std::vector<std::shared_ptr<Character>>& enemies)
@@ -144,7 +146,7 @@ void LockOnManager::LateUpdate()
 	//狙い始めたらマーカーを出す
 	if (m_markerHandle == -1)
 	{
-		m_markerHandle = effect.PlayEffect(EffectType::LockOn, target->GetCenterPos());
+		m_markerHandle = effect.PlayEffect(EffectType::LockOn, target->GetCenterPos(), Vector3(), kMarkerScale);
 		return;
 	}
 	//敵が動くので毎フレーム付いていかせる

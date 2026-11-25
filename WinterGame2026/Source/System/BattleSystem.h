@@ -35,6 +35,10 @@ struct BattleEvent
 	//多段ヒットの何段目か//Hitのときだけ使う//飛び道具は1
 	//イベントは値を順番に並べて作っているので、増やすときは一番下に足す
 	int hitIndex = 1;
+	//当たった位置//Hitのときだけ使う//攻撃された側の体の表面の、攻撃に一番近いところ
+	Vector3 hitPos;
+	//弱点に当たったか//Hitのときだけ使う//ダメージの倍率が1より大きければ弱点
+	bool isWeakPoint = false;
 };
 
 class BattleSystem

@@ -16,4 +16,6 @@ public:
 private:
 	//倒れるアニメーションが終わってからのフレーム数(ウィッチタイム中はゆっくり進む)
 	float m_afterAnimFrame = 0.0f;
+	//消えるときのエフェクトをもう出したか//1回だけ出す
+	bool m_isEffectPlayed = false;
 };

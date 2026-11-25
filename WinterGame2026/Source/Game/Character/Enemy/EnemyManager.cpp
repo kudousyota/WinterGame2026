@@ -15,6 +15,8 @@ void EnemyManager::Update()
 {
 	for (const auto& enemy : m_enemies)
 	{
+		//出てくる演出の不透明度を先に決める//死亡演出などで敵が自分で変えたときはそちらを残す
+		enemy->UpdateAppear();
 		enemy->Update();
 	}
 }

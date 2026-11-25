@@ -56,6 +56,14 @@ void EffectManager::Init()
     m_resourceHandles[static_cast<int>(EffectType::Shockwave)] = LoadEffekseerEffect("Data/Effect/Shockwave.efk");
     //エイリアンのブレス
     m_resourceHandles[static_cast<int>(EffectType::AlienBreath)] = LoadEffekseerEffect("Data/Effect/AlienBreath.efk");
+    //敵が消えるときの光の粒
+    m_resourceHandles[static_cast<int>(EffectType::EnemyDeath)] = LoadEffekseerEffect("Data/Effect/EnemyDeath.efk");
+    //弱点に当たったときの破裂
+    m_resourceHandles[static_cast<int>(EffectType::WeakPointHit)] = LoadEffekseerEffect("Data/Effect/WeakPointHit.efk");
+    //敵が出てくるときの魔法陣
+    m_resourceHandles[static_cast<int>(EffectType::EnemySpawn)] = LoadEffekseerEffect("Data/Effect/EnemySpawn.efk");
+    //ジャスト回避が決まったときの光
+    m_resourceHandles[static_cast<int>(EffectType::JustDodge)] = LoadEffekseerEffect("Data/Effect/JustDodge.efk");
 }
 
 void EffectManager::Update()

@@ -521,5 +521,6 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Source\Shader\DistortionPS.hlsl" />
+    <FxCompile Include="Source\Shader\WitchGradePS.hlsl" />
   </ItemGroup>
 </Project>

@@ -14,21 +14,43 @@
 namespace
 {
 	//ヒットストップとカメラシェイクの値は攻撃ごとにAttackHit.csvに書く
-	//ウィッチタイム中に画面に重ねる色の濃さ
-	constexpr int kWitchTimeOverlayAlpha = 128;
+	//ウィッチタイム中に背景へ重ねる色の濃さ//背景だけ少し沈めて、キャラクターを浮き立たせる
+	//画面全体の色はシェーダーで暗い藍色と紫に変える
+	constexpr int kWitchTimeOverlayAlpha = 120;
+	//ウィッチタイム中に背景へ重ねる色(黒に近い紫)
+	constexpr int kWitchTimeOverlayR = 28;
+	constexpr int kWitchTimeOverlayG = 0;
+	constexpr int kWitchTimeOverlayB = 52;
+	//入ってから一番濃くなるまでのフレーム数//どこから色が変わるかは波紋が決めるので短くする
+	constexpr float kWitchOverlayFadeInFrame = 6.0f;
+	//終わってから元に戻るまでのフレーム数
+	constexpr float kWitchOverlayFadeOutFrame = 20.0f;
+	//ウィッチタイム中に画面の四隅を暗くする強さ
+	constexpr float kWitchVignette = 0.8f;
 
-	//ジャスト回避の歪みが画面の端まで広がるフレーム数
-	constexpr int kDistortionFrame = 40;
+	//ジャスト回避の歪みが画面の外まで広がるフレーム数//一瞬で画面全体に走るように短めにする
+	constexpr int kDistortionFrame = 30;
+	//波紋が広がりきったときの半径//DistortionPS.hlslの「progress * 2.2」と合わせる
+	constexpr float kDistortionMaxRadius = 2.2f;
 	//ジャスト回避の歪みの強さ
-	constexpr float kDistortionStrength = 0.04f;
+	constexpr float kDistortionStrength = 0.06f;
 	//ジャスト回避の歪みの輪の太さ
-	constexpr float kDistortionRingWidth = 0.2f;
+	constexpr float kDistortionRingWidth = 0.22f;
 	//ウィッチタイム中の揺らぎの強さ
 	constexpr float kWaveStrength = 0.01f;
 	//揺らぎが最大になるまでのフレーム数
 	constexpr float kWaveFadeFrame = 20.0f;
 	//1フレームで進める揺らぎの時間
 	constexpr float kWaveTimeStep = 1.0f / 60.0f;
+
+	//攻撃が当たったときのエフェクトの拡大率
+	constexpr float kHitEffectScale = 30.0f;
+	//弱点に当たったときのエフェクトの拡大率//ボスは大きいので普通のヒットより大きくする
+	constexpr float kWeakPointHitEffectScale = 40.0f;
+	//敵が出てくるときの魔法陣の拡大率//体の半径に掛ける//ボスのように大きい敵ほど大きく出す
+	constexpr float kSpawnEffectScalePerRadius = 0.75f;
+	//ジャスト回避が決まったときのエフェクトの拡大率
+	constexpr float kJustDodgeEffectScale = 20.0f;
 
 	//CSVの名前から敵を作る
 	std::shared_ptr<Enemy> CreateEnemy(const std::string& name)
@@ -156,10 +178,28 @@ void GameManager::UpdateWorld()
 		{
 			m_pCamera->Shake(event.shakePower, event.shakeFrame);
 		}
+		//当たった所にヒットのエフェクトを出す//無敵などで受けなかったときは出さない
+		if (event.type == BattleEvent::Type::Hit && event.result != HitResult::Ignored)
+		{
+			EffectManager::Instns().PlayEffect(EffectType::Hit, event.hitPos, Vector3(), kHitEffectScale);
+			//弱点なら金色の破裂も重ねる//3倍ダメージが入ったとわかるようにする
+			if (event.isWeakPoint)
+			{
+				EffectManager::Instns().PlayEffect(EffectType::WeakPointHit, event.hitPos, Vector3(), kWeakPointHitEffectScale);
+			}
+		}
 		//ジャスト回避の歪みを始める//連続で成功したら最初から広げ直す
 		if (event.type == BattleEvent::Type::JustDodge)
 		{
 			m_distortionFrame = 0;
+			//まだウィッチタイムの色になっていなければ、波紋が通ったところから色を変える
+			//ウィッチタイム中にもう一度決めたときは、もう全体が色づいているので広げ直さない
+			m_isGradeSweeping = (m_witchOverlayRate < 0.5f);
+			//よけた人の体の真ん中で光らせる//歪みと一緒に出して成功したとはっきりわかるようにする
+			if (event.target)
+			{
+				EffectManager::Instns().PlayEffect(EffectType::JustDodge, event.target->GetCenterPos(), Vector3(), kJustDodgeEffectScale);
+			}
 		}
 		m_battleEvents.push_back(event);
 	}
@@ -192,10 +232,26 @@ void GameManager::UpdateDistortion()
 	param.time = m_waveTime;
 	param.waveStrength = m_waveStrength;
 
+	//背景の暗い紫も揺らぎと同じように、入るときは濃くして終わったら薄くする
+	if (Timer::Instance().IsEnemySlow())
+	{
+		m_witchOverlayRate = (std::min)(m_witchOverlayRate + 1.0f / kWitchOverlayFadeInFrame, 1.0f);
+	}
+	else
+	{
+		m_witchOverlayRate = (std::max)(m_witchOverlayRate - 1.0f / kWitchOverlayFadeOutFrame, 0.0f);
+	}
+
 	//揺らぎも中心からの距離を使うので、中心は毎フレーム決める
 	VECTOR screenPos = ConvWorldPosToScreenPos(m_pPlayer->GetCameraTarget().ToDxLibVector());
 	param.centerX = screenPos.x / static_cast<float>(Game::kScreenWidth);
 	param.centerY = screenPos.y / static_cast<float>(Game::kScreenHeight);
+
+	//画面全体の色と四隅の暗さは背景の紫と同じ割合で変える
+	param.gradeAmount = m_witchOverlayRate;
+	param.vignette = kWitchVignette * m_witchOverlayRate;
+	//色を変える範囲//波紋が広がっている間は波紋の内側だけ、それ以外は画面全体
+	param.gradeRadius = 100.0f;
 
 	//輪が出ていないときは輪の強さだけ0にする
 	if (m_distortionFrame < 0)
@@ -208,6 +264,10 @@ void GameManager::UpdateDistortion()
 	param.progress = static_cast<float>(m_distortionFrame) / static_cast<float>(kDistortionFrame);
 	param.strength = kDistortionStrength;
 	param.ringWidth = kDistortionRingWidth;
+	if (m_isGradeSweeping)
+	{
+		param.gradeRadius = param.progress * kDistortionMaxRadius;
+	}
 	m_distortion.SetParam(param);
 
 	m_distortionFrame++;
@@ -215,6 +275,7 @@ void GameManager::UpdateDistortion()
 	if (m_distortionFrame > kDistortionFrame)
 	{
 		m_distortionFrame = -1;
+		m_isGradeSweeping = false;
 	}
 }
 
@@ -262,6 +323,11 @@ void GameManager::SpawnEnemy(const std::string& name, const Vector3& groundPos)
 	//攻撃の枠をもらうためにまとめて持っている人を教えておく
 	enemy->SetManager(&m_enemyManager);
 
+	//足元に魔法陣と光の柱を出す//浮いている敵も魔法陣は地面に置く
+	EffectManager::Instns().PlayEffect(EffectType::EnemySpawn, pos, Vector3(), enemy->GetCollisionRadius() * kSpawnEffectScalePerRadius);
+	//柱の中で姿を隠し、柱が消えるときに立っているように見せる//狙う相手を預かるのでSetTargetの後
+	enemy->StartAppear();
+
 	//当たり判定には次のフレームのBeginFrameから入る
 	m_enemyManager.Add(enemy);
 }
@@ -279,11 +345,17 @@ void GameManager::Draw()
 	//ステージは背景として扱うから紫を重ねる前に描く
 	m_pStage->Draw();
 
-	//ウィッチタイム中は背景を紫にする(キャラクターより先に描いてキャラクターには色を乗せない)
-	if (Timer::Instance().IsEnemySlow())
+	//ウィッチタイム中はここまで(ステージ)だけを暗い藍色と紫にする
+	//プレイヤーと敵はこの後に描くので色は変わらない
+	m_distortion.ApplyGrade();
+
+	//ウィッチタイム中は背景を黒に近い紫に沈める(キャラクターより先に描いてキャラクターには色を乗せない)
+	//入るときと終わるときはだんだん変える
+	const int overlayAlpha = static_cast<int>(kWitchTimeOverlayAlpha * m_witchOverlayRate);
+	if (overlayAlpha > 0)
 	{
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, kWitchTimeOverlayAlpha);
-		DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(125, 0, 185), true);
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, overlayAlpha);
+		DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(kWitchTimeOverlayR, kWitchTimeOverlayG, kWitchTimeOverlayB), true);
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
 

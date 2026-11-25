@@ -18,8 +18,11 @@ ScreenDistortion::~ScreenDistortion()
 void ScreenDistortion::Init()
 {
 	m_screen = MakeScreen(Game::kScreenWidth, Game::kScreenHeight, false);
+	m_copyScreen = MakeScreen(Game::kScreenWidth, Game::kScreenHeight, false);
 	m_pixelShader = LoadPixelShader("Data/Shader/DistortionPS.pso");
 	assert(m_pixelShader != -1 && "歪みシェーダーが読めない(hlslのビルド設定を確認)");
+	m_gradeShader = LoadPixelShader("Data/Shader/WitchGradePS.pso");
+	assert(m_gradeShader != -1 && "ウィッチタイムの色のシェーダーが読めない(hlslのビルド設定を確認)");
 	m_constantBuffer = CreateShaderConstantBuffer(sizeof(Param));
 	m_param.aspect = static_cast<float>(Game::kScreenWidth) / static_cast<float>(Game::kScreenHeight);
 }
@@ -27,10 +30,14 @@ void ScreenDistortion::Init()
 void ScreenDistortion::Terminate()
 {
 	if (m_screen != -1) DeleteGraph(m_screen);
+	if (m_copyScreen != -1) DeleteGraph(m_copyScreen);
 	if (m_pixelShader != -1) DeleteShader(m_pixelShader);
+	if (m_gradeShader != -1) DeleteShader(m_gradeShader);
 	if (m_constantBuffer != -1) DeleteShaderConstantBuffer(m_constantBuffer);
 	m_screen = -1;
+	m_copyScreen = -1;
 	m_pixelShader = -1;
+	m_gradeShader = -1;
 	m_constantBuffer = -1;
 }
 
@@ -38,6 +45,17 @@ void ScreenDistortion::BeginCapture()
 {
 	SetDrawScreen(m_screen);
 	ClearDrawScreen();
+}
+
+void ScreenDistortion::ApplyGrade()
+{
+	//ウィッチタイムでないときやシェーダーが無いときは何もしない
+	if (m_param.gradeAmount <= 0.0f || m_gradeShader == -1) return;
+
+	//描画先はm_screenのまま、今の中身を写してから色を変えて上書きする
+	//2Dの描画はZバッファに書かないので、ステージの奥行きは残り、この後のキャラクターの前後関係は崩れない
+	GetDrawScreenGraph(0, 0, Game::kScreenWidth, Game::kScreenHeight, m_copyScreen);
+	DrawWithShader(m_gradeShader, m_copyScreen);
 }
 
 void ScreenDistortion::EndCapture()
@@ -50,10 +68,10 @@ void ScreenDistortion::EndCapture()
 		DrawGraph(0, 0, m_screen, false);
 		return;
 	}
-	DrawWithShader();
+	DrawWithShader(m_pixelShader, m_screen);
 }
 
-void ScreenDistortion::DrawWithShader()
+void ScreenDistortion::DrawWithShader(int pixelShader, int texture)
 {
 	//定数バッファに今の設定を書き込む
 	Param* buffer = static_cast<Param*>(GetBufferShaderConstantBuffer(m_constantBuffer));
@@ -82,8 +100,8 @@ void ScreenDistortion::DrawWithShader()
 	}
 
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-	SetUsePixelShader(m_pixelShader);
-	SetUseTextureToShader(0, m_screen);
+	SetUsePixelShader(pixelShader);
+	SetUseTextureToShader(0, texture);
 	DrawPrimitive2DToShader(vertices.data(), static_cast<int>(vertices.size()), DX_PRIMTYPE_TRIANGLESTRIP);
 	//次の描画に影響しないように戻す
 	SetUseTextureToShader(0, -1);

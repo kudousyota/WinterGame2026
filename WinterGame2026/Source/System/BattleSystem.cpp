@@ -7,6 +7,7 @@
 #include "../Game/Bullet.h"
 #include "../Game/Shockwave.h"
 #include "../DataLoader/DataManager.h"
+#include "../Math/Geometry.h"
 #include <algorithm>
 
 namespace
@@ -23,6 +24,22 @@ namespace
 		default:
 			return std::make_unique<Bullet>(pos, forward, request.speed, request.data);
 		}
+	}
+
+	//当たった位置を求める//ヒットのエフェクトを出す場所に使う
+	//攻撃の線分の中で体の中心に一番近い点を探し、体の中心からそちらへ半径の分だけ出た所にする
+	//体の中に埋もれず、攻撃が来た側の表面に出る
+	Vector3 CalcHitPos(const Character& target, const Vector3& start, const Vector3& end)
+	{
+		const Vector3 center = target.GetCenterPos();
+		Vector3 toAttack = Geometry::ClosestPointOnSegment(start, end, center) - center;
+		const float radius = target.GetCollisionRadius();
+		//半径より遠ければ表面まで縮める//近ければ攻撃の位置そのまま
+		if (toAttack.SqMagnitude() > radius * radius)
+		{
+			toAttack = toAttack.Normalize() * radius;
+		}
+		return center + toAttack;
 	}
 }
 
@@ -130,7 +147,8 @@ void BattleSystem::ProcessProjectileHits()
 
 			//連射で何度も当たるので、ヒットストップとカメラシェイクは入れない
 			HitResult result = target.OnHit(data, data.GetDamage());
-			m_events.push_back({ BattleEvent::Type::Hit, nullptr, &target, data.GetAttackType(), 0.0f, 0, result });
+			const Vector3 hitPos = CalcHitPos(target, projectile->GetPos(), projectile->GetPos());
+			m_events.push_back({ BattleEvent::Type::Hit, nullptr, &target, data.GetAttackType(), 0.0f, 0, result, 1, hitPos });
 			projectile->OnHitTarget(false);
 			break;
 		}
@@ -172,7 +190,10 @@ void BattleSystem::ApplyAttackHit(Character& attacker, const AttackRequest& requ
 	{
 		Timer::Instance().RequestHitStop(info.hitStopFrame);
 	}
-	m_events.push_back({ BattleEvent::Type::Hit, &attacker, &target, request.data.GetAttackType(), info.shakePower, info.shakeFrame, result, request.hitIndex });
+	const Vector3 hitPos = CalcHitPos(target, start, end);
+	//ダメージの計算と同じ倍率を見る//倍率が上がる場所に当たったら弱点
+	const bool isWeakPoint = target.GetDamageRate(start, end, request.data.GetRadius()) > 1.0f;
+	m_events.push_back({ BattleEvent::Type::Hit, &attacker, &target, request.data.GetAttackType(), info.shakePower, info.shakeFrame, result, request.hitIndex, hitPos, isWeakPoint });
 }
 
 void BattleSystem::CheckDodge(Character* attacker, Character& target, int attackId, AttackType attackType)

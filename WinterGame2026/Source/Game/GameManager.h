@@ -118,4 +118,9 @@ private:
 	float m_waveStrength = 0.0f;
 	//揺らぎを動かす時間
 	float m_waveTime = 0.0f;
+	//ウィッチタイムの背景の暗い紫の濃さの割合//0で重ねない、1で一番濃い
+	//入るときは波紋が広がるのに合わせて濃くし、終わるときはゆっくり戻す
+	float m_witchOverlayRate = 0.0f;
+	//波紋が通ったところから色を変えている途中か//ウィッチタイムに入るときのジャスト回避だけtrue
+	bool m_isGradeSweeping = false;
 };

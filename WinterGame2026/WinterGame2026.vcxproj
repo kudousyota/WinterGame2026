@@ -320,6 +320,12 @@
       <EntryPointName>main</EntryPointName>
       <ObjectFileOutput>$(ProjectDir)Data\Shader\%(Filename).pso</ObjectFileOutput>
     </FxCompile>
+    <FxCompile Include="Source\Shader\WitchGradePS.hlsl">
+      <ShaderType>Pixel</ShaderType>
+      <ShaderModel>5.0</ShaderModel>
+      <EntryPointName>main</EntryPointName>
+      <ObjectFileOutput>$(ProjectDir)Data\Shader\%(Filename).pso</ObjectFileOutput>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
