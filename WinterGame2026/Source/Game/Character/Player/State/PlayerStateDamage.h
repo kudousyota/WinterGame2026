@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "PlayerStateBase.h"
 
-
 class PlayerStateDamage : public PlayerStateBase
 {
 public:

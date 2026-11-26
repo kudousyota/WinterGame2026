@@ -15,7 +15,7 @@ struct AttackRequest
 {
 	//ダメージ、半径、誰の攻撃か
 	AttackData data;
-	//攻撃1回ごとの番号(同じ攻撃が何度も当たらないようにするのに使う)
+	//攻撃1回ごとの番号
 	int attackId = 0;
 	//多段ヒットの何段目か//1から数える//書かなければ1段目
 	int hitIndex = 1;

@@ -6,17 +6,16 @@
 class Character;
 class Camera;
 
-//デバッグ機能(Debugビルドでだけ使う)
+//デバッグ機能
 //GameSceneが所有する
-//
 //TAB:表示メニューを開く/閉じる(開いている間はゲームが止まる)
-//      ↑↓で選んで、Enter(または←→)で表示を切り替える
-//F1:当たり判定(体とボスの弱点と攻撃)の表示  F2:文字情報の表示  F3:グリッドの表示  F4:ロックオン範囲の表示
+// ↑↓で選んで、Enter(または←→)で表示を切り替える
+//F1:当たり判定の表示  F2:文字情報の表示  F3:グリッドの表示  F4:ロックオン範囲の表示
 //F5:CSVの読み直し
-//F6:一時停止  F7:コマ送り(一時停止中)  F8:スロー
-//F9:敵のデバッグ表示(範囲、向き、攻撃枠)をまとめて切り替え
+//F6:一時停止  F7:コマ送り F8:スロー
+//F9:敵のデバッグ表示をまとめて切り替え
 //F11:プレイヤーの足元の位置を、Spawn.csvの1行としてクリップボードにコピー
-//K:いま出ている敵を全部倒す(ウェーブを飛ばしてボスまで進むときに使う)
+//K:いま出ている敵を全部倒す
 class DebugTool
 {
 public:
@@ -45,7 +44,7 @@ public:
 
 	DebugTool();
 
-	//キー入力を処理する(ゲームの更新より先に毎フレーム呼ぶ)
+	//キー入力を処理する
 	void Update(const std::vector<Target>& targets);
 
 	//このフレームにゲームを更新するか(一時停止中とスロー中はfalseになる)
@@ -74,7 +73,7 @@ private:
 	void Reload(const std::vector<Target>& targets);
 	//プレイヤーの足元の位置をSpawn.csvの1行の形にしてクリップボードにコピーする
 	void CopySpawnLine(const std::vector<Target>& targets);
-	//いま出ている敵を全部倒す(HPを0にして、いつもどおり死亡演出をさせる)
+	//いま出ている敵を全部倒す
 	void KillEnemies(const std::vector<Target>& targets);
 
 private:
@@ -88,7 +87,7 @@ private:
 	int m_rightStickX = 0;
 	int m_rightStickY = 0;
 
-	//種類ごとの表示の切り替え(最初は全部表示)
+	//種類ごとの表示の切り替え
 	std::array<bool, static_cast<int>(Show::Num)> m_isShow{};
 
 	//表示メニューを開いているか

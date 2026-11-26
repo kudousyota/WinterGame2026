@@ -3,10 +3,6 @@
 #include "Vector3.h"
 class Character;
 class AttackData;
-
-//キャラクター同士の当たり判定を管理する
-//GameManagerが所有し、全員の更新が終わった後にまとめて判定する
-//キャラクターは登録せず、BeginFrameで毎フレーム一覧をもらう(消えた敵を外し忘れて触らないようにする)
 class CollisionManager
 {
 public:
@@ -49,7 +45,7 @@ private:
 	void ResolveCharacterCollision(Character* characterA, Character* characterB);
 
 private:
-	//このフレームで判定するキャラクター(所有はしない)
+	//このフレームで判定するキャラクター
 	//BeginFrameで毎回入れかえる//フレームの外では消えた敵が残っていることがあるので使わない
 	std::vector<Character*> m_pCharacters;
 

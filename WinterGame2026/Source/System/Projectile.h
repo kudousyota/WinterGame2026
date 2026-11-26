@@ -3,7 +3,6 @@
 #include "../DataLoader/AttackData.h"
 #include "../System/CollisionManager.h"
 
-//敵が使う投擲物や球などの基底クラス
 class Projectile
 {
 public:

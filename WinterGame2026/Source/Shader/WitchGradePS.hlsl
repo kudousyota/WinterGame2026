@@ -1,5 +1,5 @@
 //ウィッチタイムの背景の色
-//ステージを描いた直後の画面にだけかける//プレイヤーと敵はこの後に描くので色は変わらない
+//ステージを描いた直後の画面にだけかける
 
 Texture2D sceneTex : register(t0);
 SamplerState smp : register(s0);

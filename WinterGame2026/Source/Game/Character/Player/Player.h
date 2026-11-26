@@ -67,8 +67,6 @@ public:
 	void SetUndying(bool undying) { m_isUndying = undying; }
 
 	//演出のために操作を止める
-	//止めている間は移動の入力が0になり、ボタンの先行入力は毎フレーム捨てる
-	//今の動き(攻撃やジャンプ)は最後まで続き、終わったら待機になる
 	void SetInputLock(bool isLock) { m_isInputLocked = isLock; }
 	bool IsInputLocked()const { return m_isInputLocked; }
 private:

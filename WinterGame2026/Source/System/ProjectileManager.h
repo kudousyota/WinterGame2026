@@ -3,8 +3,6 @@
 #include <memory>
 
 class Projectile;
-//飛び道具を管理する
-//GameSceneが所有する
 class ProjectileManager
 {
 public:

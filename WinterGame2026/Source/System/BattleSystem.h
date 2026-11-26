@@ -6,7 +6,6 @@
 #include "../Game/Character/Character.h"
 
 class ProjectileManager;
-
 struct BattleEvent
 {
 	enum class Type

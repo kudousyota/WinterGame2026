@@ -2,9 +2,6 @@
 #include "../../../Math/Vector3.h"
 #include <vector>
 
-//マントを動きに合わせてなびかせる
-//マントの骨(Cloak1～7)はどのアニメーションでも動かないので、毎フレームコードで骨を曲げる
-//動いた量と風から目標の傾きを決めて、バネで少し遅れて追いかけることで布らしく見せる
 class PlayerCape
 {
 public:
@@ -20,7 +17,7 @@ public:
 	void Init(int modelHandle, const Vector3& pos);
 	//なびき方を切り替える//急に変わらないよう少しずつ切り替わる
 	void SetMode(Mode mode) { m_mode = mode; }
-	//モデルの位置・向き・アニメーションを反映した後に呼ぶ
+	//モデルの位置、向き、アニメーションを反映した後に呼ぶ
 	void Update(const Vector3& pos, const Vector3& forward, float timeScale);
 
 private:
@@ -58,7 +55,7 @@ private:
 	//前のフレームの位置//動いた量を出すのに使う
 	Vector3 m_prevPos;
 	//マント全体の傾き
-	//向きがワールドでマントの先が流れる方向、長さが傾く角度(ラジアン)
+	//向きがワールドでマントの先が流れる方向、長さが傾く角度
 	Vector3 m_tilt;
 	//傾きの変わる速さ//バネの計算に使う
 	Vector3 m_tiltVelocity;

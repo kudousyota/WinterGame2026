@@ -10,6 +10,7 @@
 #include "../Common/FontManager.h"
 #include "../DataLoader/DataManager.h"
 #include "../Effect/EffectManager.h"
+#include "SoundManager.h"
 #include "EffekseerForDXLib.h"
 
 
@@ -77,7 +78,7 @@ bool Application::Init()
 	//エフェクトのロード
 	EffectManager::Instns().Init();
 	//サウンドのロード
-	//SoundManager::Instance().Load();
+	SoundManager::Instance().Load();
 	//フォントのロード
 	FontManager::Instance().LoadFont();
 	//背景色を設定(ここでRGBを変更すれば背景色を変えれる)
@@ -128,6 +129,8 @@ void Application::Run()
 
 void Application::Terminate()
 {
+	//サウンドの解放//DxLib_Endより前に行う
+	SoundManager::Instance().Terminate();
 	//フォントの解放
 	FontManager::Instance().Destroy();
 	//EffectManagerの終了処理を先に行う
