@@ -28,6 +28,10 @@ HitHeight,100,attack hit position above the feet
 MaxMoveScale,2.0,how far the step in can stretch toward a far enemy relative to the csv distance
 StopMargin,10,gap left between bodies when the step in stops
 WitchHandForwardOffset,150,wicked weave hit position in front of the feet
+WitchHandPortalBack,0,wicked weave portal behind the feet. The fist flies from here to the hit position
+WitchHandPortalSide,130,wicked weave portal to the side away from the camera. Keep it wide so the arm does not pass through the body
+WitchHandPortalHeight,150,wicked weave portal height for the hand
+WitchLegPortalHeight,110,wicked weave portal height for the leg
 #--- hold shot ---
 ShotInterval,6,frames between bullets
 BulletSpeed,30,

@@ -46,6 +46,8 @@ public:
 	//UI用//今どこにいて、そこに入ってから何フレーム経ったか
 	Phase GetPhase()const { return m_phase; }
 	int GetPhaseFrame()const { return m_phaseFrame; }
+	//UI用//演出しているボス//登場の演出を始めてから撃破の演出が終わるまで持っている//いなければ空
+	std::shared_ptr<const Enemy> GetBoss()const { return m_boss.lock(); }
 
 private:
 	void ChangePhase(Phase phase);

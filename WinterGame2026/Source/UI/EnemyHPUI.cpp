@@ -2,6 +2,7 @@
 #include <algorithm>
 #include "DxLib.h"
 #include "../Game/GameManager.h"
+#include "../Game/Character/Enemy/Enemy.h"
 
 namespace
 {
@@ -112,6 +113,9 @@ void EnemyHPUI::SyncBars()
 		const bool hasBar = std::any_of(m_bars.begin(), m_bars.end(),
 			[&enemy](const Bar& bar) { return bar.target.lock() == enemy; });
 		if (hasBar) continue;
+		//ボスは画面の下のBossHPUIが出すので頭の上には出さない
+		const Enemy* asEnemy = dynamic_cast<const Enemy*>(enemy.get());
+		if (asEnemy && asEnemy->IsBoss()) continue;
 
 		Bar bar;
 		bar.target = enemy;

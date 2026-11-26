@@ -58,6 +58,13 @@ struct PlayerParam
 	float stopMargin = 0.0f;
 	//ウィケッドウィーブの攻撃判定を出す位置
 	float witchHandForwardOffset = 0.0f;
+	//ウィケッドウィーブの魔法陣を出す向きを決める位置//足元から見た後ろ、横、上
+	//拳はここから攻撃判定の位置へ向かって突き出す//体を貫通しないように横へ離す
+	float witchHandPortalBack = 0.0f;
+	float witchHandPortalSide = 0.0f;
+	float witchHandPortalHeight = 0.0f;
+	//足のウィケッドウィーブは腰のあたりから蹴り出す
+	float witchLegPortalHeight = 0.0f;
 
 	//長押しで撃つ弾
 	//弾を撃つ間隔のフレーム数

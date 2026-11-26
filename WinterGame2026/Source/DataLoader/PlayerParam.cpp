@@ -72,6 +72,10 @@ void PlayerParam::Load(const std::vector<std::vector<std::string>>& rows)
 	maxMoveScale = get("MaxMoveScale");
 	stopMargin = get("StopMargin");
 	witchHandForwardOffset = get("WitchHandForwardOffset");
+	witchHandPortalBack =get("WitchHandPortalBack");
+	witchHandPortalSide = get("WitchHandPortalSide");
+	witchHandPortalHeight = get("WitchHandPortalHeight");
+	witchLegPortalHeight = get("WitchLegPortalHeight");
 
 	//長押しで撃つ弾
 	shotInterval = getInt("ShotInterval");

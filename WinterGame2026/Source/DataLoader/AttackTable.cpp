@@ -4,7 +4,7 @@ namespace
 {
 	//各CSVの列の数(足りない行は読まない)
 	constexpr int kHitColumnNum = 14;
-	constexpr int kMotionColumnNum = 12;
+	constexpr int kMotionColumnNum = 14;
 	constexpr int kComboColumnNum = 6;
 
 	//CSVに書いた名前をAttackTypeに変換する
@@ -108,6 +108,8 @@ void AttackTable::Load(const Rows& hitRows, const Rows& motionRows, const Rows& 
 		info.riseSpeed = std::stof(row[9]);
 		info.windupFrame = std::stoi(row[10]);
 		info.windupAnimScale = std::stof(row[11]);
+		info.animScale = std::stof(row[12]);
+		info.loopAnim = std::stoi(row[13]) != 0;
 	}
 
 	//コンボのつながり

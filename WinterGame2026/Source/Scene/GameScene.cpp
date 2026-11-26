@@ -14,6 +14,7 @@
 #include "../UI/WitchTimeNeedleUI.h"
 #include "../UI/PlayerHPUI.h"
 #include "../UI/EnemyHPUI.h"
+#include "../UI/BossHPUI.h"
 #include "../UI/BossCutsceneUI.h"
 
 namespace
@@ -57,6 +58,8 @@ void GameScene::Init()
 	m_uiManager.Add(std::make_unique<PlayerHPUI>(m_game.GetPlayer()));
 	//敵のHPバー//敵は後から出てくるのでUIの中で敵の一覧を毎フレーム見る
 	m_uiManager.Add(std::make_unique<EnemyHPUI>(m_game));
+	//ボスのHPバー//画面の下の真ん中//ボスはBossCutsceneに聞く
+	m_uiManager.Add(std::make_unique<BossHPUI>(m_game));
 	//ボスの演出の黒帯や文字//ほかのUIの上に重ねるので最後に足す
 	m_uiManager.Add(std::make_unique<BossCutsceneUI>(m_game));
 	m_uiManager.Init();

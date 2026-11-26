@@ -222,6 +222,7 @@
     <ClCompile Include="Source\Scene\TutorialScene.cpp" />
     <ClCompile Include="Source\Game\TutorialGuide.cpp" />
     <ClCompile Include="Source\UI\EnemyHPUI.cpp" />
+    <ClCompile Include="Source\UI\BossHPUI.cpp" />
     <ClCompile Include="Source\UI\HPGauge.cpp" />
     <ClCompile Include="Source\UI\MenuCursorUI.cpp" />
     <ClCompile Include="Source\UI\PlayerHPUI.cpp" />
@@ -315,6 +316,7 @@
     <ClInclude Include="Source\Scene\TutorialScene.h" />
     <ClInclude Include="Source\Game\TutorialGuide.h" />
     <ClInclude Include="Source\UI\EnemyHPUI.h" />
+    <ClInclude Include="Source\UI\BossHPUI.h" />
     <ClInclude Include="Source\UI\HPGauge.h" />
     <ClInclude Include="Source\UI\MenuCursorUI.h" />
     <ClInclude Include="Source\UI\PlayerHPUI.h" />

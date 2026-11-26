@@ -22,12 +22,6 @@ namespace
 	constexpr float kWitchHandScale = 40.0f;
 	//エフェクトの原点から拳までの距離
 	constexpr float kWitchHandFistDistance = 1.1f;
-	//魔法陣を出したい位置
-	constexpr float kWitchHandPortalBack = 50.0f;
-	constexpr float kWitchHandPortalHeight = 150.0f;
-	//足のウィケッドウィーブは腰のあたりから蹴り出す
-	constexpr float kWitchLegPortalHeight = 110.0f;
-	constexpr float kWitchHandPortalSide = 40.0f;
 	//踏みつけエフェクトで衝撃が出る位置
 	constexpr float kStompImpactOffset = 0.9f;
 
@@ -118,8 +112,9 @@ void PlayerStateAttack::Enter()
 	//攻撃中はその場で止まる
 	StopMove();
 	//振りかぶりがある攻撃は最初だけ早回しにして腕が伸びきるまでを短くする
-	const float animScale = (m_info.windupFrame > 0) ? m_info.windupAnimScale : 1.0f;
-	m_player.GetAnim().ChangeAnim(m_info.animName, false, animScale);
+	//振りかぶりがない攻撃はCSVの再生速度で最初から再生する
+	const float animScale = (m_info.windupFrame > 0) ? m_info.windupAnimScale : m_info.animScale;
+	m_player.GetAnim().ChangeAnim(m_info.animName, m_info.loopAnim, animScale);
 	//攻撃ごとに新しい番号をもらう
 	m_attackId = m_player.IssueAttackId();
 	m_hitIndex = 1;
@@ -129,11 +124,11 @@ void PlayerStateAttack::Update()
 {
 	auto& input = Input::Instance();
 
-	//振りかぶりが終わったら普通の速さに戻す
+	//振りかぶりが終わったらCSVの再生速度に戻す
 	//長押しや落下で途中returnしても戻し忘れないように最初に見る
 	if (m_info.windupFrame > 0 && m_frame >= m_info.windupFrame)
 	{
-		m_player.GetAnim().SetAnimTimeScale(1.0f);
+		m_player.GetAnim().SetAnimTimeScale(m_info.animScale);
 	}
 
 	if (input.IsBuffered("Dodge", Param().inputBufferFrame))
@@ -373,10 +368,15 @@ void PlayerStateAttack::SummonWitchHand()
 		//足技の締めは足、それ以外は腕
 		const bool isLeg = (type == AttackType::WitchLeg);
 		param.effectType = isLeg ? EffectType::WickedWeaveLeg : EffectType::WickedWeave;
-		const float portalHeight = isLeg ? kWitchLegPortalHeight : kWitchHandPortalHeight;
+		const float portalHeight = isLeg ? Param().witchLegPortalHeight : Param().witchHandPortalHeight;
+
+		//カメラがいる側と反対の横から出す
+		const bool isCameraRight = m_player.GetCameraForward().Dot(right) < 0.0f;
+		const float side = isCameraRight ? -Param().witchHandPortalSide : Param().witchHandPortalSide;
 
 		//魔法陣を出したい位置から着弾点へ向かう方向に拳を突き出す
-		const Vector3 portalPos = m_player.GetPos() - forward * kWitchHandPortalBack + up * portalHeight + right * kWitchHandPortalSide;
+		//後ろから出すと前の敵へ向かう線が体を通るので、横に離して体の外を通す
+		const Vector3 portalPos = m_player.GetPos() - forward * Param().witchHandPortalBack + up * portalHeight + right * side;
 		const Vector3 punchDir = (param.hitPos - portalPos).Normalize();
 
 		//拳が着弾点に来るように、原点を拳の分だけ手前にずらす
