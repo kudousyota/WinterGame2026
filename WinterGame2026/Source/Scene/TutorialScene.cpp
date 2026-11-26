@@ -11,6 +11,7 @@
 #include "../UI/PlayerHPUI.h"
 #include <string>
 #include <utility>
+#include "../Color.h"
 
 namespace
 {
@@ -212,20 +213,19 @@ void TutorialScene::Draw()
 
 	auto& font = FontManager::Instance();
 	const int centerX = Game::kScreenWidth / 2;
-	const unsigned int edgeColor = GetColor(0, 0, 0);
 
 	//本編と見分けがつくように出しておく
-	font.DrawCenteredText(centerX, kLabelPosY, "TUTORIAL", GetColor(200, 120, 255), kLabelFontSize, edgeColor);
+	font.DrawCenteredText(centerX, kLabelPosY, "TUTORIAL", Color::kPurple, kLabelFontSize, Color::kBlack);
 
 	//全部終わったあとの案内//課題があるあいだは右上のTutorialTaskUIが出す
 	if (m_isFreePractice)
 	{
 		//ポーズからメニューを開けることを伝える
-		font.DrawCenteredText(centerX, kGuidePosY, "自由に練習しよう　ポーズでメニュー", GetColor(255, 255, 255), kGuideFontSize, edgeColor);
+		font.DrawCenteredText(centerX, kGuidePosY, "自由に練習しよう　ポーズでメニュー", Color::kWhite, kGuideFontSize, Color::kBlack);
 	}
 	else if (m_guide.IsFinished())
 	{
-		font.DrawCenteredText(centerX, kGuidePosY, "チュートリアル完了", GetColor(255, 255, 255), kGuideFontSize, edgeColor);
+		font.DrawCenteredText(centerX, kGuidePosY, "チュートリアル完了", Color::kWhite, kGuideFontSize, Color::kBlack);
 	}
 
 #ifdef _DEBUG

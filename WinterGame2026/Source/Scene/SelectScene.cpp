@@ -9,6 +9,7 @@
 #include "../Common/FontManager.h"
 #include "../Game.h"
 #include "PauseScene.h"
+#include "../Color.h"
 
 namespace
 {
@@ -140,14 +141,8 @@ void SelectScene::Draw()
 	auto& font = FontManager::Instance();
 	const int centerX = Game::kScreenWidth / 2;
 
-	//色
-	const unsigned int kSelectedColor = GetColor(200, 120, 255);
-	const unsigned int kNormalColor = GetColor(255, 255, 255);
-	const unsigned int kLockedColor = GetColor(120, 120, 120);
-	const unsigned int kEdgeColor = GetColor(0, 0, 0);
-
 	//見出し
-	font.DrawCenteredText(centerX, kHeaderPosY, "SELECT", kSelectedColor, kHeaderFontSize, kEdgeColor);
+	font.DrawCenteredText(centerX, kHeaderPosY, "SELECT", Color::kPurple, kHeaderFontSize, Color::kBlack);
 
 	//項目
 	for (int i = 0; i < kItemNum; i++)
@@ -157,13 +152,13 @@ void SelectScene::Draw()
 		const int y = kItemStartY + i * kItemSpacing;
 
 		//ロック中は選んでいても灰色のままにして、選べる項目と見分けられるようにする
-		unsigned int color = kNormalColor;
-		if (info.isLocked) color = kLockedColor;
-		else if (isSelected) color = kSelectedColor;
+		unsigned int color = Color::kWhite;
+		if (info.isLocked) color = Color::kDarkGray;
+		else if (isSelected) color = Color::kPurple;
 
 		if (!isSelected)
 		{
-			font.DrawCenteredText(centerX, y, info.label, color, kItemFontSize, kEdgeColor);
+			font.DrawCenteredText(centerX, y, info.label, color, kItemFontSize, Color::kBlack);
 			continue;
 		}
 
@@ -177,11 +172,11 @@ void SelectScene::Draw()
 		}
 
 		//選んでいる項目は大きくして左に矢印を付ける//矢印も一緒に揺らす
-		font.DrawCenteredExtendText(x, y, info.label, color, kItemFontSize, kEdgeColor, kSelectedScale);
+		font.DrawCenteredExtendText(x, y, info.label, color, kItemFontSize, Color::kBlack, kSelectedScale);
 		m_cursorUI.SetItemPos(x, y);
 		m_cursorUI.Draw();
 	}
 
 	//選んでいる項目の説明
-	font.DrawCenteredText(centerX, kDescPosY, kItems[m_cursor].description, kNormalColor, kDescFontSize, kEdgeColor);
+	font.DrawCenteredText(centerX, kDescPosY, kItems[m_cursor].description, Color::kWhite, kDescFontSize, Color::kBlack);
 }

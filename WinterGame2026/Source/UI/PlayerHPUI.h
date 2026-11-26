@@ -22,6 +22,8 @@ private:
 
 	//緑のゲージの画像ハンドル//HPGaugeに貸す
 	int m_gaugeHandle = -1;
+	//減った分を見せる赤いゲージの画像ハンドル//HPGaugeに貸す
+	int m_trailHandle = -1;
 	//後ろの枠の画像ハンドル
 	int m_gaugeBackHandle = -1;
 	//ゲージの両端の蓋の画像ハンドル

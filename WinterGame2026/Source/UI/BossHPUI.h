@@ -34,6 +34,8 @@ private:
 
 	//ゲージの画像ハンドル//雑魚のバーと同じ色にする
 	int m_gaugeHandle = -1;
+	//遅れゲージの赤い画像ハンドル//プレイヤーや雑魚と同じ画像
+	int m_trailHandle = -1;
 	//枠の画像ハンドル//雑魚のバーと同じ飾りの枠
 	int m_frameHandle = -1;
 };

@@ -5,6 +5,7 @@
 #include "../System/Input.h"
 #include "../Common/FontManager.h"
 #include "../Game.h"
+#include "../Color.h"
 
 namespace
 {
@@ -46,11 +47,11 @@ void TitleScene::Draw()
 	int centerX = Game::kScreenWidth / 2;
 
 	//タイトルロゴ
-	font.DrawCenteredText(centerX, kTitlePosY, "Kudonetta", GetColor(200, 120, 255), kTitleFontSize, GetColor(0, 0, 0));
+	font.DrawCenteredText(centerX, kTitlePosY, "Kudonetta", Color::kPurple, kTitleFontSize, Color::kBlack);
 
 	//案内文(周期の前半だけ表示して点滅させる)
 	if (m_frameCount % kBlinkInterval < kBlinkInterval / 2)
 	{
-		font.DrawCenteredText(centerX, kGuidePosY, "PRESS ENTER", GetColor(255, 255, 255), kGuideFontSize, GetColor(0, 0, 0));
+		font.DrawCenteredText(centerX, kGuidePosY, "PRESS ENTER", Color::kWhite, kGuideFontSize, Color::kBlack);
 	}
 }

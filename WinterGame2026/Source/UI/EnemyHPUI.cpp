@@ -33,6 +33,9 @@ namespace
 	//ゲージの画像は上下に黒い縁があるので、枠の黒い縁にぴったり重なる位置にする
 	constexpr float kGaugeTop = 279.0f;
 	constexpr float kGaugeHeight = 90.0f;
+	//ゲージを入れる場所の上端と高さ//減った分の赤は縁の内側だけに描く
+	constexpr float kInnerTop = 289.0f;
+	constexpr float kInnerHeight = 70.0f;
 	//枠の飾りの下の端
 	constexpr float kFrameBottom = 380.0f;
 
@@ -50,6 +53,7 @@ EnemyHPUI::EnemyHPUI(const GameManager& game)
 EnemyHPUI::~EnemyHPUI()
 {
 	DeleteGraph(m_gaugeHandle);
+	DeleteGraph(m_trailHandle);
 	DeleteGraph(m_frameHandle);
 }
 
@@ -57,6 +61,7 @@ void EnemyHPUI::Init()
 {
 	//画像のロード
 	m_gaugeHandle = LoadGraph("Data/Image/EnemyHP.png");
+	m_trailHandle = HPGauge::LoadTrailGraph();
 	m_frameHandle = LoadGraph("Data/Image/EnemyHPBer.png");
 }
 
@@ -98,6 +103,9 @@ void EnemyHPUI::Draw()
 		//ゲージ//枠の中のゲージを入れる場所に合わせる
 		const float gaugeLeft = baseX + (kInnerLeft - kInnerCenterX) * kScale;
 		const float gaugeTop = baseY + (kGaugeTop - kInnerCenterY) * kScale;
+		//減った分の赤を先に描いて、本当のゲージで上から隠す
+		const float innerTop = baseY + (kInnerTop - kInnerCenterY) * kScale;
+		bar.gauge.DrawTrail(gaugeLeft, innerTop, kInnerWidth * kScale, kInnerHeight * kScale, m_trailHandle, bar.alpha);
 		bar.gauge.Draw(gaugeLeft, gaugeTop, kInnerWidth * kScale, kGaugeHeight * kScale, m_gaugeHandle, bar.alpha);
 	}
 }

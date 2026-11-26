@@ -7,6 +7,7 @@
 #include "../Game/Camera.h"
 #include "Input.h"
 #include <iterator>
+#include "../Color.h"
 
 namespace
 {
@@ -153,22 +154,19 @@ void DebugTool::UpdateMenu()
 void DebugTool::DrawMenu() const
 {
 	constexpr int num = static_cast<int>(Show::Num);
-	const unsigned int white = GetColor(255, 255, 255);
-	const unsigned int yellow = GetColor(255, 255, 0);
-	const unsigned int gray = GetColor(128, 128, 128);
 
 	//見出し + 項目 + 操作説明の行数
 	const int height = kLineHeight * (num + 2) + kMenuPadding * 2;
 
 	//後ろを暗くして読みやすくする
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 180);
-	DrawBox(kMenuX, kMenuY, kMenuX + kMenuWidth, kMenuY + height, GetColor(0, 0, 0), true);
+	DrawBox(kMenuX, kMenuY, kMenuX + kMenuWidth, kMenuY + height, Color::kBlack, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-	DrawBox(kMenuX, kMenuY, kMenuX + kMenuWidth, kMenuY + height, white, false);
+	DrawBox(kMenuX, kMenuY, kMenuX + kMenuWidth, kMenuY + height, Color::kWhite, false);
 
 	const int x = kMenuX + kMenuPadding;
 	int y = kMenuY + kMenuPadding;
-	DrawString(x, y, "デバッグ表示 (TABで閉じる・ゲーム停止中)", white);
+	DrawString(x, y, "デバッグ表示 (TABで閉じる・ゲーム停止中)", Color::kWhite);
 	y += kLineHeight;
 
 	for (int i = 0; i < num; i++)
@@ -176,37 +174,35 @@ void DebugTool::DrawMenu() const
 		const bool isSelected = (i == m_menuCursor);
 		const bool isOn = m_isShow[i];
 		//選んでいる項目は黄色、オフの項目は灰色
-		const unsigned int color = isSelected ? yellow : (isOn ? white : gray);
+		const unsigned int color = isSelected ? Color::kYellow : (isOn ? Color::kWhite : Color::kGray);
 		DrawFormatString(x, y, color, "%s [%s] %s", isSelected ? ">" : " ", isOn ? "ON " : "OFF", kShowNames[i]);
 		y += kLineHeight;
 	}
 
-	DrawString(x, y, "↑↓:選択  Enter/←→:切り替え", gray);
+	DrawString(x, y, "↑↓:選択  Enter/←→:切り替え", Color::kGray);
 }
 
 void DebugTool::DrawInfoText(const std::vector<Target>& targets, const Camera& camera, int frameCount) const
 {
-	const unsigned int white = GetColor(255, 255, 255);
-	const unsigned int yellow = GetColor(255, 255, 0);
 	int y = 0;
 
-	DrawString(0, y, "TAB:Menu F1:Collision F2:Text F3:Grid F4:LockOn F9:Enemy F5:Reload F6:Pause F7:Step F8:Slow F11:CopySpawnPos K:KillEnemies", white);
+	DrawString(0, y, "TAB:Menu F1:Collision F2:Text F3:Grid F4:LockOn F9:Enemy F5:Reload F6:Pause F7:Step F8:Slow F11:CopySpawnPos K:KillEnemies", Color::kWhite);
 	y += kLineHeight;
 
 	//フレーム数と、一時停止やスローの状態
-	DrawFormatString(0, y, white, "FRAME:%d", frameCount);
-	if (m_isPaused) DrawString(120, y, "PAUSE", yellow);
-	if (m_isSlow) DrawFormatString(180, y, yellow, "SLOW x1/%d", kSlowInterval);
+	DrawFormatString(0, y, Color::kWhite, "FRAME:%d", frameCount);
+	if (m_isPaused) DrawString(120, y, "PAUSE", Color::kYellow);
+	if (m_isSlow) DrawFormatString(180, y, Color::kYellow, "SLOW x1/%d", kSlowInterval);
 	y += kLineHeight;
 
 	//キャラクターごとの情報
 	for (const auto& target : targets)
 	{
 		const Character& c = *target.character;
-		DrawFormatString(0, y, white, "%-7s %s", target.name.c_str(), c.GetDebugStateText().c_str());
+		DrawFormatString(0, y, Color::kWhite, "%-7s %s", target.name.c_str(), c.GetDebugStateText().c_str());
 		y += kLineHeight;
 		const Vector3& pos = c.GetPos();
-		DrawFormatString(0, y, white, "        HP:%d/%d%s  Pos:(%.0f, %.0f, %.0f)  Ground:%s",
+		DrawFormatString(0, y, Color::kWhite, "        HP:%d/%d%s  Pos:(%.0f, %.0f, %.0f)  Ground:%s",
 			c.GetHp(), c.GetMaxHp(), c.IsDead() ? " (Dead)" : "",
 			pos.x, pos.y, pos.z, c.IsGround() ? "Yes" : "No");
 		y += kLineHeight;
@@ -214,37 +210,37 @@ void DebugTool::DrawInfoText(const std::vector<Target>& targets, const Camera& c
 
 	//パッドのスティック(左は生の値と、デッドゾーン処理後にプレイヤーが使う値)
 	auto& input = Input::Instance();
-	DrawFormatString(0, y, white, "LStick  Raw:(%5d, %5d)  Input:(%.2f, %.2f)",
+	DrawFormatString(0, y, Color::kWhite, "LStick  Raw:(%5d, %5d)  Input:(%.2f, %.2f)",
 		m_leftStickX, m_leftStickY, input.GetStickLX(), input.GetStickLY());
 	y += kLineHeight;
-	DrawFormatString(0, y, white, "RStick  Raw:(%5d, %5d)  Value:(%.2f, %.2f)",
+	DrawFormatString(0, y, Color::kWhite, "RStick  Raw:(%5d, %5d)  Value:(%.2f, %.2f)",
 		m_rightStickX, m_rightStickY, input.GetStickRX(), input.GetStickRY());
 	y += kLineHeight;
 	//カメラ
-	DrawFormatString(0, y, white, "Camera  Yaw:%.3f  Pitch:%.3f", camera.GetYaw(), camera.GetPitch());
+	DrawFormatString(0, y, Color::kWhite, "Camera  Yaw:%.3f  Pitch:%.3f", camera.GetYaw(), camera.GetPitch());
 	y += kLineHeight;
 	//最後に使われた入力が何フレーム前に押されたか(黄色はバッファのおかげで出た入力)
 	const auto& used = input.GetDebugUsedInput();
 	if (used.age > 0)
 	{
-		DrawFormatString(0, y, yellow, "先行入力  %s：%dF前に押した入力を使用(バッファで成功)  [使ってから%dF経過]",
+		DrawFormatString(0, y, Color::kYellow, "先行入力  %s：%dF前に押した入力を使用(バッファで成功)  [使ってから%dF経過]",
 			GetButtonNameJp(used.name), used.age, input.GetNowFrame() - used.frame);
 	}
 	else if (used.age == 0)
 	{
-		DrawFormatString(0, y, white, "先行入力  %s：押したフレームにそのまま使用(バッファなしでも成功)  [使ってから%dF経過]",
+		DrawFormatString(0, y, Color::kWhite, "先行入力  %s：押したフレームにそのまま使用(バッファなしでも成功)  [使ってから%dF経過]",
 			GetButtonNameJp(used.name), input.GetNowFrame() - used.frame);
 	}
 	else
 	{
-		DrawString(0, y, "先行入力  まだ記録なし", white);
+		DrawString(0, y, "先行入力  まだ記録なし", Color::kWhite);
 	}
 	y += kLineHeight;
 
 	//読み直しの結果
 	if (m_messageFrame > 0)
 	{
-		DrawString(0, y, m_message.c_str(), yellow);
+		DrawString(0, y, m_message.c_str(), Color::kYellow);
 	}
 }
 

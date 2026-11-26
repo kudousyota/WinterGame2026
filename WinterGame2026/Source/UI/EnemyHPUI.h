@@ -48,6 +48,8 @@ private:
 	std::vector<Bar> m_bars;
 	//黄色のゲージの画像ハンドル//全員のHPGaugeに貸す
 	int m_gaugeHandle = -1;
+	//減った分を見せる赤いゲージの画像ハンドル//全員のHPGaugeに貸す
+	int m_trailHandle = -1;
 	//ゲージの後ろの枠の画像ハンドル
 	int m_frameHandle = -1;
 };

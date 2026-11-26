@@ -44,6 +44,7 @@ PlayerHPUI::PlayerHPUI(const Character& player)
 PlayerHPUI::~PlayerHPUI()
 {
 	DeleteGraph(m_gaugeHandle);
+	DeleteGraph(m_trailHandle);
 	DeleteGraph(m_gaugeBackHandle);
 	DeleteGraph(m_lidHandle);
 }
@@ -54,6 +55,7 @@ void PlayerHPUI::Init()
 	m_y = kBaseY;
 
 	m_gaugeHandle = LoadGraph("Data/Image/gauge_green.png");
+	m_trailHandle = HPGauge::LoadTrailGraph();
 	m_gaugeBackHandle = LoadGraph("Data/Image/HPberfrem.png");
 	m_lidHandle = LoadGraph("Data/Image/HPlid.png");
 }
@@ -74,8 +76,11 @@ void PlayerHPUI::Draw()
 	//位置のずらし量と画像の拡大率の両方に倍率を掛ける
 	DrawRotaGraphF(baseX + kBackOffsetX * kScale, baseY + kBackOffsetY * kScale, kBackScale * kScale, kAngle, m_gaugeBackHandle, true);
 
-	//ゲージ
-	m_gauge.Draw(baseX + kGaugeOffsetX * kScale, baseY + kGaugeOffsetY * kScale, kGaugeWidth * kScale, kGaugeHeight * kScale, m_gaugeHandle);
+	//ゲージ//減った分の赤を先に描いて、緑で上から隠す
+	const float gaugeX = baseX + kGaugeOffsetX * kScale;
+	const float gaugeY = baseY + kGaugeOffsetY * kScale;
+	m_gauge.DrawTrail(gaugeX, gaugeY, kGaugeWidth * kScale, kGaugeHeight * kScale, m_trailHandle);
+	m_gauge.Draw(gaugeX, gaugeY, kGaugeWidth * kScale, kGaugeHeight * kScale, m_gaugeHandle);
 
 	//左の蓋
 	const float lidY = baseY + kLidOffsetY * kScale;

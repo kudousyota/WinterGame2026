@@ -6,6 +6,7 @@
 #include "../Common/FontManager.h"
 #include "../Game.h"
 #include "../Math/MathUtil.h"
+#include "../Color.h"
 
 namespace
 {
@@ -52,10 +53,10 @@ namespace
 
 	//出てきたときにゲージが伸びきるまでのフレーム数
 	constexpr int kFillFrame = 60;
-	//出るとき、消えるときに濃さが変わる速さ(1フレームあたり)
+	//出るとき、消えるときに濃さが変わる速さ
 	constexpr float kAlphaSpeed = 0.08f;
 
-	//遅れゲージ//ダメージを受けてから減り始めるまでのフレーム数と、減る速さ(1フレームあたり)
+	//遅れゲージ//ダメージを受けてから減り始めるまでのフレーム数と、減る速さ
 	constexpr int kTrailWaitFrame = 40;
 	constexpr float kTrailSpeed = 0.006f;
 
@@ -74,6 +75,7 @@ BossHPUI::BossHPUI(const GameManager& game)
 BossHPUI::~BossHPUI()
 {
 	DeleteGraph(m_gaugeHandle);
+	DeleteGraph(m_trailHandle);
 	DeleteGraph(m_frameHandle);
 }
 
@@ -81,6 +83,7 @@ void BossHPUI::Init()
 {
 	m_isVisible = true;
 	m_gaugeHandle = LoadGraph("Data/Image/EnemyHP.png");
+	m_trailHandle = HPGauge::LoadTrailGraph();
 	m_frameHandle = LoadGraph("Data/Image/EnemyHPBer.png");
 }
 
@@ -115,7 +118,7 @@ void BossHPUI::Update(Input& input)
 
 	const float prevRate = m_gauge.GetRate();
 	m_gauge.Update(boss->GetHp(), boss->GetMaxHp());
-	//減ったらしばらく遅れゲージを止めて、どれだけ削れたか見せる
+	//減ったらしばらく遅れゲージを止めてどれだけ削れたか見せる
 	if (m_gauge.GetRate() < prevRate)
 	{
 		m_trailWaitFrame = kTrailWaitFrame;
@@ -151,10 +154,10 @@ void BossHPUI::Draw()
 
 	DrawFrame();
 
-	//遅れゲージ//溝の中に赤で描いて、本当のゲージより先の削れた分だけ見える
+	//遅れゲージ//溝の中に赤い画像で描いて、本当のゲージより先の削れた分だけ見える
 	if (m_trailRate > shownRate)
 	{
-		DrawBoxAA(kInnerLeft, kInnerTop, kInnerLeft + kInnerWidth * m_trailRate, kInnerTop + kInnerHeight, GetColor(220, 40, 40), true);
+		DrawExtendGraphF(kInnerLeft, kInnerTop, kInnerLeft + kInnerWidth * m_trailRate, kInnerTop + kInnerHeight, m_trailHandle, true);
 	}
 
 	//本当のゲージ//伸びている途中は短く描く
@@ -166,7 +169,7 @@ void BossHPUI::Draw()
 
 	//名前
 	FontManager::Instance().DrawLeftText(static_cast<int>(kInnerLeft), static_cast<int>(kInnerTop - kNameOffsetY),
-		kBossName, GetColor(255, 220, 80), kNameFontSize, GetColor(0, 0, 0));
+		kBossName, Color::kGold, kNameFontSize, Color::kBlack);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 

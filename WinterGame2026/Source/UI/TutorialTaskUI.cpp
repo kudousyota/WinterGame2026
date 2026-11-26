@@ -7,6 +7,7 @@
 #include "../Math/MathUtil.h"
 #include "../System/Timer.h"
 #include <algorithm>
+#include "../Color.h"
 
 namespace
 {
@@ -118,14 +119,6 @@ void TutorialTaskUI::Draw()
 	if (step == nullptr) return;
 
 	auto& font = FontManager::Instance();
-	//GetColorはDxLibの初期化後に呼ぶ必要があるので、ここで作る
-	const unsigned int stepColor = GetColor(200, 120, 255);
-	const unsigned int textColor = GetColor(255, 255, 255);
-	const unsigned int countColor = GetColor(200, 120, 255);
-	const unsigned int clearColor = GetColor(255, 220, 80);
-	const unsigned int edgeColor = GetColor(0, 0, 0);
-	const unsigned int hintColor = GetColor(170, 170, 170);
-
 	//文字の右端//ここから幅の分だけ左に置く
 	const int textRight = Game::kScreenWidth - kRightMargin;
 
@@ -136,15 +129,15 @@ void TutorialTaskUI::Draw()
 	const int stepBandLeft = hintLeft - kTextPaddingX;
 	const int stepBandHeight = kStepFontSize + kBandPaddingY * 2;
 	DrawBand(stepBandLeft, kStepPosY, stepBandHeight);
-	font.DrawLeftText(hintLeft, kStepPosY, kSkipHintText, hintColor, kStepFontSize, edgeColor);
-	font.DrawLeftText(stepLeft, kStepPosY, stepText, stepColor, kStepFontSize, edgeColor);
+	font.DrawLeftText(hintLeft, kStepPosY, kSkipHintText, Color::kLightGray, kStepFontSize, Color::kBlack);
+	font.DrawLeftText(stepLeft, kStepPosY, stepText, Color::kPurple, kStepFontSize, Color::kBlack);
 
 	//長押しのゲージ//押している間だけ、帯の下の辺に沿って左から伸ばす
 	if (m_skipRate > 0.0f)
 	{
 		const int gaugeBottom = kStepPosY - stepBandHeight / 2 + stepBandHeight;
 		const int gaugeRight = stepBandLeft + static_cast<int>((Game::kScreenWidth - stepBandLeft) * m_skipRate);
-		DrawBox(stepBandLeft, gaugeBottom - kSkipGaugeHeight, gaugeRight, gaugeBottom, stepColor, true);
+		DrawBox(stepBandLeft, gaugeBottom - kSkipGaugeHeight, gaugeRight, gaugeBottom, Color::kPurple, true);
 	}
 
 	//達成したことを少しのあいだ見せる
@@ -153,7 +146,7 @@ void TutorialTaskUI::Draw()
 		const std::string clearText = "OK!";
 		const int clearLeft = textRight - font.GetTextWidth(clearText, kTaskFontSize);
 		DrawBand(clearLeft - kTextPaddingX, kTaskPosY, kTaskFontSize + kBandPaddingY * 2);
-		font.DrawLeftText(clearLeft, kTaskPosY, clearText, clearColor, kTaskFontSize, edgeColor);
+		font.DrawLeftText(clearLeft, kTaskPosY, clearText, Color::kGold, kTaskFontSize, Color::kBlack);
 		return;
 	}
 
@@ -177,7 +170,7 @@ void TutorialTaskUI::Draw()
 		{
 			const int bandTop = static_cast<int>(kCenterPosY) - kCenterBandHeight / 2;
 			SetDrawBlendMode(DX_BLENDMODE_ALPHA, centerBandAlpha);
-			DrawBox(0, bandTop, Game::kScreenWidth, bandTop + kCenterBandHeight, edgeColor, true);
+			DrawBox(0, bandTop, Game::kScreenWidth, bandTop + kCenterBandHeight, Color::kBlack, true);
 			SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		}
 
@@ -188,13 +181,13 @@ void TutorialTaskUI::Draw()
 		const float x = MathUtil::Lerp(Game::kScreenWidth * 0.5f, endX, eased);
 		const float y = MathUtil::Lerp(kCenterPosY, endY, eased);
 		const float scale = MathUtil::Lerp(kCenterScale, 1.0f, eased);
-		font.DrawCenteredExtendText(static_cast<int>(x), static_cast<int>(y), taskText, textColor, kTaskFontSize, edgeColor, scale);
+		font.DrawCenteredExtendText(static_cast<int>(x), static_cast<int>(y), taskText, Color::kWhite, kTaskFontSize, Color::kBlack, scale);
 		return;
 	}
 
 	DrawBand(taskLeft - kTextPaddingX, kTaskPosY, kTaskFontSize + kBandPaddingY * 2);
-	font.DrawLeftText(taskLeft, kTaskPosY, taskText, textColor, kTaskFontSize, edgeColor);
-	font.DrawLeftText(textRight - countWidth, kTaskPosY, countText, countColor, kTaskFontSize, edgeColor);
+	font.DrawLeftText(taskLeft, kTaskPosY, taskText, Color::kWhite, kTaskFontSize, Color::kBlack);
+	font.DrawLeftText(textRight - countWidth, kTaskPosY, countText, Color::kPurple, kTaskFontSize, Color::kBlack);
 }
 
 void TutorialTaskUI::DrawWitchTimeMessage() const
@@ -209,11 +202,11 @@ void TutorialTaskUI::DrawWitchTimeMessage() const
 	//後ろの紫の画面でも読めるように横いっぱいの帯を敷く
 	const int bandTop = kWitchTimePosY - kWitchTimeBandHeight / 2;
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, kWitchTimeBandAlpha);
-	DrawBox(0, bandTop, Game::kScreenWidth, bandTop + kWitchTimeBandHeight, GetColor(0, 0, 0), true);
+	DrawBox(0, bandTop, Game::kScreenWidth, bandTop + kWitchTimeBandHeight, Color::kBlack, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	FontManager::Instance().DrawCenteredExtendText(Game::kScreenWidth / 2, kWitchTimePosY, kWitchTimeText,
-		GetColor(255, 220, 80), kWitchTimeFontSize, GetColor(0, 0, 0), scale);
+		Color::kGold, kWitchTimeFontSize, Color::kBlack, scale);
 }
 
 void TutorialTaskUI::DrawBand(int left, int centerY, int height) const
@@ -224,6 +217,6 @@ void TutorialTaskUI::DrawBand(int left, int centerY, int height) const
 	//後ろのゲーム画面が少し透けるようにする
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, kBandAlpha);
 	//左上、右上、右下、左下の順//左下だけ左へずらして斜めにする
-	DrawQuadrangle(left, top, Game::kScreenWidth, top, Game::kScreenWidth, bottom, left - kBandSlant, bottom, GetColor(0, 0, 0), true);
+	DrawQuadrangle(left, top, Game::kScreenWidth, top, Game::kScreenWidth, bottom, left - kBandSlant, bottom, Color::kBlack, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }

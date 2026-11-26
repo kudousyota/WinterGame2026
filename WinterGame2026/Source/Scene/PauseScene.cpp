@@ -7,6 +7,7 @@
 #include "../System/Input.h"
 #include "../Common/FontManager.h"
 #include "../Game.h"
+#include "../Color.h"
 
 namespace
 {
@@ -102,18 +103,13 @@ void PauseScene::Draw()
 	auto& font = FontManager::Instance();
 	const int centerX = Game::kScreenWidth / 2;
 
-	//GetColorはDxLibの初期化後に呼ぶ必要があるので、ここで作る
-	const unsigned int kSelectedColor = GetColor(200, 120, 255);
-	const unsigned int kNormalColor = GetColor(255, 255, 255);
-	const unsigned int kEdgeColor = GetColor(0, 0, 0);
-
 	//後ろのゲーム画面を暗くして文字を読みやすくする
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, kBackAlpha);
-	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, kEdgeColor, true);
+	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, Color::kBlack, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	//見出し
-	font.DrawCenteredText(centerX, kTitlePosY, m_title, kSelectedColor, kTitleFontSize, kEdgeColor);
+	font.DrawCenteredText(centerX, kTitlePosY, m_title, Color::kPurple, kTitleFontSize, Color::kBlack);
 
 	//項目
 	for (int i = 0; i < static_cast<int>(m_items.size()); i++)
@@ -122,12 +118,12 @@ void PauseScene::Draw()
 
 		if (i != m_cursor)
 		{
-			font.DrawCenteredText(centerX, y, m_items[i].name, kNormalColor, kItemFontSize, kEdgeColor);
+			font.DrawCenteredText(centerX, y, m_items[i].name, Color::kWhite, kItemFontSize, Color::kBlack);
 			continue;
 		}
 
 		//選んでいる項目は大きくして左に矢印を付ける//色だけに頼らない
-		font.DrawCenteredExtendText(centerX, y, m_items[i].name, kSelectedColor, kItemFontSize, kEdgeColor, kSelectedScale);
+		font.DrawCenteredExtendText(centerX, y, m_items[i].name, Color::kPurple, kItemFontSize, Color::kBlack, kSelectedScale);
 		m_cursorUI.SetItemPos(centerX, y);
 		m_cursorUI.Draw();
 	}

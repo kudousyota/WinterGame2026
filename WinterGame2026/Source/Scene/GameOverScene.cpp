@@ -5,6 +5,7 @@
 #include "../System/Input.h"
 #include "../Common/FontManager.h"
 #include "../Game.h"
+#include "../Color.h"
 
 namespace
 {
@@ -16,7 +17,7 @@ namespace
 	constexpr int kTitlePosY = 280;
 	//案内文の中心の高さ
 	constexpr int kGuidePosY = 500;
-	//案内文の点滅の周期(フレーム)
+	//案内文の点滅の周期
 	constexpr int kBlinkInterval = 60;
 }
 
@@ -46,11 +47,11 @@ void GameOverScene::Draw()
 	int centerX = Game::kScreenWidth / 2;
 
 	//見出し
-	font.DrawCenteredText(centerX, kTitlePosY, "GAME OVER", GetColor(220, 40, 40), kTitleFontSize, GetColor(0, 0, 0));
+	font.DrawCenteredText(centerX, kTitlePosY, "GAME OVER", Color::kRed, kTitleFontSize, Color::kBlack);
 
-	//案内文(周期の前半だけ表示して点滅させる)
+	//案内文
 	if (m_frameCount % kBlinkInterval < kBlinkInterval / 2)
 	{
-		font.DrawCenteredText(centerX, kGuidePosY, "PRESS ENTER TO TITLE", GetColor(255, 255, 255), kGuideFontSize, GetColor(0, 0, 0));
+		font.DrawCenteredText(centerX, kGuidePosY, "PRESS ENTER TO TITLE", Color::kWhite, kGuideFontSize, Color::kBlack);
 	}
 }

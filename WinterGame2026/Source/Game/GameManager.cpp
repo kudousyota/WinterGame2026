@@ -10,6 +10,7 @@
 #include "DxLib.h"
 #include <cassert>
 #include <algorithm>
+#include "../Color.h"
 
 namespace
 {
@@ -17,10 +18,7 @@ namespace
 	//ウィッチタイム中に背景へ重ねる色の濃さ//背景だけ少し沈めて、キャラクターを浮き立たせる
 	//画面全体の色はシェーダーで暗い藍色と紫に変える
 	constexpr int kWitchTimeOverlayAlpha = 120;
-	//ウィッチタイム中に背景へ重ねる色(黒に近い紫)
-	constexpr int kWitchTimeOverlayR = 28;
-	constexpr int kWitchTimeOverlayG = 0;
-	constexpr int kWitchTimeOverlayB = 52;
+	//ウィッチタイム中に背景へ重ねる色はColor::kWitchTimeOverlay(黒に近い紫)
 	//入ってから一番濃くなるまでのフレーム数//どこから色が変わるかは波紋が決めるので短くする
 	constexpr float kWitchOverlayFadeInFrame = 6.0f;
 	//終わってから元に戻るまでのフレーム数
@@ -99,7 +97,6 @@ void GameManager::Init(Stage::Type stageType, int maxGateNum)
 bool GameManager::Update()
 {
 	//タイマーの更新
-	//一時停止中やスロー中に進めると先行入力やヒットストップの時間がずれるからゲームが進むときだけ更新する
 	Timer::Instance().Update();
 
 	//ヒットストップ中はキャラクターを止めてカメラシェイクと歪みの揺らぎだけ動かす
@@ -398,7 +395,7 @@ void GameManager::Draw()
 	if (overlayAlpha > 0)
 	{
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, overlayAlpha);
-		DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(kWitchTimeOverlayR, kWitchTimeOverlayG, kWitchTimeOverlayB), true);
+		DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, Color::kWitchTimeOverlay, true);
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
 

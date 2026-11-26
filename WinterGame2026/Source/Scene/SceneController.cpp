@@ -2,6 +2,7 @@
 #include "Scene.h"
 #include "DxLib.h"
 #include "../Game.h"
+#include "../Color.h"
 
 namespace
 {
@@ -38,7 +39,7 @@ void SceneController::Update()
 	switch (m_fadeState)
 	{
 	case FadeState::Out:
-		//真っ暗になったら、見えていないうちにシーンを入れ替えて明るくしていく
+		//真っ暗になったら見えていないうちにシーンを入れ替えて明るくしていく
 		m_fadeFrame++;
 		if (m_fadeFrame >= kFadeFrame)
 		{
@@ -85,7 +86,7 @@ void SceneController::Update()
 
 void SceneController::Draw()
 {
-	//下に積まれているシーンも描画する(ポーズ画面の後ろにゲーム画面を出すため)
+	//下に積まれているシーンも描画する
 	for (auto& scene : m_scenes)
 	{
 		scene->Draw();
@@ -97,7 +98,7 @@ void SceneController::Draw()
 		//0.0(重ねない)〜1.0(真っ暗)
 		float rate = static_cast<float>(m_fadeFrame) / static_cast<float>(kFadeFrame);
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, static_cast<int>(255 * rate));
-		DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(0, 0, 0), true);
+		DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, Color::kBlack, true);
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
 }

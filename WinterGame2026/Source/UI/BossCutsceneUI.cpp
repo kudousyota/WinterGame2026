@@ -5,6 +5,7 @@
 #include "../Common/FontManager.h"
 #include "../Game.h"
 #include "../Math/MathUtil.h"
+#include "../Color.h"
 
 namespace
 {
@@ -150,10 +151,9 @@ void BossCutsceneUI::DrawLetterbox() const
 	const int height = static_cast<int>(kLetterboxHeight * MathUtil::EaseOutCubic(m_letterboxRate));
 	if (height <= 0) return;
 
-	const unsigned int black = GetColor(0, 0, 0);
 	//上から下へ、下から上へ伸びてくる
-	DrawBox(0, 0, Game::kScreenWidth, height, black, true);
-	DrawBox(0, Game::kScreenHeight - height, Game::kScreenWidth, Game::kScreenHeight, black, true);
+	DrawBox(0, 0, Game::kScreenWidth, height, Color::kBlack, true);
+	DrawBox(0, Game::kScreenHeight - height, Game::kScreenWidth, Game::kScreenHeight, Color::kBlack, true);
 }
 
 void BossCutsceneUI::DrawBossName() const
@@ -162,13 +162,12 @@ void BossCutsceneUI::DrawBossName() const
 
 	auto& font = FontManager::Instance();
 	const int centerX = Game::kScreenWidth / 2;
-	const unsigned int edgeColor = GetColor(0, 0, 0);
 
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, ToAlpha(m_nameRate));
 	//肩書き//紫で小さく
-	font.DrawCenteredText(centerX, kNamePosY - kTitleOffsetY, kBossTitle, GetColor(200, 120, 255), kTitleFontSize, edgeColor);
+	font.DrawCenteredText(centerX, kNamePosY - kTitleOffsetY, kBossTitle, Color::kPurple, kTitleFontSize, Color::kBlack);
 	//名前//金色で大きく
-	font.DrawCenteredText(centerX, kNamePosY, kBossName, GetColor(255, 220, 80), kNameFontSize, edgeColor);
+	font.DrawCenteredText(centerX, kNamePosY, kBossName, Color::kGold, kNameFontSize, Color::kBlack);
 
 	//名前の下の線//真ん中から左右へ伸ばす
 	const float growRate = (std::min)(static_cast<float>((std::max)(m_nameFrame, 0)) / kNameLineGrowFrame, 1.0f);
@@ -176,7 +175,7 @@ void BossCutsceneUI::DrawBossName() const
 	if (halfWidth > 0)
 	{
 		const int lineTop = kNamePosY + kNameLineOffsetY;
-		DrawBox(centerX - halfWidth, lineTop, centerX + halfWidth, lineTop + kNameLineHeight, GetColor(200, 120, 255), true);
+		DrawBox(centerX - halfWidth, lineTop, centerX + halfWidth, lineTop + kNameLineHeight, Color::kPurple, true);
 	}
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
@@ -188,7 +187,7 @@ void BossCutsceneUI::DrawFlash() const
 	//一瞬真っ白に近くして、だんだん透明にする
 	const float rate = 1.0f - static_cast<float>(m_flashFrame) / kFlashFrame;
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, static_cast<int>(kFlashAlpha * rate));
-	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(255, 255, 255), true);
+	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, Color::kWhite, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
@@ -204,10 +203,10 @@ void BossCutsceneUI::DrawDefeated() const
 	//後ろに帯を敷いて、背景が明るくても読めるようにする
 	const int bandTop = kDefeatedPosY - kDefeatedBandHeight / 2;
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, static_cast<int>(kDefeatedBandAlpha * eased));
-	DrawBox(0, bandTop, Game::kScreenWidth, bandTop + kDefeatedBandHeight, GetColor(0, 0, 0), true);
+	DrawBox(0, bandTop, Game::kScreenWidth, bandTop + kDefeatedBandHeight, Color::kBlack, true);
 
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, ToAlpha(eased));
 	FontManager::Instance().DrawCenteredExtendText(Game::kScreenWidth / 2, kDefeatedPosY, kDefeatedText,
-		GetColor(255, 220, 80), kDefeatedFontSize, GetColor(0, 0, 0), scale);
+		Color::kGold, kDefeatedFontSize, Color::kBlack, scale);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }

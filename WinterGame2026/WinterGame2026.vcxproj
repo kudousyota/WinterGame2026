@@ -282,6 +282,7 @@
     <ClInclude Include="Source\DataLoader\DataManager.h" />
     <ClInclude Include="Source\Game\Character\Character.h" />
     <ClInclude Include="Source\Game.h" />
+    <ClInclude Include="Source\Color.h" />
     <ClInclude Include="Source\System\Input.h" />
     <ClInclude Include="Source\Math\Vector3.h" />
     <ClInclude Include="Source\Game\Character\Player\Player.h" />

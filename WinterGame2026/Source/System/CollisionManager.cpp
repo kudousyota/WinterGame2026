@@ -6,6 +6,7 @@
 #include "../DataLoader/AttackData.h"
 #include "Geometry.h"
 #include "../Game/Gate.h"
+#include "../Color.h"
 
 //フレームの最初に呼ぶ
 void CollisionManager::BeginFrame(const std::vector<Character*>& characters)
@@ -185,12 +186,12 @@ void CollisionManager::DrawDebugBody(const std::vector<Character*>& characters)c
 	{
 		//当たり判定
 		Geometry::Capsule capsule = character->GetCollisionCapsule();
-		DrawCapsule3D(capsule.start, capsule.end, capsule.radius, 8, GetColor(255, 255, 0), GetColor(255, 255, 0), false);
+		DrawCapsule3D(capsule.start, capsule.end, capsule.radius, 8, Color::kYellow, Color::kYellow, false);
 		//ジャスト回避判定
 		Geometry::Capsule justDodge = character->GetJustDodgeCapsule();
 		if (justDodge.radius > 0.0f)
 		{
-			DrawCapsule3D(justDodge.start, justDodge.end, justDodge.radius, 8, GetColor(0, 255, 255), GetColor(0, 255, 255), false);
+			DrawCapsule3D(justDodge.start, justDodge.end, justDodge.radius, 8, Color::kCyan, Color::kCyan, false);
 		}
 	}
 }
@@ -200,7 +201,7 @@ void CollisionManager::DrawDebugAttack()const
 {
 	for (auto& shape : m_debugAttackShapes)
 	{
-		DrawCapsule3D(shape.start, shape.end, shape.radius, 8, GetColor(0, 255, 0), GetColor(0, 255, 0), false);
+		DrawCapsule3D(shape.start, shape.end, shape.radius, 8, Color::kGreen, Color::kGreen, false);
 	}
 }
 
