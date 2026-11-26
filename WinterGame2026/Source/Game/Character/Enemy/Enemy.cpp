@@ -5,6 +5,7 @@
 #include "State/EnemyStateKnockdown.h"
 #include "State/EnemyStateAttack.h"
 #include "State/EnemyStateRetreat.h"
+#include "State/EnemyStateRoar.h"
 #include <cfloat>
 #include "DxLib.h"
 #include "EnemyManager.h"
@@ -56,13 +57,50 @@ void Enemy::Draw()
 
 void Enemy::StartAppear()
 {
+	//見えていない間に殴られたり動いたりしないようにする
+	//BeginWaitはもう止まっていれば何もしないので、演出の状態を変える前に呼ぶ
+	BeginWait();
 	m_appearFrame = 0.0f;
 	m_opacity = 0.0f;
-	//見えていない間に殴られたり動いたりしないようにする
+}
+
+void Enemy::SetHold(bool isHold)
+{
+	if (m_isHeld == isHold) return;
+
+	if (isHold)
+	{
+		BeginWait();
+		m_isHeld = true;
+	}
+	else
+	{
+		m_isHeld = false;
+		//出てくる演出がまだ途中なら、そちらが終わったときに動き出す
+		EndWaitIfDone();
+	}
+}
+
+void Enemy::Roar()
+{
+	if (m_isDead || m_roarAnimName.empty()) return;
+	ChangeState(std::make_unique<EnemyStateRoar>(*this));
+}
+
+void Enemy::BeginWait()
+{
+	if (IsWaiting()) return;
 	//狙う相手がいないと待機のまま動かない
-	SetInvincible(true);
-	m_appearTarget = m_pTarget;
+	m_waitTarget = m_pTarget;
 	m_pTarget = nullptr;
+	SetInvincible(true);
+}
+
+void Enemy::EndWaitIfDone()
+{
+	if (IsWaiting()) return;
+	m_pTarget = m_waitTarget;
+	SetInvincible(false);
 }
 
 void Enemy::UpdateAppear()
@@ -80,8 +118,8 @@ void Enemy::UpdateAppear()
 	{
 		m_appearFrame = -1.0f;
 		m_opacity = 1.0f;
-		SetInvincible(false);
-		m_pTarget = m_appearTarget;
+		//演出のために止めている途中なら、止めるのが終わるまで待つ
+		EndWaitIfDone();
 	}
 }
 
@@ -103,6 +141,9 @@ HitResult Enemy::OnHit(const AttackData& attackData, int damage)
 		//倒れている間と起き上がり中はダメージだけ受ける(追い打ちはできる)
 		if (kind == StateBase::StateKind::Down || kind == StateBase::StateKind::GetUp || kind == StateBase::StateKind::Stun) return HitResult::DamageOnly;
 	}
+
+	//のけぞらせない攻撃(魔法弾など)はダメージだけ受ける
+	if (!attackData.CanFlinch()) return HitResult::DamageOnly;
 
 	//叩き落とせる攻撃は、浮いている敵を地面に落とす
 	if (attackData.CanKnockdown() && !m_knockdownAnimName.empty())

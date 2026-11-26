@@ -59,7 +59,7 @@ void LockOnManager::Release()
 void LockOnManager::Update(const Vector3& playerPos, const Vector3& baseDir, const std::vector<std::shared_ptr<Character>>& enemies)
 {
 	//押したらロックオンを開始する
-	if (Input::Instance().IsTriggered("target"))
+	if (m_isInputEnabled && Input::Instance().IsTriggered("target"))
 	{
 		//誰か狙っていたら外す
 		if (m_target.lock())
@@ -83,6 +83,7 @@ void LockOnManager::Update(const Vector3& playerPos, const Vector3& baseDir, con
 
 	//ロックオン中だけ、右スティック(またはEキーとQキー)で対象を切り替える
 	if (!m_target.lock())return;
+	if (!m_isInputEnabled) return;
 	auto& input = Input::Instance();
 	if (input.IsTriggered("targetRight"))
 	{

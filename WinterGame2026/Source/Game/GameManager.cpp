@@ -110,6 +110,9 @@ bool GameManager::Update()
 		return false;
 	}
 
+	//ボスの演出を進める//ショットの切り替えをこのフレームのカメラに間に合わせるので先に進める
+	m_bossCutscene.Update(*this);
+
 	//キャラクターの更新から攻撃判定とカメラまで
 	UpdateWorld();
 
@@ -141,6 +144,8 @@ void GameManager::UpdateWorld()
 
 	//プレイヤーが攻撃の向きに使うからプレイヤーより先にロックオンを更新する
 	auto enemies = GetEnemies();
+	//演出で操作を止めている間はロックオンのボタンも効かなくする
+	m_lockOn.SetInputEnabled(!m_pPlayer->IsInputLocked());
 	m_lockOn.Update(m_pPlayer->GetPos(), m_pCamera->GetForward(), enemies);
 	m_pPlayer->SetAttackTarget(m_lockOn.GetAttackTarget(m_pPlayer->GetPos(), m_pPlayer->GetMoveInput(), m_pPlayer->GetForward(), enemies));
 	m_pPlayer->Update();
@@ -204,14 +209,46 @@ void GameManager::UpdateWorld()
 		m_battleEvents.push_back(event);
 	}
 
+	//とどめが入ったフレームのうちに撃破の演出を始める
+	//次のフレームまで待つと、とどめのヒットストップが終わってからもう一度止まってしまう
+	m_bossCutscene.CheckDefeat(*this);
+
 	UpdateCamera();
 }
 
 void GameManager::UpdateCamera()
 {
+	//演出中は普段のカメラを動かさず、演出用のカメラのポーズを映す
+	//揺れはCameraのApplyで足すので、演出中も揺れる
+	if (m_eventCamera.IsActive())
+	{
+		m_eventCamera.Update();
+		m_pCamera->Apply(m_eventCamera.GetPose());
+		return;
+	}
+
 	//ウィッチタイム中はカメラを引く
 	m_pCamera->SetPull(Timer::Instance().IsEnemySlow());
 	m_pCamera->Update(m_pPlayer->GetCameraTarget(), m_pPlayer->GetForward(), m_lockOn.GetTargetPos(), m_lockOn.GetTargetHeight().value_or(0.0f));
+}
+
+void GameManager::StartEventCamera(const EventShot& shot)
+{
+	//普段のカメラが今映しているところから寄せ始める
+	m_eventCamera.Start(m_pCamera->GetPose(), shot);
+}
+
+void GameManager::SetEventShot(const EventShot& shot)
+{
+	m_eventCamera.SetShot(shot);
+}
+
+void GameManager::EndEventCamera()
+{
+	if (!m_eventCamera.IsActive()) return;
+	//最後に映していたところから普段のカメラを作り直す
+	m_pCamera->SyncFromPose(m_eventCamera.GetPose());
+	m_eventCamera.End();
 }
 
 void GameManager::UpdateDistortion()
@@ -330,6 +367,12 @@ void GameManager::SpawnEnemy(const std::string& name, const Vector3& groundPos)
 
 	//当たり判定には次のフレームのBeginFrameから入る
 	m_enemyManager.Add(enemy);
+
+	//ボスなら登場の演出を流す//光の柱から出てくるところから映す
+	if (enemy->IsBoss())
+	{
+		m_bossCutscene.StartIntro(*this, enemy);
+	}
 }
 
 void GameManager::UpdateGate(bool shouldClose, const std::vector<SpawnTable::GateInfo>& gates)

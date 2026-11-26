@@ -65,6 +65,10 @@ public:
 	//当たった敵を攻撃した相手の目の前に引き寄せて一緒に運ぶか
 	void SetCarry(bool isCarry) { m_isCarry = isCarry; }
 	bool IsCarry()const { return m_isCarry; }
+
+	//当たった相手をのけぞらせるか(falseならダメージだけ与える。魔法弾など)
+	void SetCanFlinch(bool canFlinch) { m_canFlinch = canFlinch; }
+	bool CanFlinch()const { return m_canFlinch; }
 private:
 	CharacterType m_attacker = CharacterType::Player;
 	AttackType m_attackType = AttackType::Punch;
@@ -73,6 +77,7 @@ private:
 	float m_knockback = 0.0f;
 	bool m_canKnockdown = false;
 	bool m_isCarry = false;
+	bool m_canFlinch = true;
 
 };
 

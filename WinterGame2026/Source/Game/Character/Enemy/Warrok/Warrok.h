@@ -12,6 +12,11 @@ public:
 	void LateUpdate()override;
 	void Draw()override;
 
+	//出てきたときに登場演出を流す
+	bool IsBoss()const override { return true; }
+	//頭の骨の位置//叫ぶときは前のめりになって頭が低く前に出るので、骨で追う
+	Vector3 GetFacePos()const override;
+
 	float GetDamageRate(const Vector3& start, const Vector3& end, float radius)const override;
 
 	//近ければ殴る。離れていても、ジャンプ攻撃か突進が使えるならそれで攻撃する
@@ -61,6 +66,8 @@ private:
 	int m_weakPointEffectHandle = -1;
 	//弱点の基準にする背中のボーン(見つからなければ-1)
 	int m_weakPointFrame = -1;
+	//頭のボーン(見つからなければ-1)
+	int m_headFrame = -1;
 	//ボーンから見た弱点の中心
 	Vector3 m_weakPointLocalPos = Vector3(0.0f,0.0f,0.0f);
 	//弱点の中心

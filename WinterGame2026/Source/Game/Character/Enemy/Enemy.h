@@ -49,6 +49,8 @@ public:
 	const std::string& GetChargeRunAnimName()const { return m_chargeRunAnimName.empty() ? m_moveAnimName : m_chargeRunAnimName; }
 	//壁に激突してふらつくアニメーション
 	const std::string& GetStunAnimName()const { return m_stunAnimName; }
+	//叫ぶアニメーション(空なら叫ばない)
+	const std::string& GetRoarAnimName()const { return m_roarAnimName; }
 	//吹っ飛びのアニメーションで、宙に浮いて後ろへ飛んでいる区間の終わり(アニメーション全体に対する割合)
 	float GetKnockdownFlyEndRate()const { return m_knockdownFlyEndRate; }
 	//吹っ飛びのアニメーションで、地面に倒れきった割合(ここでアニメーションを止める)
@@ -63,6 +65,19 @@ public:
 	void StartAppear();
 	//出てくる演出を進める//EnemyManagerが毎フレーム各敵のUpdateの前に呼ぶ
 	void UpdateAppear();
+	//光の柱から出てくる途中か
+	bool IsAppearing()const { return m_appearFrame >= 0.0f; }
+	//ボスか//ボスは出てきたときに登場演出を流す
+	virtual bool IsBoss()const { return false; }
+	//顔の位置//演出のカメラが見る//アニメーションで姿勢が変わっても顔を追えるよう、骨がある敵は上書きする
+	virtual Vector3 GetFacePos()const { return Vector3(m_pos.x, m_pos.y + m_height * 0.85f, m_pos.z); }
+	//演出のために止めておく//止めている間は狙う相手を外して動かず、攻撃も受けない
+	//出てくる演出と重なっても、両方が終わるまで止まったままにする
+	void SetHold(bool isHold);
+	//その場で叫ぶ//叫び終わったら待機に戻る//叫ぶアニメーションがない敵と倒れた敵は何もしない
+	void Roar();
+	//叫んでいる途中か
+	bool IsRoaring()const { return GetStateKind() == StateBase::StateKind::Roar; }
 	//死亡演出が終わって消えたことにする
 	void Vanish() { m_isVanished = true; }
 	//消えたか(消えた敵は更新も描画もしない)
@@ -122,6 +137,14 @@ public:
 	virtual void DrawDebugWeakPoint()const {}
 #endif
 
+private:
+	//出てくる演出か、演出のために止めている途中か
+	bool IsWaiting()const { return m_appearFrame >= 0.0f || m_isHeld; }
+	//止め始める//狙う相手を預かって無敵にする//もう止まっていれば何もしない
+	void BeginWait();
+	//出てくる演出も止めるのも終わっていたら、預かった相手を戻して動き出す
+	void EndWaitIfDone();
+
 protected:
 	//HPが0以下になったら死亡ステートにする(派生クラスのUpdateの最初に呼ぶ)
 	void CheckDeath();
@@ -157,6 +180,8 @@ protected:
 	std::string m_chargeRunAnimName;
 	//壁に激突してふらつくアニメーション
 	std::string m_stunAnimName;
+	//叫ぶアニメーション(空なら叫ばない)
+	std::string m_roarAnimName;
 	//吹っ飛びのアニメーションのタイミング(初期値はAlienのFlyingBackで全92フレーム、27フレーム目で着地)
 	float m_knockdownFlyEndRate = 0.29f;
 	float m_knockdownLieDownRate = 0.9f;
@@ -165,8 +190,10 @@ protected:
 	float m_opacity = 1.0f;
 	//出てくる演出を始めてからのフレーム数//演出中でないときは-1
 	float m_appearFrame = -1.0f;
-	//出てくる演出のあいだ預かっておく狙う相手//演出が終わったらm_pTargetに戻す
-	const Character* m_appearTarget = nullptr;
+	//出てくる演出や止めている間に預かっておく狙う相手//両方終わったらm_pTargetに戻す
+	const Character* m_waitTarget = nullptr;
+	//演出のために止めているか
+	bool m_isHeld = false;
 	//死亡演出が終わって消えたか
 	bool m_isVanished = false;
 	//浮いている高さ

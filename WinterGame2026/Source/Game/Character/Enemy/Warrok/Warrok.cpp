@@ -17,6 +17,8 @@ namespace
 	const char* const kStunAnimName = "Warrok|Stun";
 	//死亡のアニメーション
 	const char* const kDeathAnimName = "Warrok|FlyingBackDeath";
+	//登場演出で叫ぶアニメーション(突進の溜めと同じもの)
+	const char* const kRoarAnimName = "Warrok|Scream";
 	//被弾、叩き落とし、起き上がりのアニメーションはまだ無いので空のまま
 
 	//地上の敵なので浮かない
@@ -56,6 +58,8 @@ namespace
 	//弱点の位置
 	//背中の上のほう(肩甲骨の間)のボーンを基準にする
 	const char* const kWeakPointFrameName = "mixamorig:Spine2";
+	//頭のボーン//演出のカメラが顔を追うのに使う
+	const char* const kHeadFrameName = "mixamorig:Head";
 	//ボーンから背中の表面までの距離(Blenderで測ると約30cm)
 	constexpr float kWeakPointBackOffset = 30.0f * kModelScale;
 	//ボーンが見つからなかったときの位置
@@ -135,12 +139,15 @@ void Warrok::Init()
 	m_chargeRunAnimName = kChargeRunAnimName;
 	m_stunAnimName = kStunAnimName;
 	m_deathAnimName = kDeathAnimName;
+	m_roarAnimName = kRoarAnimName;
 	m_hoverHeight = kHoverHeight;
 	//攻撃の種類
 	m_attackType = AttackType::WarrokPunch;
 
 	//弱点の基準のボーンを探して、最初の位置を決めておく
 	m_weakPointFrame = MV1SearchFrame(m_modelHandle, kWeakPointFrameName);
+	//演出のカメラが見る頭のボーン
+	m_headFrame = MV1SearchFrame(m_modelHandle, kHeadFrameName);
 	MV1SetRotationXYZ(m_modelHandle, VGet(0.0f, m_angle, 0.0f));
 	if (m_weakPointFrame != -1)
 	{
@@ -315,6 +322,14 @@ AttackType Warrok::SelectMeleeAttack()
 	m_sameAttackCount = (next == m_lastMeleeAttack) ? m_sameAttackCount + 1 : 1;
 	m_lastMeleeAttack = next;
 	return next;
+}
+
+Vector3 Warrok::GetFacePos() const
+{
+	//骨が見つからなければ身長から決める
+	if (m_headFrame == -1) return Enemy::GetFacePos();
+	//モデルの位置とアニメーションはLateUpdateで反映済みなので、今の姿勢の頭の位置が取れる
+	return MV1GetFramePosition(m_modelHandle, m_headFrame);
 }
 
 Vector3 Warrok::GetModelForward() const

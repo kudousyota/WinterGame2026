@@ -60,6 +60,8 @@ void Player::Init()
 	MV1SetPosition(m_modelHandle, m_pos);
 	//向きもすぐ反映する
 	MV1SetRotationXYZ(m_modelHandle, VGet(0.0f, m_angle, 0.0f));
+	//マントの骨を探して、揺れを最初の状態にする
+	m_cape.Init(m_modelHandle, m_pos);
 
 	//やり直したときに前のウィケッドウィーブが残らないようにする
 	m_wickedWeaves.clear();
@@ -88,6 +90,17 @@ void Player::Update()
 	{
 		m_canAirHover = true;
 		m_canDoubleJump = true;
+	}
+
+	//操作を止めている間は、ステートが見る前にボタンの先行入力を捨てる
+	//捨てずに残すと、演出を飛ばしたボタンや演出中に押したボタンで、戻った瞬間に技が出てしまう
+	if (m_isInputLocked)
+	{
+		auto& input = Input::Instance();
+		for (const char* name : { "Jump", "Dodge", "Punch", "Kick" })
+		{
+			input.ConsumeBuffer(name);
+		}
 	}
 
 	//ステートの更新
@@ -170,6 +183,26 @@ void Player::LateUpdate()
 	//当たり判定で押し出された後の位置をモデルに反映する
 	MV1SetRotationXYZ(m_modelHandle, VGet(0.0f, m_angle, 0.0f));
 	MV1SetPosition(m_modelHandle, m_pos);
+	//ステートに合わせてマントのなびき方を変える
+	switch (GetStateKind())
+	{
+	case StateBase::StateKind::Walk:
+	case StateBase::StateKind::Dodge:
+		m_cape.SetMode(PlayerCape::Mode::Move);
+		break;
+	case StateBase::StateKind::Jump:
+		m_cape.SetMode(PlayerCape::Mode::Air);
+		break;
+	case StateBase::StateKind::Idle:
+		m_cape.SetMode(PlayerCape::Mode::Idle);
+		break;
+	default:
+		//攻撃やのけぞりは、空中にいるかどうかで決める
+		m_cape.SetMode(IsGround() ? PlayerCape::Mode::Idle : PlayerCape::Mode::Air);
+		break;
+	}
+	//押し出された後の位置で動いた量を見て、モデルの向きを反映した後に骨を曲げる
+	m_cape.Update(m_pos, m_forward, Timer::Instance().GetTimeScale());
 }
 
 void Player::Draw()
@@ -220,6 +253,9 @@ void Player::FaceTo(const Vector3& dir)
 
 Vector3 Player::GetMoveInput()const
 {
+	//操作を止めている間は動かない
+	if (m_isInputLocked) return Vector3(0.0f, 0.0f, 0.0f);
+
 	auto& input = Input::Instance();
 
 	//左スティックの入力

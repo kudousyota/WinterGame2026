@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <optional>
 #include "../Math/Vector3.h"
+#include "CameraPose.h"
 
 //プレイヤーの後ろから追いかけるカメラ
 class Camera
@@ -18,6 +19,16 @@ public:
 	void SetPull(bool isPull) { m_isPull = isPull; }
 	//カメラを揺らす
 	void Shake(float power, int frame);
+
+	//今のポーズ(揺れは入っていない)
+	CameraPose GetPose() const { return CameraPose{ m_pos, m_focus }; }
+	//ポーズに揺れを足してDxLibに反映しライトの向きを合わせる
+	//演出用のカメラのポーズもここを通すので、演出中も揺れる
+	void Apply(const CameraPose& pose);
+	//演出用のカメラから普段のカメラへ戻すときに呼ぶ
+	//そのポーズから角度・距離・注視点を作り直すので、戻した瞬間に画面が飛ばない
+	//縦の角度は制限(kMinPitch～kMaxPitch)の中に収まるので、外れるショットの後は少し動く
+	void SyncFromPose(const CameraPose& pose);
 
 	//水平の正面と右
 	Vector3 GetForward() const;
@@ -46,8 +57,8 @@ private:
 	float CalcFitDistance(const Vector3& pos, const Vector3& dir) const;
 	//ステージに当たらずに離れられる距離(当たらなければidealDistのまま)
 	float CalcStageDistance(const Vector3& dir, float idealDist) const;
-	//揺れを足してDxLibに反映しライトの向きを合わせる
-	void Apply();
+	//注視点を追いかける
+	void UpdateFocus(const Vector3& focusGoal);
 	//今フレームの揺れの量を求める
 	Vector3 CalcShakeOffset() const;
 
@@ -65,6 +76,9 @@ private:
 	int m_noInputFrame = 0;
 	//カメラリセットで背中側へ戻している途中か
 	bool m_isRecentering = false;
+	//演出用のカメラから戻した後、注視点を目標まで戻している途中か
+	//この間は縦の遅れの上限を使わない(上限で一気に詰めるとカメラが飛ぶため)
+	bool m_isFocusReturning = false;
 
 	//補間した注視点
 	Vector3 m_focus = Vector3(0.0f, 0.0f, 0.0f);

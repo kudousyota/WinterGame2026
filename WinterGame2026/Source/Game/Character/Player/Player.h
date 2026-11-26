@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "../Character.h"
+#include "PlayerCape.h"
 class WickedWeave;
 class Player : public Character
 {
@@ -64,6 +65,12 @@ public:
 
 	//今はやられない状態か
 	void SetUndying(bool undying) { m_isUndying = undying; }
+
+	//演出のために操作を止める
+	//止めている間は移動の入力が0になり、ボタンの先行入力は毎フレーム捨てる
+	//今の動き(攻撃やジャンプ)は最後まで続き、終わったら待機になる
+	void SetInputLock(bool isLock) { m_isInputLocked = isLock; }
+	bool IsInputLocked()const { return m_isInputLocked; }
 private:
 	//PlayerParam.csvの値のうちメンバーに持つものを入れる
 	void ApplyParam();
@@ -82,10 +89,14 @@ private:
 	bool m_canDoubleJump = false;
 	//やられない
 	bool m_isUndying = false;
+	//演出のために操作を止めているか
+	bool m_isInputLocked = false;
 	//所有せずシーンから向く相手を指定してもらう
 	//敵が消えても触らないようにweak_ptrで持つ
 	std::weak_ptr<const Character> m_attackTarget;
 	//出ているウィケッドウィーブ//複数同時に出せる
 	std::vector<std::unique_ptr<WickedWeave>> m_wickedWeaves;
+	//動きに合わせてマントをなびかせる
+	PlayerCape m_cape;
 };
 

@@ -4,6 +4,8 @@
 #include <vector>
 #include "Character/Player/Player.h"
 #include "Camera.h"
+#include "EventCamera.h"
+#include "BossCutscene.h"
 #include "Stage.h"
 #include "Gate.h"
 #include "Character/Enemy/EnemyManager.h"
@@ -45,6 +47,27 @@ public:
 	//チュートリアルでステップが変わったときに使う
 	void ClearEnemies();
 
+	//演出用のカメラを始める//今のカメラの位置からショットへ寄せる
+	//演出中は普段のカメラを動かさないので、右スティックでは回らない
+	void StartEventCamera(const EventShot& shot);
+	//演出の途中で次のショットへ切り替える
+	void SetEventShot(const EventShot& shot);
+	//演出用のカメラを終えて普段のカメラへ戻す
+	void EndEventCamera();
+	//演出用のカメラを使っているか
+	bool IsEventCameraActive()const { return m_eventCamera.IsActive(); }
+	//今のショットにほぼ着いたか
+	bool IsEventShotArrived()const { return m_eventCamera.IsArrived(); }
+	//普段のカメラのポーズ//演出中は動かさないので、演出が始まる前のポーズのまま
+	CameraPose GetGameplayCameraPose()const { return m_pCamera->GetPose(); }
+	//画面を揺らす//演出中も揺れる
+	void ShakeCamera(float power, int frame) { m_pCamera->Shake(power, frame); }
+
+	//ボスの登場や撃破の演出中か//シーンは演出が終わるまで勝ち負けの切り替えを待つ
+	bool IsBossCutscenePlaying()const { return m_bossCutscene.IsPlaying(); }
+	//UI用//演出がどこまで進んだか
+	const BossCutscene& GetBossCutscene()const { return m_bossCutscene; }
+
 	//戦闘中だけゲートを閉じる
 	void UpdateGate(bool shouldClose, const std::vector<SpawnTable::GateInfo>& gates);
 
@@ -75,6 +98,7 @@ private:
 	//キャラクターの更新から攻撃判定とカメラまで進める
 	void UpdateWorld();
 	//カメラだけ進める//ヒットストップ中もシェイクは動かす
+	//演出用のカメラを使っている間は、そちらのポーズを映す
 	void UpdateCamera();
 	//ジャスト回避の輪とウィッチタイムの揺らぎを進めてシェーダーに渡す値を決める
 	//中心はプレイヤーの画面上の位置なのでカメラを動かした後に呼ぶ
@@ -91,6 +115,10 @@ private:
 	std::shared_ptr<Stage> m_pStage;
 	std::shared_ptr<Player> m_pPlayer;
 	std::shared_ptr<Camera> m_pCamera;
+	//演出用のカメラ
+	EventCamera m_eventCamera;
+	//ボスの登場と撃破の演出
+	BossCutscene m_bossCutscene;
 
 	//キャラクター同士の当たり判定
 	CollisionManager m_collision;

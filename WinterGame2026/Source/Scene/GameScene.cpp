@@ -14,6 +14,7 @@
 #include "../UI/WitchTimeNeedleUI.h"
 #include "../UI/PlayerHPUI.h"
 #include "../UI/EnemyHPUI.h"
+#include "../UI/BossCutsceneUI.h"
 
 namespace
 {
@@ -56,6 +57,8 @@ void GameScene::Init()
 	m_uiManager.Add(std::make_unique<PlayerHPUI>(m_game.GetPlayer()));
 	//敵のHPバー//敵は後から出てくるのでUIの中で敵の一覧を毎フレーム見る
 	m_uiManager.Add(std::make_unique<EnemyHPUI>(m_game));
+	//ボスの演出の黒帯や文字//ほかのUIの上に重ねるので最後に足す
+	m_uiManager.Add(std::make_unique<BossCutsceneUI>(m_game));
 	m_uiManager.Init();
 }
 
@@ -154,6 +157,8 @@ void GameScene::CheckGameEnd()
 	bool isClear = m_spawner.IsAllWavesFinished() && m_game.AreAllEnemiesVanished();
 	//まだ勝ち負けが決まっていない
 	if (!isGameOver && !isClear) return;
+	//ボスの撃破の演出を最後まで見せてから切り替える
+	if (m_game.IsBossCutscenePlaying()) return;
 
 	//倒れる様子を少し見せてから切り替える
 	m_gameEndFrame++;

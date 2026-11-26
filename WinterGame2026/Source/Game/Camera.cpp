@@ -103,7 +103,7 @@ void Camera::Init(const Vector3& focusPos, const Vector3& forward)
 	m_curDistance = kDistance;
 	m_pos = m_focus - CalcDir() * m_curDistance;
 
-	Apply();
+	Apply(GetPose());
 }
 
 void Camera::Update(const Vector3& focusPos, const Vector3& PlayerForward, const std::optional<Vector3>& lockOnPos, float lockOnHeight)
@@ -141,22 +141,7 @@ void Camera::Update(const Vector3& focusPos, const Vector3& PlayerForward, const
 		shift.y = (lockOnPos->y - focusPos.y) * kBigEnemyFocusUpRate * CalcBigRate(lockOnHeight);
 		focusGoal += shift;
 	}
-	m_focus.x += (focusGoal.x - m_focus.x) * kFocusFollow;
-	m_focus.y += (focusGoal.y - m_focus.y) * kFocusFollowY;
-	m_focus.z += (focusGoal.z - m_focus.z) * kFocusFollow;
-
-	//離れすぎたら上限の位置まで戻す
-	float lagY = m_focus.y - focusGoal.y;
-	//上に離れすぎたら
-	if (lagY > kFocusMaxLagY)
-	{
-		m_focus.y = focusGoal.y + kFocusMaxLagY;
-	}
-	//下に離れすぎたら
-	else if (lagY < -kFocusMaxLagY)
-	{
-		m_focus.y = focusGoal.y - kFocusMaxLagY;
-	}
+	UpdateFocus(focusGoal);
 
 	Vector3 dir = CalcDir();
 
@@ -183,7 +168,72 @@ void Camera::Update(const Vector3& focusPos, const Vector3& PlayerForward, const
 	}
 	m_pos = m_focus - dir * m_curDistance;
 
-	Apply();
+	Apply(GetPose());
+}
+
+void Camera::UpdateFocus(const Vector3& focusGoal)
+{
+	m_focus.x += (focusGoal.x - m_focus.x) * kFocusFollow;
+	m_focus.z += (focusGoal.z - m_focus.z) * kFocusFollow;
+
+	//演出から戻した直後は、注視点がボスの顔などプレイヤーから遠い高さにある
+	//上限で一気に詰めるとカメラが飛ぶので、横と同じ速さで戻す
+	if (m_isFocusReturning)
+	{
+		m_focus.y += (focusGoal.y - m_focus.y) * kFocusFollow;
+		//上限の内側まで戻れば、普段の追いかけ方に切り替えても飛ばない
+		if (fabsf(m_focus.y - focusGoal.y) <= kFocusMaxLagY)
+		{
+			m_isFocusReturning = false;
+		}
+		return;
+	}
+
+	//ジャンプでカメラが揺れないように縦はゆっくり追いかける
+	m_focus.y += (focusGoal.y - m_focus.y) * kFocusFollowY;
+
+	//離れすぎたら上限の位置まで戻す
+	float lagY = m_focus.y - focusGoal.y;
+	//上に離れすぎたら
+	if (lagY > kFocusMaxLagY)
+	{
+		m_focus.y = focusGoal.y + kFocusMaxLagY;
+	}
+	//下に離れすぎたら
+	else if (lagY < -kFocusMaxLagY)
+	{
+		m_focus.y = focusGoal.y - kFocusMaxLagY;
+	}
+}
+
+void Camera::SyncFromPose(const CameraPose& pose)
+{
+	//カメラから見る点への向きと距離
+	Vector3 toTarget = pose.target - pose.pos;
+	float dist = toTarget.Magnitude();
+	//同じ位置だと向きが決まらないので、角度はそのままにする
+	if (dist <= 0.0f) return;
+	Vector3 dir = toTarget / dist;
+
+	//CalcDirの式を逆にたどって角度を出す
+	//dir.yはsin(pitch)、dir.xとdir.zの比がyawの向き
+	m_yaw = atan2f(dir.x, dir.z);
+	m_pitch = asinf(std::clamp(dir.y, -1.0f, 1.0f));
+	ClampAngle();
+
+	//見ていた点を注視点にして、そこから普段の追いかけ方で戻していく
+	m_focus = pose.target;
+	m_isFocusReturning = true;
+
+	//今の距離から始めて、普段の距離へはkFitSpeedとkReturnSpeedで戻る
+	m_curDistance = dist;
+	m_baseDistance = (std::max)(dist - m_pullOffset, 0.0f);
+	//縦の角度が制限で変わったときもあるので、角度から位置を出し直す
+	m_pos = m_focus - CalcDir() * m_curDistance;
+
+	//演出の前に途中だった操作は引き継がない
+	m_isRecentering = false;
+	m_noInputFrame = 0;
 }
 
 void Camera::UpdateFreeAngle()
@@ -327,16 +377,16 @@ float Camera::CalcStageDistance(const Vector3& dir, float idealDist) const
 	return (hitPos - m_focus).Magnitude() - kStageMargin;
 }
 
-void Camera::Apply()
+void Camera::Apply(const CameraPose& pose)
 {
-	//揺れは見た目だけなので、m_posには足さない
+	//揺れは見た目だけなので、ポーズには足さない
 	Vector3 shakeOffset = CalcShakeOffset();
 	if (m_shakeFrame > 0)
 	{
 		m_shakeFrame--;
 	}
-	Vector3 pos = m_pos + shakeOffset;
-	Vector3 target = m_focus + shakeOffset;
+	Vector3 pos = pose.pos + shakeOffset;
+	Vector3 target = pose.target + shakeOffset;
 
 	SetCameraPositionAndTarget_UpVecY(pos.ToDxLibVector(), target.ToDxLibVector());
 

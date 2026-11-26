@@ -21,6 +21,7 @@ public:
 		Retreat,//離れる
 		Observe,//様子見
 		Stun,//壁に激突してふらつく
+		Roar,//その場で叫ぶ(ボスの登場演出)
 	};
 
 	virtual ~StateBase() = default;
@@ -53,6 +54,7 @@ public:
 		case StateKind::Retreat:	return "Retreat";
 		case StateKind::Observe:	return "Observe";
 		case StateKind::Stun:	return "Stun";
+		case StateKind::Roar:	return "Roar";
 		default:				return "null";
 		}
 	}

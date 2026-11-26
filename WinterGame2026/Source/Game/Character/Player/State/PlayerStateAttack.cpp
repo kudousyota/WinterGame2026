@@ -241,7 +241,8 @@ void PlayerStateAttack::Update()
 	}
 
 	//攻撃判定が終わってもボタンを押し続けていたら弾を出す
-	bool isHold = m_frame >= m_info.hitEndFrame && input.IsPressed(m_buttonName) && !m_reservedNext;
+	//操作を止めている間は押し続けても弾を出さない
+	bool isHold = m_frame >= m_info.hitEndFrame && !m_player.IsInputLocked() && input.IsPressed(m_buttonName) && !m_reservedNext;
 	m_player.SetAnimPause(isHold);
 	if (isHold)
 	{
@@ -258,6 +259,8 @@ void PlayerStateAttack::Update()
 			//弾を出す
 			m_shotTimer = Param().shotInterval;
 			ShotRequest request{AttackData(CharacterType::Player, m_info.type, Param().bulletDamage, Param().bulletRadius)};
+			//弾では敵をのけぞらせない
+			request.data.SetCanFlinch(false);
 			request.speed = Param().bulletSpeed;
 			request.forwardOffset = Param().hitForwardOffset;
 			request.height = Param().hitHeight;

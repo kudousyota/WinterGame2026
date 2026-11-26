@@ -11,6 +11,9 @@ public:
 	void Update(const Vector3& playerPos, const Vector3& baseDir, const std::vector<std::shared_ptr<Character>>& enemies);
 	//ロックオンを終了する
 	void Release();
+	//ボタンでロックオンしたり対象を切り替えたりできるか//演出中は止める
+	//止めている間も、狙っている敵が死んだときの切り替えや距離のチェックは続ける
+	void SetInputEnabled(bool isEnabled) { m_isInputEnabled = isEnabled; }
 	//マーカーを狙っている敵の位置に合わせる
 	void LateUpdate();
 
@@ -53,5 +56,7 @@ private:
 	std::weak_ptr<Character> m_target;
 	//ロックオンのマーカーのエフェクト(出していなければ-1)
 	int m_markerHandle = -1;
+	//ボタンを受け付けるか
+	bool m_isInputEnabled = true;
 };
 
