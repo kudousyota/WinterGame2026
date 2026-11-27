@@ -15,7 +15,8 @@ public:
 	Stage();
 	~Stage();
 
-	void Init(Type type);
+	//isUseCollision：当たり判定を作るか//タイトルのように見るだけならfalse
+	void Init(Type type, bool isUseCollision = true);
 	void Draw();
 
 	//当たり判定に使うモデルのハンドル

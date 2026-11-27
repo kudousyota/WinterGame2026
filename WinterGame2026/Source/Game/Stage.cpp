@@ -58,7 +58,7 @@ Stage::~Stage()
 	if (m_bgHandle != -1) MV1DeleteModel(m_bgHandle);
 }
 
-void Stage::Init(Type type)
+void Stage::Init(Type type, bool isUseCollision)
 {
 	const StageFiles files = GetStageFiles(type);
 
@@ -75,8 +75,12 @@ void Stage::Init(Type type)
 	}
 
 	//当たり判定の情報は、当たり判定用のモデルにだけ作る
-	m_collHandle = MV1LoadModel(files.collModelPath);
-	MV1SetupCollInfo(m_collHandle, -1, files.collDivX, files.collDivY, files.collDivZ);
+	//見るだけのときは読み込まない//遠景は下で読むのでreturnで抜けない
+	if (isUseCollision)
+	{
+		m_collHandle = MV1LoadModel(files.collModelPath);
+		MV1SetupCollInfo(m_collHandle, -1, files.collDivX, files.collDivY, files.collDivZ);
+	}
 
 	//遠景は見た目だけなので当たり判定は作らない
 	if (files.bgModelPath == nullptr) return;
